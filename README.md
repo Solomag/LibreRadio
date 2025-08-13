@@ -1,6 +1,10 @@
-# Open Radio #
+This is a fork of the now deleted [ChernyshovYuriy/OpenRadio](https://github.com/ChernyshovYuriy/OpenRadio) repo found on [archive.softwareheritage.org](https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/ChernyshovYuriy/OpenRadio).
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I2I1LGFPH)
+It appears to have been sold to "[Battery Stats Saver](https://play.google.com/store/apps/dev?id=9013187063917541329)" who now charge **€15 per week** for it here: [Open Radio - Online FM Radio](https://play.google.com/store/apps/details?id=com.yuriy.openradio).
+
+---
+
+# Open Radio #
 
 ### What is this ? ###
 
