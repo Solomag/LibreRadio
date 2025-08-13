@@ -1,0 +1,114 @@
+plugins {
+    id("com.google.devtools.ksp")
+}
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "com.google.gms.google-services"
+apply from: "../constants.gradle"
+
+android {
+    namespace = project.ext.namespace
+    compileSdk project.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion project.ext.minSdkVersion
+        targetSdkVersion project.ext.targetSdkVersion
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            manifestPlaceholders.firebaseCrashlyticsCollectionEnabled = false
+        }
+
+        release {
+            manifestPlaceholders.firebaseCrashlyticsCollectionEnabled = true
+        }
+    }
+    compileOptions {
+        sourceCompatibility project.ext.javaVersion
+        targetCompatibility project.ext.javaVersion
+    }
+
+    kotlinOptions {
+        jvmTarget = project.ext.kotlinJvmTarget
+    }
+
+    packagingOptions {
+        resources {
+            excludes += [
+                    'META-INF/DEPENDENCIES.txt',
+                    'META-INF/DEPENDENCIES'
+            ]
+        }
+        exclude "org/apache/http/version.properties"
+        exclude "org/apache/http/client/version.properties"
+    }
+
+    configurations {
+        configureEach {
+            exclude group: "commons-logging", module: "commons-logging"
+            exclude group: "org.apache.httpcomponents"
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    api "com.android.support:multidex:$multidexVersion"
+    api "com.google.android.material:material:$materialVersion"
+    implementation "androidx.media:media:$androidxMediaVersion"
+    implementation group: "androidx.exifinterface", name: "exifinterface", version: "$exifinterfaceVersion"
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
+    implementation "androidx.work:work-runtime-ktx:$workVersion"
+    implementation "androidx.core:core-ktx:$kotlinCoreKtx"
+    implementation "androidx.activity:activity-ktx:$kotlinActivityKtx"
+    // Import the Firebase BoM (see: https://firebase.google.com/docs/android/learn-more#bom)
+    api platform("com.google.firebase:firebase-bom:$firebaseBom")
+    api ("com.google.firebase:firebase-auth-ktx") {
+        exclude module: "play-services-ads-identifier"
+        exclude module: "play-services-measurement"
+        exclude module: "play-services-measurement-sdk"
+    }
+    api ("com.google.firebase:firebase-firestore-ktx") {
+        exclude module: "play-services-ads-identifier"
+        exclude module: "play-services-measurement"
+        exclude module: "play-services-measurement-sdk"
+    }
+    api ("com.google.firebase:firebase-analytics-ktx") {
+        exclude module: "play-services-ads-identifier"
+        exclude module: "play-services-measurement"
+        exclude module: "play-services-measurement-sdk"
+    }
+    api ("com.google.firebase:firebase-crashlytics-ktx") {
+        exclude module: "play-services-ads-identifier"
+        exclude module: "play-services-measurement"
+        exclude module: "play-services-measurement-sdk"
+    }
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesAndroid"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesCore"
+    api "androidx.media3:media3-exoplayer:$media3Version"
+    implementation "androidx.media3:media3-datasource:$media3Version"
+    implementation "androidx.media3:media3-exoplayer-hls:$media3Version"
+    implementation "androidx.media3:media3-exoplayer-dash:$media3Version"
+    api "androidx.media3:media3-cast:$media3Version"
+    implementation "androidx.media3:media3-session:$media3Version"
+    implementation "com.google.android.gms:play-services-location:$googlePlayServicesLocationVersion"
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    implementation "com.squareup.okhttp3:okhttp:$okhttp3Version"
+    // https://mvnrepository.com/artifact/org.jdom/jdom2
+    implementation group: "org.jdom", name: "jdom2", version: "$jdom2Version"
+    // https://mvnrepository.com/artifact/com.google.http-client/google-http-client-apache-v2
+    implementation group: 'com.google.http-client', name: 'google-http-client-apache-v2', version: '1.43.3'
+
+    // https://mvnrepository.com/artifact/junit/junit
+    testImplementation group: "junit", name: "junit", version: "$junitVersion"
+    testImplementation group: "org.json", name: "json", version: "$jsonTestVersion"
+}

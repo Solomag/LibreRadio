@@ -1,0 +1,32 @@
+buildscript {
+
+    apply from: "constants.gradle"
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$gradleVersion"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:$firebaseCrashlyticsGradle"
+        classpath "com.google.gms:google-services:$googleServices"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+plugins {
+    id("com.google.devtools.ksp") version "1.9.0-1.0.13" apply false
+}
+
+allprojects {
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+}
