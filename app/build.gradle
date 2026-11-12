@@ -1,7 +1,5 @@
 apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
-apply plugin: "com.google.firebase.crashlytics"
-apply plugin: "com.google.gms.google-services"
 apply from: "../constants.gradle"
 apply from: "../sign.gradle"
 
@@ -32,19 +30,21 @@ android {
 
     signingConfigs {
         config {
-            keyAlias aliasProp
-            keyPassword pwdProp
-            storeFile file(project.ext.storeFileProp)
-            storePassword pwdProp
+            if (project.ext.hasSignConfig) {
+                keyAlias aliasProp
+                keyPassword pwdProp
+                storeFile file(project.ext.storeFileProp)
+                storePassword pwdProp
+            }
         }
     }
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.config
+            if (project.ext.hasSignConfig) signingConfig signingConfigs.config
         }
         release {
-            signingConfig signingConfigs.config
+            if (project.ext.hasSignConfig) signingConfig signingConfigs.config
         }
     }
 

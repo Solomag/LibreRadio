@@ -38,8 +38,7 @@ class MediaItemRootCar(private val mSource: Source) : MediaItemCommand {
         if (favorites.isNotEmpty()) {
             dependencies.addMediaItem(MediaItemBuilder.buildFavoritesMenuItem(context))
         }
-        // Show Featured.
-        dependencies.addMediaItem(MediaItemBuilder.buildFeaturedMenuItem(context))
+        // Featured list was hosted on the original author's Firebase project; no longer available.
         if (mSource == Source.RADIO_BROWSER) {
             // Recently added Radio Stations.
             dependencies.addMediaItem(MediaItemBuilder.buildNewStationsMenuItem(context))

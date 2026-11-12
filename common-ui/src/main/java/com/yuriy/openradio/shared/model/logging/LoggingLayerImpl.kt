@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import com.yuriy.openradio.shared.R
 import com.yuriy.openradio.shared.utils.AppUtils
 import jakarta.activation.DataHandler
 import jakarta.activation.FileDataSource
@@ -55,8 +54,17 @@ class LoggingLayerImpl(private val mContext: Context) : LoggingLayer {
     private var mPwd = AppUtils.EMPTY_STRING
 
     init {
-        mUser = mContext.resources.openRawResource(R.raw.email_usr).bufferedReader().use { it.readText() }
-        mPwd = mContext.resources.openRawResource(R.raw.email_pwd).bufferedReader().use { it.readText() }
+        // SMTP credentials are optional and not part of the repository (see .gitignore).
+        mUser = readOptionalRaw("email_usr")
+        mPwd = readOptionalRaw("email_pwd")
+    }
+
+    private fun readOptionalRaw(name: String): String {
+        val id = mContext.resources.getIdentifier(name, "raw", mContext.packageName)
+        if (id == 0) {
+            return AppUtils.EMPTY_STRING
+        }
+        return mContext.resources.openRawResource(id).bufferedReader().use { it.readText() }
     }
 
     override fun collectAdbLogs(onSuccess: (file: File) -> Unit, onError: (msg: String) -> Unit) {
@@ -97,6 +105,10 @@ class LoggingLayerImpl(private val mContext: Context) : LoggingLayer {
     }
 
     override fun sendLogsViaEmail(zipFile: File, onSuccess: () -> Unit, onError: (msg: String) -> Unit) {
+        if (mUser.isEmpty() || mPwd.isEmpty()) {
+            onError("Sending logs by email is not configured in this build")
+            return
+        }
         try {
             Transport.send(createEmailMessage(zipFile))
             onSuccess()

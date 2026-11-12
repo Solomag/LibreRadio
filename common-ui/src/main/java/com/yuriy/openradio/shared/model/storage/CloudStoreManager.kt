@@ -17,40 +17,19 @@
 package com.yuriy.openradio.shared.model.storage
 
 import android.app.Activity
-import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
-import com.yuriy.openradio.shared.dependencies.StorageManagerDependency
-import com.yuriy.openradio.shared.utils.AppLogger
 
-class CloudStoreManager : StorageManagerDependency {
+/**
+ * Cloud storage used the original author's Firebase project, which was shut down in January 2024.
+ * This is a no-op replacement that keeps the existing UI code compiling: no user is ever signed in
+ * and every remote operation fails. Use file export / import of Favorites instead.
+ */
+class CloudStoreManager {
 
-    private val mAuth = Firebase.auth
-    private val mDb = Firebase.firestore
-    private lateinit var mStorageManagerLayer: StorageManagerLayer
+    fun isUserExist(): Boolean = false
 
-    init {
-        DependencyRegistryCommonUi.injectStorageManagerLayer(this)
-    }
+    fun getUserEmail(): String = "no email found"
 
-    override fun configureWith(storageManagerLayer: StorageManagerLayer) {
-        mStorageManagerLayer = storageManagerLayer
-    }
-
-    fun isUserExist(): Boolean {
-        return getUser() != null
-    }
-
-    fun getUserEmail(): String {
-        return getUser()?.email ?: "no email found"
-    }
-
-    fun signOut() {
-        mAuth.signOut()
-    }
+    fun signOut() {}
 
     fun deleteAccount(
         onSuccess: () -> Unit,
@@ -58,25 +37,7 @@ class CloudStoreManager : StorageManagerDependency {
         onInternalError: () -> Unit,
         onRecentLoginRequired: () -> Unit
     ) {
-        getUser()?.let { user ->
-            user.delete()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        onSuccess()
-                    } else {
-                        onFailure()
-                    }
-                }
-                .addOnFailureListener {
-                    if (it is FirebaseAuthRecentLoginRequiredException) {
-                        onRecentLoginRequired()
-                    } else {
-                        onFailure()
-                    }
-                }
-        } ?: {
-            onInternalError()
-        }
+        onFailure()
     }
 
     fun sendPasswordReset(
@@ -84,29 +45,14 @@ class CloudStoreManager : StorageManagerDependency {
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     ) {
-        if (email.isEmpty()) {
-            onFailure()
-            return
-        }
-        mAuth.sendPasswordResetEmail(email)
-            .addOnSuccessListener {
-                onSuccess()
-            }
-            .addOnFailureListener {
-                onFailure()
-            }
+        onFailure()
     }
 
     fun getToken(
         onSuccess: (token: String) -> Unit,
         onFailure: (msg: String) -> Unit
     ) {
-        val user = getUser()
-        if (user == null) {
-            onFailure("User invalid")
-            return
-        }
-        onSuccess(user.uid)
+        onFailure(UNAVAILABLE)
     }
 
     fun signIn(
@@ -116,24 +62,7 @@ class CloudStoreManager : StorageManagerDependency {
         onSuccess: (token: String) -> Unit,
         onFailure: (msg: String) -> Unit
     ) {
-        if (email.isEmpty()) {
-            return onFailure("Email can not be empty")
-        }
-        if (password.isEmpty()) {
-            return onFailure("Password can not be empty")
-        }
-        mAuth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(activity) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    AppLogger.d("$TAG signInWithEmail:success")
-                    getToken(onSuccess, onFailure)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    AppLogger.e("$TAG signInWithEmail:failure", task.exception)
-                    onFailure("Task not successful")
-                }
-            }
+        onFailure(UNAVAILABLE)
     }
 
     fun download(
@@ -141,48 +70,10 @@ class CloudStoreManager : StorageManagerDependency {
         onSuccess: () -> Unit,
         onFailure: () -> Unit
     ) {
-        // Retrieve user data from Firestore
-        val userRef = mDb.collection(COLLECTION_USERS).document(token)
-        userRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val user = documentSnapshot.toObject(UserData::class.java)
-                    if (user != null) {
-                        // Use the user data
-                        onSuccess()
-                        mStorageManagerLayer.mergeFavorites(user.favorites)
-                        mStorageManagerLayer.mergeDeviceLocals(user.locals)
-                    }
-                } else {
-                    // User not found
-                    AppLogger.e("$TAG download user not found")
-                    onFailure()
-                }
-            }
-            .addOnFailureListener { e ->
-                AppLogger.e("$TAG download", e)
-                onFailure()
-            }
-    }
-
-    /**
-     * Empty constructor is needed for deserialization by Firestone SDK.
-     */
-    @Suppress("unused")
-    private data class UserData(
-        val favorites: String,
-        val locals: String
-    ) {
-        constructor() : this("", "")
-    }
-
-    private fun getUser(): FirebaseUser? {
-        return mAuth.currentUser
+        onFailure()
     }
 
     companion object {
-
-        private const val TAG = "FSM"
-        private const val COLLECTION_USERS = "users"
+        private const val UNAVAILABLE = "Cloud storage is no longer available. Use file export / import."
     }
 }

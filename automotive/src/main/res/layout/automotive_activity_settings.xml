@@ -342,13 +342,15 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="15dp"
                 android:text="@string/cloud_storage"
+                android:visibility="gone"
                 android:textSize="18sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <ImageButton
                     android:id="@+id/automotive_cloud_storage_download_btn"

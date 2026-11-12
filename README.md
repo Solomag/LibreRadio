@@ -1,6 +1,24 @@
-This is a fork of the now deleted [ChernyshovYuriy/OpenRadio](https://github.com/ChernyshovYuriy/OpenRadio) repo found on [archive.softwareheritage.org](https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/ChernyshovYuriy/OpenRadio).
+This is a community continuation of **Open Radio** by Yurii Chernyshov, licensed under Apache 2.0.
+The original repository (`ChernyshovYuriy/OpenRadio`) was deleted in 2024 after the Google Play listing
+passed to a different publisher, which added ads and paid purchases. This fork starts from the last
+author's commit (January 28, 2024), recovered via [Software Heritage](https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/ChernyshovYuriy/OpenRadio)
+and [jukofyork/OpenRadio](https://github.com/jukofyork/OpenRadio).
 
-It appears to have been sold to "[Battery Stats Saver](https://play.google.com/store/apps/dev?id=9013187063917541329)" who now charge **€15 per week** for it here: [Open Radio - Online FM Radio](https://play.google.com/store/apps/details?id=com.yuriy.openradio).
+Goal: a free, ad-free, tracker-free internet radio player.
+
+### Changes in this fork ###
+
+* Removed Firebase entirely: Analytics, Crashlytics, Auth and Firestore. No data is sent to Google by the app itself.
+* Removed the "Featured" list and Cloud Storage, which depended on the original author's Firebase project (shut down).
+  Use **File Storage** (export / import of Favorites) instead.
+* Sending logs by email is disabled unless SMTP credentials are supplied at build time.
+* Builds without `sign.properties` (debug key for debug builds, unsigned release).
+
+### Build ###
+
+```
+./gradlew :app:assembleDebug
+```
 
 ---
 

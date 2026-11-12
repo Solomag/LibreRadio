@@ -42,7 +42,8 @@
         <item
             android:id="@+id/nav_cloud_storage"
             android:icon="@drawable/ic_cloud_black_24dp"
-            android:title="@string/main_menu_cloud_storage"/>
+            android:title="@string/main_menu_cloud_storage"
+            android:visible="false"/>
         <item
             android:id="@+id/nav_file_storage"
             android:icon="@drawable/ic_file_storage"

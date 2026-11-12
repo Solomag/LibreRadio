@@ -18,8 +18,11 @@ if (signConfFile.canRead()) {
     project.ext.storeFileProp = signProps["file"].toString()
     aliasProp = signProps["alias"].toString()
     pwdProp = signProps["pwd"].toString()
+    project.ext.hasSignConfig = true
 } else {
-    throw new GradleException("Could not read sign.properties. File exists: ${signConfFile.exists()}")
+    // No sign.properties: debug builds use the default debug key, release builds stay unsigned.
+    println "sign.properties not found, using default signing"
+    project.ext.hasSignConfig = false
 }
 
 tasks.configureEach { task ->
