@@ -92,7 +92,7 @@ class AboutDialog : BaseDialogFragment() {
         /**
          * Project's url (Libre Radio, a fork of Open Radio).
          */
-        private const val PROJECT_HOME_URL = "https://github.com/Solomag/OpenRadio"
+        private const val PROJECT_HOME_URL = "https://github.com/Solomag/LibreRadio"
 
         private const val EXO_PLAYER_URL = "https://github.com/google/ExoPlayer"
 
@@ -100,7 +100,7 @@ class AboutDialog : BaseDialogFragment() {
 
         private const val SWIPE_EFFECT_URL = "https://github.com/xenione/swipe-maker"
 
-        private const val REPORT_ISSUE_URL = "https://github.com/Solomag/OpenRadio/issues"
+        private const val REPORT_ISSUE_URL = "https://github.com/Solomag/LibreRadio/issues"
 
         private const val RADIO_BROWSER_URL = "https://www.radio-browser.info"
 

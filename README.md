@@ -25,8 +25,12 @@ and can be installed alongside Open Radio.
 ### Build ###
 
 ```
+git clone https://github.com/Solomag/LibreRadio
+cd LibreRadio
 ./gradlew :app:assembleDebug
 ```
+
+Issues and suggestions: https://github.com/Solomag/LibreRadio/issues
 
 ---
 
