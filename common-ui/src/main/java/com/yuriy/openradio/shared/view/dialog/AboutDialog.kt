@@ -52,6 +52,7 @@ class AboutDialog : BaseDialogFragment() {
         val versionCodeView = view.findTextView(R.id.dialog_about_version_view)
         versionCodeView.text = versionText
 
+        setOnClickOnText(context, view, R.id.about_original_link_view, ORIGINAL_PROJECT_URL)
         setOnClickOnText(context, view, R.id.about_author_link_view, AUTHOR_PROFILE_URL)
         setOnClickOnText(context, view, R.id.about_project_link_view, PROJECT_HOME_URL)
         setOnClickOnText(context, view, R.id.about_exo_player_ver_link_view, EXO_PLAYER_URL)
@@ -83,9 +84,15 @@ class AboutDialog : BaseDialogFragment() {
          */
         private const val AUTHOR_PROFILE_URL = "https://www.linkedin.com/in/yurii-chernyshov"
         /**
-         * Project's url
+         * Original Open Radio project, archived after its repository was deleted.
          */
-        private const val PROJECT_HOME_URL = "https://github.com/ChernyshovYuriy/OpenRadio"
+        private const val ORIGINAL_PROJECT_URL =
+            "https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/ChernyshovYuriy/OpenRadio"
+
+        /**
+         * Project's url (Libre Radio, a fork of Open Radio).
+         */
+        private const val PROJECT_HOME_URL = "https://github.com/Solomag/OpenRadio"
 
         private const val EXO_PLAYER_URL = "https://github.com/google/ExoPlayer"
 
@@ -93,7 +100,7 @@ class AboutDialog : BaseDialogFragment() {
 
         private const val SWIPE_EFFECT_URL = "https://github.com/xenione/swipe-maker"
 
-        private const val REPORT_ISSUE_URL = "https://github.com/ChernyshovYuriy/OpenRadio/issues"
+        private const val REPORT_ISSUE_URL = "https://github.com/Solomag/OpenRadio/issues"
 
         private const val RADIO_BROWSER_URL = "https://www.radio-browser.info"
 

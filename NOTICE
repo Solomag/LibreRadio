@@ -1,3 +1,16 @@
+Libre Radio
+Copyright 2026 Libre Radio contributors
+
+This product is a modified version of "Open Radio",
+Copyright 2014-2024 The "Open Radio" Project. Author: Yurii Chernyshov,
+licensed under the Apache License, Version 2.0.
+Original repository (archived): https://github.com/ChernyshovYuriy/OpenRadio
+
+Libre Radio is not affiliated with or endorsed by the author of Open Radio
+or the current publisher of "Open Radio" on Google Play.
+
+Modifications are listed in README.md and in the git history.
+
 This project uses the following software:
 
 Copyright 2014 William Seemann

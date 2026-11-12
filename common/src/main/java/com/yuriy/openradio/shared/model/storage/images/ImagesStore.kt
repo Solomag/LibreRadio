@@ -40,7 +40,7 @@ object ImagesStore {
     /**
      * The authority for the this provider.
      */
-    private const val AUTHORITY = "openradio.images"
+    private const val AUTHORITY = "io.github.solomag.libreradio.images"
 
     /**
      * Uri to the authority for the this provider.

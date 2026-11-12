@@ -46,6 +46,19 @@
 
             <TextView
                 style="@style/about_item_label"
+                android:text="@string/about_based_on" />
+
+            <TextView
+                android:id="@+id/about_original_link_view"
+                style="@style/about_item_text"
+                android:text="@string/about_original_name" />
+
+        </LinearLayout>
+
+        <LinearLayout style="@style/about_item_layout">
+
+            <TextView
+                style="@style/about_item_label"
                 android:text="@string/about_author" />
 
             <TextView

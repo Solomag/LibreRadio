@@ -47,7 +47,7 @@
 
         <provider
             android:name=".shared.model.storage.images.ImagesProvider"
-            android:authorities="openradio.images"
+            android:authorities="io.github.solomag.libreradio.images"
             android:enabled="true"
             android:exported="true" />
 

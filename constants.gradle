@@ -61,8 +61,8 @@ project.ext {
     /**
      * Application constants
      */
-    applicationId = "com.yuriy.openradio"
-    versionName = "15.0.0"
+    applicationId = "io.github.solomag.libreradio"
+    versionName = "15.1.0"
     versionCode = 0
 
     /**

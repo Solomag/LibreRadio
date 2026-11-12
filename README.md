@@ -1,13 +1,21 @@
-This is a community continuation of **Open Radio** by Yurii Chernyshov, licensed under Apache 2.0.
+# Libre Radio #
+
+**Libre Radio** is a free (as in freedom), ad-free and tracker-free internet radio player for Android,
+Android Auto, Android TV and Android Automotive.
+
+It is a fork of **Open Radio** by Yurii Chernyshov, licensed under Apache 2.0.
 The original repository (`ChernyshovYuriy/OpenRadio`) was deleted in 2024 after the Google Play listing
 passed to a different publisher, which added ads and paid purchases. This fork starts from the last
 author's commit (January 28, 2024), recovered via [Software Heritage](https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/ChernyshovYuriy/OpenRadio)
 and [jukofyork/OpenRadio](https://github.com/jukofyork/OpenRadio).
 
-Goal: a free, ad-free, tracker-free internet radio player.
+Libre Radio is not affiliated with or endorsed by the author of Open Radio or the current publisher
+of "Open Radio" on Google Play. It uses its own application ID (`io.github.solomag.libreradio`)
+and can be installed alongside Open Radio.
 
-### Changes in this fork ###
+### Changes from Open Radio ###
 
+* Renamed to **Libre Radio** with application ID `io.github.solomag.libreradio`.
 * Removed Firebase entirely: Analytics, Crashlytics, Auth and Firestore. No data is sent to Google by the app itself.
 * Removed the "Featured" list and Cloud Storage, which depended on the original author's Firebase project (shut down).
   Use **File Storage** (export / import of Favorites) instead.
@@ -22,7 +30,10 @@ Goal: a free, ad-free, tracker-free internet radio player.
 
 ---
 
-# Open Radio #
+# Original Open Radio README #
+
+The text below is the original project's README, kept for reference.
+
 
 ### What is this ? ###
 
