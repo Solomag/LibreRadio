@@ -22,12 +22,24 @@ and can be installed alongside Open Radio.
 * Sending logs by email is disabled unless SMTP credentials are supplied at build time.
 * Builds without `sign.properties` (debug key for debug builds, unsigned release).
 
+### Two editions ###
+
+Both are built from the same code as Gradle product flavors and share the application ID,
+so only one can be installed at a time.
+
+| Edition | APK | Android | UI | Notes |
+|---|---|---|---|---|
+| **Libre Radio** (`modern`) | `LibreRadio-<version>.apk` | 7.0+ (API 24) | Material 3, dynamic color on Android 12+ | Current libraries (e.g. OkHttp 4) |
+| **Libre Radio Legacy** (`legacy`) | `LibreRadio-<version>-legacy.apk` | 4.2+ (API 17) | Classic | Libraries pinned to the last versions that support API 17 |
+
+The TV app is built on `legacy` (API 21+), the Automotive app on `modern`.
+
 ### Build ###
 
 ```
 git clone https://github.com/Solomag/LibreRadio
 cd LibreRadio
-./gradlew :app:assembleDebug
+./gradlew :app:assembleModernDebug    # or :app:assembleLegacyDebug
 ```
 
 Issues and suggestions: https://github.com/Solomag/LibreRadio/issues

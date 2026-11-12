@@ -486,8 +486,8 @@ class LocationService : JobIntentService() {
         handler.postDelayed({ deliver(null) }, LOCATION_TIMEOUT_MS)
         try {
             LocationManagerCompat.getCurrentLocation(
-                manager, provider, null, ContextCompat.getMainExecutor(context)
-            ) { location -> deliver(location) }
+                manager, provider, null as androidx.core.os.CancellationSignal?, ContextCompat.getMainExecutor(context)
+            ) { location: Location? -> deliver(location) }
         } catch (e: Exception) {
             AppLogger.e("$TAG getCurrentLocation", e)
             deliver(null)

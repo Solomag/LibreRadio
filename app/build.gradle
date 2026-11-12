@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 apply from: "../constants.gradle"
+apply from: "../flavors.gradle"
 apply from: "../sign.gradle"
 
 android {
@@ -84,4 +85,24 @@ dependencies {
             {exclude group: "com.android.support", module: "support-annotations"}
     )
     androidTestImplementation "androidx.test.ext:junit:$junitAndroidXVersion"
+}
+
+android {
+    productFlavors {
+        // Same application ID; modern gets the higher version code so Android 7+ devices prefer it.
+        legacy {
+            versionCode project.ext.versionCode * 10
+            versionNameSuffix "-legacy"
+        }
+        modern {
+            versionCode project.ext.versionCode * 10 + 1
+        }
+    }
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
+            def suffix = variant.flavorName == "legacy" ? "-legacy" : ""
+            def type = variant.buildType.name == "release" ? "" : "-${variant.buildType.name}"
+            outputFileName = "LibreRadio-${project.ext.versionName}${suffix}${type}.apk"
+        }
+    }
 }

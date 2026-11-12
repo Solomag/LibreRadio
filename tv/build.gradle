@@ -12,6 +12,8 @@ android {
     defaultConfig {
         applicationId project.ext.applicationId
         minSdk project.ext.minSdkVersionTv
+        // TV keeps the classic UI and API 21 support.
+        missingDimensionStrategy "platform", "legacy"
         targetSdkVersion project.ext.targetSdkVersion
         versionCode project.ext.versionCode
         versionName project.ext.versionName

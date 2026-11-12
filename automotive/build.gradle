@@ -12,6 +12,7 @@ android {
     defaultConfig {
         applicationId project.ext.applicationId
         minSdk project.ext.minSdkVersionAutomotive
+        missingDimensionStrategy "platform", "modern"
         targetSdkVersion project.ext.targetSdkVersion
         versionCode project.ext.versionCode
         versionName project.ext.versionName

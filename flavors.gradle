@@ -1,0 +1,19 @@
+/**
+ * Two parallel builds from one code base:
+ *  - legacy: Android 4.2+ (API 17), classic UI, libraries pinned to versions that still support API 17.
+ *  - modern: Android 7.0+ (API 24), Material 3 UI and current libraries.
+ * Applied by :app, :common and :common-ui. :tv uses legacy, :automotive uses modern.
+ */
+android {
+    flavorDimensions "platform"
+    productFlavors {
+        legacy {
+            dimension "platform"
+            minSdkVersion project.ext.minSdkVersion
+        }
+        modern {
+            dimension "platform"
+            minSdkVersion project.ext.minSdkVersionModern
+        }
+    }
+}

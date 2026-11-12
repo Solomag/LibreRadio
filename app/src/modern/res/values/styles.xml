@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Modern flavor: Material 3 theme. On Android 12+ colors follow the wallpaper (dynamic color),
+  on older versions the Material 3 baseline dark palette is used.
+-->
+<resources>
+
+    <style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark">
+        <item name="lr_toolbarBackground">?attr/colorSurfaceContainer</item>
+        <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
+        <!-- DrawerLayout paints the status bar area with colorPrimaryDark. -->
+        <item name="colorPrimaryDark">?attr/colorSurfaceContainer</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.Material3.Dark" />
+
+</resources>

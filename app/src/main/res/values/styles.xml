@@ -22,6 +22,7 @@
         <item name="colorPrimary">@color/or_color_primary</item>
         <item name="colorPrimaryDark">@color/or_color_primary_dark</item>
         <item name="colorAccent">@color/or_color_accent</item>
+        <item name="lr_toolbarBackground">?attr/colorPrimary</item>
 
     </style>
 

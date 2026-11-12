@@ -23,7 +23,6 @@ import com.yuriy.openradio.shared.utils.AppUtils
 import com.yuriy.openradio.shared.utils.NetUtils
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -199,8 +198,13 @@ class AutoDetectParser(private val mTimeout: Int) {
             AnalyticsUtils.logMessage("UnsupportedPlaylist:$url")
         }
         var result = AppUtils.EMPTY_STRING
-        val httpUrl = HttpUrl.parse(url)
-        if (httpUrl == null) {
+        // Request.Builder.url() rejects invalid URLs the same way in OkHttp 3.x (legacy) and 4.x (modern).
+        val request = try {
+            Request.Builder().url(url).build()
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+        if (request == null) {
             if (withAnalytics) {
                 AnalyticsUtils.logUnsupportedInvalidPlaylist(url)
             }
@@ -215,7 +219,6 @@ class AutoDetectParser(private val mTimeout: Int) {
                 .readTimeout(mTimeout.toLong(), TimeUnit.MILLISECONDS)
                 .build()
 
-        val request = Request.Builder().url(url).build()
         val latch = CountDownLatch(1)
         AppLogger.d("StreamExtension:$url")
         client.newCall(request).enqueue(
@@ -227,8 +230,9 @@ class AutoDetectParser(private val mTimeout: Int) {
                     }
 
                     override fun onResponse(call: Call, response: Response) {
-                        AppLogger.d("StreamExtension:response:${response.headers()}")
+                        AppLogger.d("StreamExtension:response:$response")
                         val content = response.header("content-disposition", AppUtils.EMPTY_STRING)
+                        response.close()
                         result = getFileExtension(getFileExtFromHeaderParam(content))
 //                        if (result.isEmpty()) {
 //                            content = response.header("Content-Type", "")

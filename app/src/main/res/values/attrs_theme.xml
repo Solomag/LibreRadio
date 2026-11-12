@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Background of the main toolbar; legacy uses the brand color, modern a Material 3 surface. -->
+    <attr name="lr_toolbarBackground" format="color|reference" />
+</resources>
