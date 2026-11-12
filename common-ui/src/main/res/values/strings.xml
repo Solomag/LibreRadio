@@ -24,6 +24,7 @@
     <string name="about_based_on">Based on</string>
     <string name="about_original_name">Open Radio (Apache 2.0)</string>
     <string name="about_author">Original author</string>
+    <string name="about_support_original_author">Support Yurii Chernyshov,\nthe original author of Open Radio</string>
     <string name="about_author_name">Yurii Chernyshov</string>
     <string name="about_home_title">Project home</string>
     <string name="about_report_issue">Report issue</string>
