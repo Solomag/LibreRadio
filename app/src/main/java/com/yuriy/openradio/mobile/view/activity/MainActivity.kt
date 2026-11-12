@@ -109,6 +109,12 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
     private var mSavedInstanceState = Bundle()
     private var mCastContext: CastContext? = null
 
+    /**
+     * Children delivered while the activity was stopped (e.g. launched behind the lock screen).
+     * They are applied on the next resume instead of being dropped.
+     */
+    private var mPendingChildren: Pair<String, List<MediaItem>>? = null
+
     init {
         mLocalBroadcastReceiverCb = LocalBroadcastReceiverCallback()
     }
@@ -157,6 +163,10 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
         super.onResume()
         mMediaPresenter.handleResume()
         hideProgressBar()
+        mPendingChildren?.let { (parentId, children) ->
+            mPendingChildren = null
+            MediaItemsSubscriptionCallback(WeakReference(this)).onChildrenLoaded(parentId, children)
+        }
     }
 
     override fun onDestroy() {
@@ -436,7 +446,8 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
                 return
             }
             if (reference.mMediaPresenter.getOnSaveInstancePassed()) {
-                AppLogger.w("$CLASS_NAME can not perform on children loaded after OnSaveInstanceState")
+                AppLogger.w("$CLASS_NAME children loaded after OnSaveInstanceState, deferred to resume")
+                reference.mPendingChildren = Pair(parentId, children)
                 return
             }
             reference.hideProgressBar()

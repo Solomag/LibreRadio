@@ -29,13 +29,12 @@ import android.os.Messenger
 import android.os.RemoteException
 import android.view.View
 import androidx.core.app.JobIntentService
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationAvailability
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import android.location.Location
+import android.location.LocationManager
+import android.os.Handler
+import android.telephony.TelephonyManager
+import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import com.yuriy.openradio.R
 import com.yuriy.openradio.shared.permission.PermissionChecker
 import com.yuriy.openradio.shared.utils.AppLogger
@@ -55,6 +54,11 @@ class LocationService : JobIntentService() {
 
     companion object {
         private val TAG = LocationService::class.java.simpleName + " "
+
+        /**
+         * How long to wait for a fresh location fix before falling back.
+         */
+        private const val LOCATION_TIMEOUT_MS = 10_000L
 
         /**
          * Map of the Countries Codes to Names.
@@ -422,13 +426,6 @@ class LocationService : JobIntentService() {
         }
     }
 
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
-
-    override fun onCreate() {
-        super.onCreate()
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         AppLogger.d("$TAG destroyed")
@@ -458,7 +455,9 @@ class LocationService : JobIntentService() {
     }
 
     /**
-     * Do requests country code from fuse client.
+     * Resolves the country code using the platform [LocationManager] (no Google Play Services):
+     * a fresh fix from the network or GPS provider, falling back to the last known location,
+     * then to the mobile network / SIM country.
      * Before call this service, permission check is done at Activity.
      *
      * @param context Context of callee.
@@ -466,86 +465,81 @@ class LocationService : JobIntentService() {
      */
     @SuppressLint("MissingPermission")
     private fun requestCountryCode(context: Context, listener: LocationServiceListener) {
-        val locationListener = LocationListenerImpl(
-            listener, context, mFusedLocationClient!!
-        )
-        val interval = 100L
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, interval).build()
-        mFusedLocationClient?.requestLocationUpdates(
-            request,
-            locationListener,
-            Looper.getMainLooper()
-        )
-    }
-
-    /**
-     * Define a listener that responds to location updates.
-     */
-    private class LocationListenerImpl(
-        private var mListener: LocationServiceListener,
-        context: Context,
-        fusedLocationClient: FusedLocationProviderClient
-    ) : LocationCallback() {
-        private var mContext: Context?
-        private var mFusedLocationClient: FusedLocationProviderClient?
-        private val mCounter: AtomicInteger
-        override fun onLocationAvailability(availability: LocationAvailability) {
-            super.onLocationAvailability(availability)
-            if (!availability.isLocationAvailable) {
-                clear()
+        val manager = ContextCompat.getSystemService(context, LocationManager::class.java)
+        if (manager == null) {
+            listener.onCountryCodeLocated(countryFromNetwork(context))
+            return
+        }
+        val provider = listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER)
+            .firstOrNull { isProviderEnabledSafe(manager, it) }
+        if (provider == null) {
+            listener.onCountryCodeLocated(countryFromLocation(context, lastKnownLocation(manager)))
+            return
+        }
+        val delivered = java.util.concurrent.atomic.AtomicBoolean(false)
+        val deliver: (Location?) -> Unit = { location ->
+            if (delivered.compareAndSet(false, true)) {
+                listener.onCountryCodeLocated(countryFromLocation(context, location ?: lastKnownLocation(manager)))
             }
         }
+        val handler = Handler(Looper.getMainLooper())
+        handler.postDelayed({ deliver(null) }, LOCATION_TIMEOUT_MS)
+        try {
+            LocationManagerCompat.getCurrentLocation(
+                manager, provider, null, ContextCompat.getMainExecutor(context)
+            ) { location -> deliver(location) }
+        } catch (e: Exception) {
+            AppLogger.e("$TAG getCurrentLocation", e)
+            deliver(null)
+        }
+    }
 
-        override fun onLocationResult(result: LocationResult) {
-            super.onLocationResult(result)
-            if (mCounter.getAndIncrement() < MAX_COUNT) {
-                return
-            }
-            if (mContext == null) {
-                return
-            }
+    private fun isProviderEnabledSafe(manager: LocationManager, provider: String): Boolean {
+        return try {
+            manager.isProviderEnabled(provider)
+        } catch (e: Exception) {
+            false
+        }
+    }
 
-            var countryCode = Country.COUNTRY_CODE_DEFAULT
-            val location = result.lastLocation
-            try {
-                mContext?.let {
-                    val geocoder = Geocoder(it, Locale.getDefault())
-                    val addresses = geocoder.getFromLocation(
-                        location?.latitude ?: Country.LAT_DEFAULT,
-                        location?.longitude ?: Country.LONG_DEFAULT,
-                        1
-                    )
-                    if (addresses?.isNotEmpty() == true) {
-                        countryCode = addresses[0].countryCode
-                    } else {
-                        AppLogger.e("$TAG Addresses are empty")
-                    }
+    @SuppressLint("MissingPermission")
+    private fun lastKnownLocation(manager: LocationManager): Location? {
+        return listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER, LocationManager.PASSIVE_PROVIDER)
+            .mapNotNull {
+                try {
+                    manager.getLastKnownLocation(it)
+                } catch (e: Exception) {
+                    null
                 }
+            }
+            .maxByOrNull { it.time }
+    }
+
+    private fun countryFromLocation(context: Context, location: Location?): String {
+        if (location != null && Geocoder.isPresent()) {
+            try {
+                @Suppress("DEPRECATION")
+                val addresses = Geocoder(context, Locale.getDefault())
+                    .getFromLocation(location.latitude, location.longitude, 1)
+                val code = addresses?.firstOrNull()?.countryCode
+                if (!code.isNullOrEmpty()) {
+                    return code
+                }
+                AppLogger.e("$TAG Addresses are empty")
             } catch (e: Exception) {
                 AppLogger.e("$TAG Exception while access Addresses", e)
             }
-
-            mListener.onCountryCodeLocated(countryCode)
-            clear()
         }
+        return countryFromNetwork(context)
+    }
 
-        private fun clear() {
-            if (mContext == null) {
-                return
-            }
-            mFusedLocationClient?.removeLocationUpdates(this)
-            mContext = null
-            mFusedLocationClient = null
-        }
-
-        companion object {
-            private const val MAX_COUNT = 0
-        }
-
-        init {
-            mContext = context
-            mFusedLocationClient = fusedLocationClient
-            mCounter = AtomicInteger(0)
-        }
+    /**
+     * Country of the mobile network or SIM card, if any.
+     */
+    private fun countryFromNetwork(context: Context): String {
+        val telephony = ContextCompat.getSystemService(context, TelephonyManager::class.java)
+        val iso = (telephony?.networkCountryIso?.takeIf { it.length == 2 }
+            ?: telephony?.simCountryIso?.takeIf { it.length == 2 })
+        return iso?.uppercase(Locale.ROOT) ?: Country.COUNTRY_CODE_DEFAULT
     }
 }

@@ -65,6 +65,11 @@ class TvMainActivity : FragmentActivity(), MediaPresenterDependency {
     private lateinit var mProgress: ProgressBar
 
     private lateinit var mMediaPresenter: MediaPresenter
+
+    /**
+     * Children delivered while the activity was stopped; applied on the next resume.
+     */
+    private var mPendingChildren: Pair<String, List<MediaItem>>? = null
     private lateinit var mTvMainActivityPresenter: TvMainActivityPresenter
     private var mSavedInstanceState = Bundle()
 
@@ -122,6 +127,10 @@ class TvMainActivity : FragmentActivity(), MediaPresenterDependency {
         super.onResume()
         mMediaPresenter.handleResume()
         hideProgressBar()
+        mPendingChildren?.let { (parentId, children) ->
+            mPendingChildren = null
+            handleChildrenLoaded(parentId, children)
+        }
     }
 
     override fun onDestroy() {
@@ -271,7 +280,8 @@ class TvMainActivity : FragmentActivity(), MediaPresenterDependency {
         children: List<MediaItem>
     ) {
         if (mMediaPresenter.getOnSaveInstancePassed()) {
-            AppLogger.w("$CLASS_NAME can not perform on children loaded after OnSaveInstanceState")
+            AppLogger.w("$CLASS_NAME children loaded after OnSaveInstanceState, deferred to resume")
+            mPendingChildren = Pair(parentId, children)
             return
         }
         hideProgressBar()
