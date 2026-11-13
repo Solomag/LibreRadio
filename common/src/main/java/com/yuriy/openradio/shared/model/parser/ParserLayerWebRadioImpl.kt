@@ -93,6 +93,9 @@ class ParserLayerWebRadioImpl(private val mCountriesCache:Set<Country>) : Parser
                         countryName = country.name
                     }
                 }
+                if (countryName.isEmpty()) {
+                    countryName = LocationService.COUNTRY_CODE_TO_NAME[countryId] ?: AppUtils.EMPTY_STRING
+                }
                 val radioStation = getRadioStationByCountry(uuid, jsonObject, countryName)
                 if (radioStation.isInvalid().not()) {
                     result.add(radioStation)
@@ -218,7 +221,7 @@ class ParserLayerWebRadioImpl(private val mCountriesCache:Set<Country>) : Parser
         }
         for (j in 0 until genres.length()) {
             val genre = genres.getString(j)
-            if (genre != categoryId) {
+            if (genre.equals(categoryId, ignoreCase = true).not()) {
                 continue
             }
             return getRadioStation(jsonObject, uuid)

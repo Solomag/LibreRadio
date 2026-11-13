@@ -38,6 +38,8 @@ import com.yuriy.openradio.shared.model.timer.SleepTimerModel
 import com.yuriy.openradio.shared.model.translation.MediaIdBuilder
 import com.yuriy.openradio.shared.model.translation.MediaIdBuilderDefault
 import com.yuriy.openradio.shared.service.location.Country
+import com.yuriy.openradio.shared.model.media.getStreamUrlFixed
+import com.yuriy.openradio.shared.utils.AppUtils
 import com.yuriy.openradio.shared.utils.SortUtils
 import java.util.TreeSet
 
@@ -59,7 +61,12 @@ class OpenRadioServicePresenterImpl(
     private val mSleepTimerModel: SleepTimerModel,
     private val mCountriesCache:TreeSet<Country>,
     private val mListener: RadioStationManagerLayerListener,
-    private val mCastLayer: CastLayer
+    private val mCastLayer: CastLayer,
+    /**
+     * Additional catalogs merged into the primary one (e.g. Web Radio next to Radio Browser).
+     * Each catalog returns all its matches at once, so they are only queried for the first page.
+     */
+    private val mExtraCatalogs: List<kotlin.Pair<UrlLayer, ModelLayer>> = emptyList()
 ) : OpenRadioServicePresenter {
 
     /**
@@ -112,23 +119,56 @@ class OpenRadioServicePresenterImpl(
     }
 
     override fun getStationsInCategory(categoryId: String, pageNumber: Int): Set<RadioStation> {
-        return mModelLayer.getStations(
-            mUrlLayer.getStationsInCategory(
-                categoryId,
-                pageNumber
-            ),
+        val primary = mModelLayer.getStations(
+            mUrlLayer.getStationsInCategory(categoryId, pageNumber),
             MediaIdBuilderDefault()
         )
+        if (pageNumber != 0) {
+            return primary
+        }
+        return mergeStations(primary, mExtraCatalogs.map { (url, model) ->
+            model.getStations(url.getStationsInCategory(categoryId, pageNumber), MediaIdBuilderDefault())
+        })
     }
 
     override fun getStationsByCountry(countryCode: String, pageNumber: Int): Set<RadioStation> {
-        return mModelLayer.getStations(
-            mUrlLayer.getStationsByCountry(
-                countryCode,
-                pageNumber
-            ),
+        val primary = mModelLayer.getStations(
+            mUrlLayer.getStationsByCountry(countryCode, pageNumber),
             MediaIdBuilderDefault()
         )
+        if (pageNumber != 0) {
+            return primary
+        }
+        return mergeStations(primary, mExtraCatalogs.map { (url, model) ->
+            model.getStations(url.getStationsByCountry(countryCode, pageNumber), MediaIdBuilderDefault())
+        })
+    }
+
+    /**
+     * Appends stations from [others] to [primary], skipping duplicates by id or stream URL.
+     */
+    private fun mergeStations(primary: Set<RadioStation>, others: List<Set<RadioStation>>): Set<RadioStation> {
+        if (others.all { it.isEmpty() }) {
+            return primary
+        }
+        val result = LinkedHashSet<RadioStation>()
+        val ids = HashSet<String>()
+        val urls = HashSet<String>()
+        for (station in primary.asSequence() + others.asSequence().flatten()) {
+            val url = try {
+                station.getStreamUrlFixed().trim().trimEnd('/').lowercase()
+            } catch (e: Exception) {
+                AppUtils.EMPTY_STRING
+            }
+            if (ids.add(station.id).not()) {
+                continue
+            }
+            if (url.isNotEmpty() && urls.add(url).not()) {
+                continue
+            }
+            result.add(station)
+        }
+        return result
     }
 
     override fun getNewStations(): Set<RadioStation> {
@@ -146,17 +186,12 @@ class OpenRadioServicePresenterImpl(
     }
 
     override fun getSearchStations(query: String, mediaIdBuilder: MediaIdBuilder): Set<RadioStation> {
-        // Merge results of all search requests (e.g. by name and by tag), keeping the first occurrence.
-        val result = LinkedHashSet<RadioStation>()
-        val ids = HashSet<String>()
-        for (uri in mUrlLayer.getSearchUrls(query)) {
-            for (station in mModelLayer.getStations(uri, mediaIdBuilder)) {
-                if (ids.add(station.id)) {
-                    result.add(station)
-                }
-            }
+        // Merge results of all search requests (by name and by tag, in every catalog).
+        val catalogs = listOf(kotlin.Pair(mUrlLayer, mModelLayer)) + mExtraCatalogs
+        val sets = catalogs.flatMap { (url, model) ->
+            url.getSearchUrls(query).map { model.getStations(it, mediaIdBuilder) }
         }
-        return result
+        return mergeStations(sets.firstOrNull() ?: emptySet(), sets.drop(1))
     }
 
     override fun getFeatured(): Set<RadioStation> {
@@ -164,7 +199,21 @@ class OpenRadioServicePresenterImpl(
     }
 
     override fun getAllCategories(): Set<Category> {
-        return mModelLayer.getAllCategories(mUrlLayer.getAllCategoriesUrl())
+        val primary = mModelLayer.getAllCategories(mUrlLayer.getAllCategoriesUrl())
+        if (mExtraCatalogs.isEmpty()) {
+            return primary
+        }
+        // Categories with the same name (case-insensitive) are shown once; opening one queries every catalog.
+        val result = LinkedHashSet<Category>(primary)
+        val names = primary.mapTo(HashSet()) { it.id.lowercase() }
+        for ((url, model) in mExtraCatalogs) {
+            for (category in model.getAllCategories(url.getAllCategoriesUrl())) {
+                if (names.add(category.id.lowercase())) {
+                    result.add(category)
+                }
+            }
+        }
+        return result
     }
 
     @Synchronized
@@ -173,6 +222,10 @@ class OpenRadioServicePresenterImpl(
             return mCountriesCache
         }
         mCountriesCache.addAll(mModelLayer.getAllCountries(mUrlLayer.getAllCountries()))
+        for ((url, model) in mExtraCatalogs) {
+            val known = mCountriesCache.mapTo(HashSet()) { it.code }
+            mCountriesCache.addAll(model.getAllCountries(url.getAllCountries()).filter { known.contains(it.code).not() })
+        }
         return mCountriesCache
     }
 

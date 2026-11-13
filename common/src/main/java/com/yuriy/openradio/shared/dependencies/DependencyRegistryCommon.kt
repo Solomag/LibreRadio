@@ -135,7 +135,9 @@ object DependencyRegistryCommon {
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         )
         val countriesCache = TreeSet<Country>()
-        val source = sSourcesLayer.getActiveSource()
+        // Both catalogs are always used together: Radio Browser is the primary one,
+        // Web Radio stations are merged into categories, countries and search results.
+        val source = Source.RADIO_BROWSER
         val parser = getParserLayer(source, countriesCache)
         val urlLayer = getUrlLayer(source)
         val downloader = HTTPDownloaderImpl(urlLayer)
@@ -143,6 +145,11 @@ object DependencyRegistryCommon {
         val apiCacheInMemory = InMemoryApiCache()
         val modelLayer = ModelLayerImpl(
             context, parser, sNetworkLayer, downloader, apiCachePersistent, apiCacheInMemory
+        )
+        val webRadioUrlLayer = getUrlLayer(Source.WEB_RADIO)
+        val webRadioModelLayer = ModelLayerImpl(
+            context, getParserLayer(Source.WEB_RADIO, countriesCache), sNetworkLayer,
+            HTTPDownloaderImpl(webRadioUrlLayer), apiCachePersistent, apiCacheInMemory
         )
         val contextRef = WeakReference(context)
         sFavoritesStorage = FavoritesStorage(contextRef)
@@ -180,7 +187,8 @@ object DependencyRegistryCommon {
             sSleepTimerModel,
             countriesCache,
             listenerProxy,
-            sCastLayer
+            sCastLayer,
+            listOf(kotlin.Pair(webRadioUrlLayer, webRadioModelLayer))
         )
 
         sInit.set(true)

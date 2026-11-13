@@ -853,27 +853,36 @@ class OpenRadioPlayer(
 
         private val mTrackNumber = AtomicInteger(0)
 
+        /**
+         * ID3 lead artist frame ids (v2.3+/v2.4 and v2.2).
+         */
+        private val METADATA_ID_TPE1 = "TPE1"
+        private val METADATA_ID_TP1 = "TP1"
+
         override fun onMetadata(metadata: Metadata) {
+            // ICY streams send "Artist - Title" in one field; HLS / ID3 streams often send
+            // the title (TIT2/TT2) and the artist (TPE1/TP1) as separate frames of one Metadata.
+            var icyTitle = AppUtils.EMPTY_STRING
+            var id3Title = AppUtils.EMPTY_STRING
+            var id3Artist = AppUtils.EMPTY_STRING
             for (i in 0 until metadata.length()) {
                 val entry = metadata[i]
-                var title = AppUtils.EMPTY_STRING
                 // See https://en.wikipedia.org/wiki/ID3#ID3v2_frame_specification
                 val msg = "Metadata entry:$entry"
                 AppLogger.d(msg)
                 when (entry) {
                     is IcyInfo -> {
-                        title = entry.title ?: AppUtils.EMPTY_STRING
+                        icyTitle = entry.title?.trim() ?: AppUtils.EMPTY_STRING
                     }
 
                     is TextInformationFrame -> {
+                        val value = entry.values.firstOrNull()?.trim() ?: AppUtils.EMPTY_STRING
                         when (entry.id) {
                             ExoPlayerUtils.METADATA_ID_TT2,
-                            ExoPlayerUtils.METADATA_ID_TIT2 -> {
-                                val values = entry.values
-                                if (values.isNotEmpty()) {
-                                    title = values[0]
-                                }
-                            }
+                            ExoPlayerUtils.METADATA_ID_TIT2 -> id3Title = value
+
+                            METADATA_ID_TP1,
+                            METADATA_ID_TPE1 -> id3Artist = value
                         }
                     }
 
@@ -881,15 +890,16 @@ class OpenRadioPlayer(
                         AnalyticsUtils.logMetadata(msg)
                     }
                 }
-                if (title.isEmpty()) {
-                    continue
-                }
-                title = title.trim { it <= ' ' }
-                if (title == mStreamMetadata) {
-                    continue
-                }
-                updateStreamMetadata(title)
             }
+            val title = when {
+                icyTitle.isNotEmpty() -> icyTitle
+                id3Artist.isNotEmpty() && id3Title.isNotEmpty() -> "$id3Artist - $id3Title"
+                else -> id3Title.ifEmpty { id3Artist }
+            }
+            if (title.isEmpty() || title == mStreamMetadata) {
+                return
+            }
+            updateStreamMetadata(title)
         }
 
         override fun onPlaybackStateChanged(playerState: Int) {

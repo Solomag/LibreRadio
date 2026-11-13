@@ -31,10 +31,9 @@ class SourcesLayerImpl(context: Context) : SourcesLayer {
     }
 
     override fun getActiveSource(): Source {
-        val idx = mPersistence.getIntValue(KEY_IDX, 0)
-        val source = mSources.elementAt(idx)
-        AppLogger.d("Get active source $source")
-        return source
+        // Catalogs are merged now (Radio Browser + Web Radio), so Radio Browser is always the primary
+        // source; a previously saved selection is ignored.
+        return Source.RADIO_BROWSER
     }
 
     override fun setActiveSource(source: Source) {
