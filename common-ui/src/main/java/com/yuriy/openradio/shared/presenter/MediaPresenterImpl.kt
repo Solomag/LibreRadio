@@ -237,8 +237,14 @@ class MediaPresenterImpl(
         if (mActivity == null) {
             return
         }
-        val defaultCountry = mLocationStorage.getCountryCode()
-        LocationService.checkCountry(mActivity!!, mMainLayoutView!!, mLocationMessenger, defaultCountry)
+        if (mLocationStorage.isDetectionDue()) {
+            val asked = LocationService.checkCountry(
+                mActivity!!, mMainLayoutView!!, mLocationMessenger, mLocationStorage.isPermissionAsked().not()
+            )
+            if (asked) {
+                mLocationStorage.setPermissionAsked()
+            }
+        }
         if (AppUtils.hasVersionS() && AppPreferencesManager.isBtAutoPlay(mContext)) {
             if (!PermissionChecker.isBluetoothConnectGranted(mContext)) {
                 PermissionChecker.requestBluetoothPermission(mActivity!!, mMainLayoutView!!)

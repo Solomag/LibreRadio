@@ -121,22 +121,49 @@ class LocationService : JobIntentService() {
             return list.toTypedArray()
         }
 
-        fun checkCountry(activity: Activity, mainLayout: View, messenger: Messenger, defaultCountry: String) {
-            if (!isDefaultLocationEnabled(activity.applicationContext, defaultCountry)) {
-                return
+        /**
+         * Detects the country for the "local stations" entry.
+         * With the location permission the location is used; without it the mobile network / SIM
+         * country. The permission is requested only once ([askPermission]).
+         */
+        fun checkCountry(
+            activity: Activity, mainLayout: View, messenger: Messenger, askPermission: Boolean
+        ): Boolean {
+            val context = activity.applicationContext
+            if (AppUtils.hasLocation(context) && PermissionChecker.isLocationGranted(context)) {
+                doEnqueueWork(context, messenger)
+                return false
             }
-            if (!AppUtils.hasLocation(activity.applicationContext)) {
-                return
+            // No location (yet): report the network / SIM / locale country right away.
+            try {
+                messenger.send(makeReplyMessage(fallbackCountryCode(context)).apply { what = MSG_ID_ON_LOCATION })
+            } catch (e: RemoteException) {
+                AppLogger.e("$TAG can't send fallback country", e)
             }
-            if (PermissionChecker.isLocationGranted(activity.applicationContext)) {
-                doEnqueueWork(activity.applicationContext, messenger)
-            } else {
+            if (askPermission && AppUtils.hasLocation(context)) {
                 PermissionChecker.requestLocationPermission(activity, mainLayout)
+                return true
             }
+            return false
         }
 
-        private fun isDefaultLocationEnabled(context: Context, defaultCountry: String): Boolean {
-            return defaultCountry == context.getString(R.string.default_country_use_location)
+        /**
+         * Country of the mobile network, then the SIM card, then the system locale.
+         */
+        fun fallbackCountryCode(context: Context): String {
+            val telephony = androidx.core.content.ContextCompat.getSystemService(context, TelephonyManager::class.java)
+            val candidates = listOf(
+                runCatching { telephony?.networkCountryIso }.getOrNull(),
+                runCatching { telephony?.simCountryIso }.getOrNull(),
+                Locale.getDefault().country
+            )
+            for (candidate in candidates) {
+                val code = candidate?.trim()?.uppercase(Locale.ROOT) ?: continue
+                if (code.length == 2 && COUNTRY_CODE_TO_NAME.containsKey(code)) {
+                    return code
+                }
+            }
+            return Country.COUNTRY_CODE_DEFAULT
         }
 
         /**
@@ -537,9 +564,6 @@ class LocationService : JobIntentService() {
      * Country of the mobile network or SIM card, if any.
      */
     private fun countryFromNetwork(context: Context): String {
-        val telephony = ContextCompat.getSystemService(context, TelephonyManager::class.java)
-        val iso = (telephony?.networkCountryIso?.takeIf { it.length == 2 }
-            ?: telephony?.simCountryIso?.takeIf { it.length == 2 })
-        return iso?.uppercase(Locale.ROOT) ?: Country.COUNTRY_CODE_DEFAULT
+        return fallbackCountryCode(context)
     }
 }
