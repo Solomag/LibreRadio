@@ -144,7 +144,7 @@ fun RadioApp(vm: RadioViewModel, onMenu: (MenuAction) -> Unit, onExit: () -> Uni
     var searching by rememberSaveable { mutableStateOf(false) }
     var playerOpen by rememberSaveable { mutableStateOf(false) }
 
-    // Back: close player / drawer / search, then go up one level; at the root close the app.
+    // Back: close player / drawer / search, then go up one level; at the root leave the screen.
     BackHandler {
         when {
             playerOpen -> playerOpen = false

@@ -73,7 +73,8 @@ class ComposeActivity : AppCompatActivity() {
                 RadioApp(
                     vm = mViewModel,
                     onMenu = ::onMenuAction,
-                    onExit = ::closeApp
+                    // Back at the root only leaves the screen; playback goes on in the background.
+                    onExit = ::finish
                 )
             }
         }
