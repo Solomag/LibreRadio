@@ -49,6 +49,28 @@ object SortUtils {
         }
     }
 
+    /**
+     * Sets the order of Favorites or own stations: [ids] from first to last.
+     * Stations missing from [ids] keep their order after the listed ones.
+     */
+    fun setOrder(
+        ids: List<String>, categoryMediaId: String,
+        favoritesStorage: FavoritesStorage, deviceLocalsStorage: DeviceLocalsStorage
+    ) {
+        val storage = when (categoryMediaId) {
+            MediaId.MEDIA_ID_FAVORITES_LIST -> favoritesStorage
+            MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST -> deviceLocalsStorage
+            else -> return
+        }
+        val all = storage.getAll().toList()
+        val position = HashMap<String, Int>()
+        ids.forEachIndexed { i, id -> position[id] = i }
+        for (station in all) {
+            station.sortId = position[station.id] ?: (ids.size + station.sortId)
+        }
+        storage.addAll(LinkedHashSet(all))
+    }
+
     private fun resortIds(all: Set<RadioStation>, sortId: Int, mediaId: String) {
         var counter = 0
         var value: Int

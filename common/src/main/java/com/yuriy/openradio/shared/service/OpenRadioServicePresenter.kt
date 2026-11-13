@@ -77,6 +77,8 @@ interface OpenRadioServicePresenter {
 
     fun updateSortIds(mediaId: String, sortId: Int, categoryMediaId: String)
 
+    fun setOrder(ids: List<String>, categoryMediaId: String)
+
     fun getSleepTimerModel(): SleepTimerModel
 
     /**

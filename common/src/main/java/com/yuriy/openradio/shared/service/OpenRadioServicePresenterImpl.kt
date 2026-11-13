@@ -191,7 +191,14 @@ class OpenRadioServicePresenterImpl(
         val sets = catalogs.flatMap { (url, model) ->
             url.getSearchUrls(query).map { model.getStations(it, mediaIdBuilder) }
         }
-        return mergeStations(sets.firstOrNull() ?: emptySet(), sets.drop(1))
+        val merged = mergeStations(sets.firstOrNull() ?: emptySet(), sets.drop(1))
+        // Search within one country: catalogs that can't filter by country are filtered here.
+        val country = com.yuriy.openradio.shared.model.net.SearchQuery.decode(query).countryCode ?: return merged
+        val countryName = com.yuriy.openradio.shared.service.location.LocationService.COUNTRY_CODE_TO_NAME[country]
+        return merged.filterTo(LinkedHashSet()) {
+            it.countryCode.equals(country, ignoreCase = true) ||
+                    (countryName != null && it.country.equals(countryName, ignoreCase = true))
+        }
     }
 
     override fun getFeatured(): Set<RadioStation> {
@@ -274,6 +281,10 @@ class OpenRadioServicePresenterImpl(
             mediaId, sortId, categoryMediaId,
             mFavoritesStorage, mDeviceLocalsStorage
         )
+    }
+
+    override fun setOrder(ids: List<String>, categoryMediaId: String) {
+        SortUtils.setOrder(ids, categoryMediaId, mFavoritesStorage, mDeviceLocalsStorage)
     }
 
     override fun getEqualizerLayer(): EqualizerLayer {

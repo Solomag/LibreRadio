@@ -47,6 +47,18 @@ object OpenRadioStore {
      * @param parentCategoryMediaId ID of the current category ([etc ...][MediaId.MEDIA_ID_FAVORITES_LIST]).
      * @return [Bundle].
      */
+    const val EXTRA_KEY_ORDER = "EXTRA_KEY_ORDER"
+
+    /**
+     * Arguments of [OpenRadioService.CMD_SET_ORDER]: media ids in their new order.
+     */
+    fun makeSetOrderBundle(ids: List<String>, parentCategoryMediaId: String): Bundle {
+        val bundle = Bundle()
+        bundle.putStringArrayList(EXTRA_KEY_ORDER, ArrayList(ids))
+        bundle.putString(EXTRA_KEY_MEDIA_ID, parentCategoryMediaId)
+        return bundle
+    }
+
     fun makeUpdateSortIdsBundle(mediaId: String, sortId: Int, parentCategoryMediaId: String): Bundle {
         val bundle = Bundle()
         bundle.putString(EXTRA_KEY_MEDIA_IDS, mediaId)

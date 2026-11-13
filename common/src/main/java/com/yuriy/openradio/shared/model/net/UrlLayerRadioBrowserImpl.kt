@@ -117,12 +117,17 @@ class UrlLayerRadioBrowserImpl : UrlLayer {
      * Radio Browser treats several filters in one request as AND, so these are separate requests.
      */
     override fun getSearchUrls(query: String): List<Uri> {
-        return listOf(makeSearchUrl("name", query), makeSearchUrl("tag", query))
+        val scoped = SearchQuery.decode(query)
+        return listOf(
+            makeSearchUrl("name", scoped.text, scoped.countryCode),
+            makeSearchUrl("tag", scoped.text, scoped.countryCode)
+        )
     }
 
-    private fun makeSearchUrl(field: String, query: String): Uri {
+    private fun makeSearchUrl(field: String, query: String, countryCode: String? = null): Uri {
+        val country = if (countryCode.isNullOrEmpty()) "" else "&countrycode=" + Uri.encode(countryCode)
         return Uri.parse(
-            BASE_URL + "stations/search?" + field + "=" + Uri.encode(query.trim())
+            BASE_URL + "stations/search?" + field + "=" + Uri.encode(query.trim()) + country
                     + "&hidebroken=true&order=clickcount&reverse=true"
                     + "&offset=" + 0
                     + "&limit=" + DependencyRegistryCommon.PAGE_SIZE

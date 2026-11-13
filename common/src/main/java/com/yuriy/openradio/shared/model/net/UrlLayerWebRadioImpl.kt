@@ -67,7 +67,8 @@ class UrlLayerWebRadioImpl : UrlLayer {
     }
 
     override fun getSearchUrl(query: String): Uri {
-        val url = "$URL$KEY_SEARCH_ID$query"
+        // The country scope of the query is applied to the merged results by the presenter.
+        val url = "$URL$KEY_SEARCH_ID${SearchQuery.decode(query).text}"
         return Uri.parse(url)
     }
 

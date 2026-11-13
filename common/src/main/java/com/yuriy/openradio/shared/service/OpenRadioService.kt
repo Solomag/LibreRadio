@@ -798,6 +798,7 @@ class OpenRadioService : MediaLibraryService() {
                     .add(SessionCommand(CMD_STOP_SERVICE, Bundle()))
                     .add(SessionCommand(CMD_TOGGLE_LAST_PLAYED_ITEM, Bundle()))
                     .add(SessionCommand(CMD_UPDATE_SORT_IDS, Bundle()))
+                    .add(SessionCommand(CMD_SET_ORDER, Bundle()))
                     .add(SessionCommand(CMD_UPDATE_TREE, Bundle()))
                     .build()
             return MediaSession.ConnectionResult.AcceptedResultBuilder(session)
@@ -924,6 +925,17 @@ class OpenRadioService : MediaLibraryService() {
                     mPresenter.updateSortIds(
                         mediaId, sortId, categoryMediaId,
                     )
+                    notifyChildrenChanged(categoryMediaId)
+                    return mSessionCmdSuccess
+                }
+
+                CMD_SET_ORDER -> {
+                    val ids = args.getStringArrayList(OpenRadioStore.EXTRA_KEY_ORDER)
+                    val categoryMediaId = args.getString(OpenRadioStore.EXTRA_KEY_MEDIA_ID)
+                    if (ids.isNullOrEmpty() || categoryMediaId.isNullOrEmpty()) {
+                        return mSessionCmdNotSupported
+                    }
+                    mPresenter.setOrder(ids, categoryMediaId)
                     notifyChildrenChanged(categoryMediaId)
                     return mSessionCmdSuccess
                 }
@@ -1103,6 +1115,7 @@ class OpenRadioService : MediaLibraryService() {
         const val CMD_FAVORITE_OFF = "com.yuriy.openradio.COMMAND.FAVORITE_OFF"
         const val CMD_NET_CHANGED = "com.yuriy.openradio.COMMAND.NET_CHANGED"
         const val CMD_STOP_SERVICE = "com.yuriy.openradio.COMMAND.STOP_SERVICE"
+        const val CMD_SET_ORDER = "com.yuriy.openradio.COMMAND.SET_ORDER"
         const val CMD_TOGGLE_LAST_PLAYED_ITEM = "com.yuriy.openradio.COMMAND.TOGGLE_LAST_PLAYED_ITEM"
         const val CMD_UPDATE_SORT_IDS = "com.yuriy.openradio.COMMAND.UPDATE_SORT_IDS"
         const val CMD_CLEAR_CACHE = "com.yuriy.openradio.COMMAND.CLEAR_CACHE"

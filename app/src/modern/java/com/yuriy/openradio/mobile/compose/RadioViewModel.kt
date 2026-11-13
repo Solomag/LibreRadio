@@ -36,12 +36,15 @@ import androidx.media3.session.SessionToken
 import com.yuriy.openradio.R
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommon
 import com.yuriy.openradio.shared.model.media.MediaId
+import com.yuriy.openradio.shared.model.net.SearchQuery
+import com.yuriy.openradio.shared.model.storage.LocationStorage
 import com.yuriy.openradio.shared.service.OpenRadioService
 import com.yuriy.openradio.shared.service.OpenRadioStore
 import com.yuriy.openradio.shared.utils.AppLogger
 import com.yuriy.openradio.shared.utils.MediaItemHelper
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 /**
  * State holder of the Compose UI. Talks to [OpenRadioService] through a Media3 [MediaBrowser]:
@@ -52,7 +55,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     /**
      * A level of the navigation stack: a catalog folder or a search.
      */
-    data class Folder(val id: String, val title: String, val query: String? = null)
+    data class Folder(val id: String, val title: String, val query: String? = null, val country: String? = null)
 
     val folders = mutableStateListOf<Folder>()
     var items by mutableStateOf<List<MediaItem>>(emptyList())
@@ -70,6 +73,11 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var isBuffering by mutableStateOf(false)
         private set
+
+    /**
+     * Favorites / own stations are shown with up and down buttons to change their order.
+     */
+    var reordering by mutableStateOf(false)
 
     /**
      * Favorite state changed in this session, by media id (the catalog is not re-fetched on every toggle).
@@ -131,16 +139,58 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Country whose stations a search started here is limited to, or null for a search everywhere.
+     */
+    val searchCountry: String?
+        get() {
+            val folder = current
+            if (folder.query != null) {
+                return folder.country
+            }
+            val id = folder.id
+            return when {
+                id == MediaId.MEDIA_ID_COUNTRY_STATIONS ->
+                    LocationStorage(WeakReference(getApplication<Application>())).getCountryCode()
+                id.startsWith(MediaId.MEDIA_ID_COUNTRIES_LIST) && id != MediaId.MEDIA_ID_COUNTRIES_LIST ->
+                    id.removePrefix(MediaId.MEDIA_ID_COUNTRIES_LIST)
+                else -> null
+            }
+        }
+
     fun search(query: String) {
         val q = query.trim()
         if (q.isEmpty()) {
             return
         }
+        val country = searchCountry
         if (current.query != null) {
             folders.removeAt(folders.lastIndex)
         }
-        folders.add(Folder(MediaId.MEDIA_ID_SEARCH_FROM_APP, q, q))
+        folders.add(Folder(MediaId.MEDIA_ID_SEARCH_FROM_APP, q, q, country))
         load()
+    }
+
+    val canReorder: Boolean
+        get() = current.id == MediaId.MEDIA_ID_FAVORITES_LIST ||
+                current.id == MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST
+
+    /**
+     * Moves a station of Favorites / own stations up (-1) or down (+1) and stores the new order.
+     */
+    fun move(item: MediaItem, delta: Int) {
+        val list = items.toMutableList()
+        val from = list.indexOfFirst { it.mediaId == item.mediaId }
+        val to = from + delta
+        if (from < 0 || to !in list.indices) {
+            return
+        }
+        java.util.Collections.swap(list, from, to)
+        items = list
+        sendCommand(
+            OpenRadioService.CMD_SET_ORDER,
+            OpenRadioStore.makeSetOrderBundle(list.map { it.mediaId }, current.id)
+        )
     }
 
     /**
@@ -179,13 +229,15 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         val b = browser ?: return
         val folder = current
         loading = true
+        reordering = false
         page = 0
         endReached = folder.query != null || folder.id == MediaId.MEDIA_ID_ROOT ||
                 folder.id == MediaId.MEDIA_ID_FAVORITES_LIST
         viewModelScope.launch {
             val result = try {
                 if (folder.query != null) {
-                    b.getSearchResult(folder.query, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null).await().value
+                    val query = SearchQuery(folder.query, folder.country).encode()
+                    b.getSearchResult(query, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null).await().value
                 } else {
                     b.getChildren(folder.id, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null).await().value
                 }

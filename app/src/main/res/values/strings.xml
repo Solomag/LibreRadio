@@ -20,6 +20,10 @@
     <string name="compose_search_hint">Search stations, genres</string>
     <string name="compose_empty">Nothing here yet</string>
     <string name="compose_now_playing">Now playing</string>
+    <string name="compose_search_in">Search in %1$s</string>
+    <string name="compose_reorder">Change order</string>
+    <string name="compose_move_up">Move up</string>
+    <string name="compose_move_down">Move down</string>
     <string name="compose_close_app">Close Libre Radio</string>
 
     <!-- Compose settings screen -->

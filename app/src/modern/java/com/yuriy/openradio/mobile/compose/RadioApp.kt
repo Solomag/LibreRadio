@@ -59,6 +59,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.SwapVert
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.GraphicEq
@@ -126,6 +129,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import coil.compose.AsyncImage
 import com.yuriy.openradio.mobile.R
+import com.yuriy.openradio.shared.service.location.LocationService
 import com.yuriy.openradio.shared.utils.MediaItemHelper
 import kotlinx.coroutines.launch
 
@@ -246,7 +250,18 @@ private fun RadioTopBar(
                     value = text,
                     onValueChange = { text = it },
                     singleLine = true,
-                    placeholder = { Text(stringResource(R.string.compose_search_hint)) },
+                    placeholder = {
+                        val country = vm.searchCountry
+                        Text(
+                            if (country == null) {
+                                stringResource(R.string.compose_search_hint)
+                            } else {
+                                stringResource(R.string.compose_search_in, LocationService.displayCountryName(country))
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = {
                         vm.search(text)
@@ -272,7 +287,10 @@ private fun RadioTopBar(
     TopAppBar(
         title = {
             Text(
-                vm.current.query?.let { "“$it”" } ?: vm.current.title,
+                vm.current.query?.let { q ->
+                    val country = vm.current.country
+                    if (country == null) "“$q”" else "“$q” · ${LocationService.displayCountryName(country)}"
+                } ?: vm.current.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold
@@ -288,6 +306,14 @@ private fun RadioTopBar(
             }
         },
         actions = {
+            if (vm.canReorder && vm.items.size > 1) {
+                IconButton(onClick = { vm.reordering = vm.reordering.not() }) {
+                    Icon(
+                        if (vm.reordering) Icons.Rounded.Check else Icons.Rounded.SwapVert,
+                        contentDescription = stringResource(R.string.compose_reorder)
+                    )
+                }
+            }
             IconButton(onClick = { onSearchToggle(true) }) {
                 Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.compose_search_hint))
             }
@@ -346,7 +372,8 @@ private fun Catalog(vm: RadioViewModel) {
                     playing = item.mediaId == vm.currentMediaId,
                     favorite = vm.isFavorite(item),
                     onClick = { vm.open(item) },
-                    onFavorite = { vm.toggleFavorite(item) }
+                    onFavorite = { vm.toggleFavorite(item) },
+                    onMove = if (vm.reordering) ({ delta -> vm.move(item, delta) }) else null
                 )
             }
         }
@@ -416,7 +443,8 @@ private fun StationRow(
     playing: Boolean,
     favorite: Boolean,
     onClick: () -> Unit,
-    onFavorite: () -> Unit
+    onFavorite: () -> Unit,
+    onMove: ((Int) -> Unit)? = null
 ) {
     val md = item.mediaMetadata
     val colors = if (playing) {
@@ -455,6 +483,17 @@ private fun StationRow(
             }
         },
         trailingContent = {
+            if (onMove != null) {
+                Row {
+                    IconButton(onClick = { onMove(-1) }) {
+                        Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = stringResource(R.string.compose_move_up))
+                    }
+                    IconButton(onClick = { onMove(1) }) {
+                        Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = stringResource(R.string.compose_move_down))
+                    }
+                }
+                return@ListItem
+            }
             IconButton(onClick = onFavorite) {
                 Icon(
                     if (favorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
