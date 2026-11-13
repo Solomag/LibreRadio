@@ -223,4 +223,6 @@ object DependencyRegistryCommonUi :
     fun loggingLayer(): LoggingLayer = sLoggingLayer
 
     fun fileStoreManager(): FileStoreManager = sFileStoraManager
+
+    fun addEditStationPresenter(): AddEditStationDialogPresenter = sAddEditStationDialogPresenter
 }

@@ -479,12 +479,24 @@ private fun countryName(code: String): String {
 }
 
 /**
- * Searchable list of countries; the first entry detects the country from the location.
+ * Searchable list of countries. By default the first entry detects the country from the location
+ * (null is picked); with [ownFirst] the user's own countries come first instead.
  */
 @Composable
-private fun CountryDialog(onDismiss: () -> Unit, onPick: (String?) -> Unit) {
+internal fun CountryDialog(ownFirst: Boolean = false, onDismiss: () -> Unit, onPick: (String?) -> Unit) {
     val context = LocalContext.current
-    val all = remember { LocationService.getCountriesWithLocation(context).toList() }
+    val all = remember {
+        val list = LocationService.getCountriesWithLocation(context).toList()
+        if (ownFirst.not()) {
+            list
+        } else {
+            val own = LocationService.ownCountryCodes(context)
+            val rest = list.drop(1)
+            // A placeholder head keeps "drop(1)" below working; it is replaced by the own countries.
+            listOf(list.first()) + own.mapNotNull { c -> rest.firstOrNull { it.code == c } } +
+                    rest.filter { it.code !in own }
+        }
+    }
     var query by remember { mutableStateOf("") }
     val shown = remember(query) {
         val q = query.trim()
@@ -509,8 +521,8 @@ private fun CountryDialog(onDismiss: () -> Unit, onPick: (String?) -> Unit) {
                         .padding(16.dp)
                 )
                 LazyColumn {
-                    items(shown, key = { it.code }) { country ->
-                        val isLocation = country === all.first()
+                    items(if (ownFirst) shown.filter { it !== all.first() } else shown, key = { it.code }) { country ->
+                        val isLocation = ownFirst.not() && country === all.first()
                         val support: (@Composable () -> Unit)? =
                             if (isLocation) null else slot { Text(country.code) }
                         val leading: (@Composable () -> Unit)? =

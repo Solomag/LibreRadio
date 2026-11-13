@@ -106,6 +106,10 @@ abstract class BaseAddEditStationDialog : BaseDialogFragment(), SourcesLayerDepe
         mProgressView = view.findViewById(R.id.add_edit_station_dialog_progress_bar_view)
         val countries = ArrayList(LocationService.COUNTRY_CODE_TO_NAME.values)
         countries.sort()
+        // The user's own countries first, so a new station gets them by default.
+        val own = LocationService.ownCountryCodes(requireContext()).mapNotNull { LocationService.COUNTRY_CODE_TO_NAME[it] }
+        countries.removeAll(own.toSet())
+        countries.addAll(0, own)
         mCountriesSpinner = view.findViewById(R.id.add_edit_station_country_spin)
         // Create an ArrayAdapter using the string array and a default spinner layout
         mCountriesAdapter = ArrayAdapter(

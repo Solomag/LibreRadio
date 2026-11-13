@@ -58,6 +58,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.SwapVert
@@ -136,12 +137,12 @@ import kotlinx.coroutines.launch
 /**
  * Entries of the side menu.
  */
-enum class MenuAction { SETTINGS, UPDATES, ABOUT, CLOSE }
+enum class MenuAction { ADD_STATION, SETTINGS, UPDATES, ABOUT, CLOSE }
 
 /**
  * Full-screen pages shown over the catalog.
  */
-private enum class Page { NONE, SETTINGS, ABOUT }
+private enum class Page { NONE, ADD_STATION, SETTINGS, ABOUT }
 
 @Composable
 fun RadioApp(vm: RadioViewModel, host: SettingsHost, onMenu: (MenuAction) -> Unit, onExit: () -> Unit) {
@@ -168,6 +169,7 @@ fun RadioApp(vm: RadioViewModel, host: SettingsHost, onMenu: (MenuAction) -> Uni
             DrawerContent { action ->
                 scope.launch { drawerState.close() }
                 when (action) {
+                    MenuAction.ADD_STATION -> page = Page.ADD_STATION
                     MenuAction.SETTINGS -> page = Page.SETTINGS
                     MenuAction.ABOUT -> page = Page.ABOUT
                     else -> onMenu(action)
@@ -221,6 +223,13 @@ fun RadioApp(vm: RadioViewModel, host: SettingsHost, onMenu: (MenuAction) -> Uni
                 }
                 when (shown) {
                     Page.ABOUT -> AboutScreen { page = Page.NONE }
+                    Page.ADD_STATION -> AddStationScreen(
+                        onDone = {
+                            page = Page.NONE
+                            vm.refreshRoot()
+                        },
+                        onBack = { page = Page.NONE }
+                    )
                     else -> SettingsScreen(vm, host) { page = Page.NONE }
                 }
             }
@@ -734,6 +743,9 @@ private fun DrawerContent(onAction: (MenuAction) -> Unit) {
         }
         HorizontalDivider(Modifier.padding(horizontal = 28.dp))
         Spacer(Modifier.height(8.dp))
+        DrawerItem(Icons.Rounded.Add, stringResource(com.yuriy.openradio.shared.R.string.add_station_dialog_title)) {
+            onAction(MenuAction.ADD_STATION)
+        }
         DrawerItem(Icons.Rounded.Settings, stringResource(R.string.settings_title)) { onAction(MenuAction.SETTINGS) }
         DrawerItem(Icons.Rounded.SystemUpdate, stringResource(R.string.update_check_menu)) { onAction(MenuAction.UPDATES) }
         DrawerItem(Icons.Rounded.Info, stringResource(R.string.about_title)) { onAction(MenuAction.ABOUT) }

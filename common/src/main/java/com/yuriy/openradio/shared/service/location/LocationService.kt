@@ -125,6 +125,18 @@ class LocationService : JobIntentService() {
         }
 
         /**
+         * The user's own countries: the detected one, then the one of the system language.
+         */
+        fun ownCountryCodes(context: Context): List<String> {
+            val storage = com.yuriy.openradio.shared.model.storage.LocationStorage(
+                java.lang.ref.WeakReference(context.applicationContext)
+            )
+            val detected = storage.getCountryCode().uppercase(java.util.Locale.ROOT)
+            val language = java.util.Locale.getDefault().country.uppercase(java.util.Locale.ROOT)
+            return listOf(detected, language).filter { COUNTRY_CODE_TO_NAME.containsKey(it) }.distinct()
+        }
+
+        /**
          * Sorts countries by name the way the system language does.
          */
         fun sortByName(list: MutableList<Country>) {

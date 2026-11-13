@@ -9,6 +9,7 @@
     <string name="compose_reorder">Изменить порядок</string>
     <string name="compose_move_up">Выше</string>
     <string name="compose_move_down">Ниже</string>
+    <string name="add_station_done">Станция добавлена</string>
     <string name="compose_close_app">Закрыть Libre Radio</string>
 
     <string name="settings_title">Настройки</string>

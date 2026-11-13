@@ -24,6 +24,7 @@
     <string name="compose_reorder">Change order</string>
     <string name="compose_move_up">Move up</string>
     <string name="compose_move_down">Move down</string>
+    <string name="add_station_done">Station added</string>
     <string name="compose_close_app">Close Libre Radio</string>
 
     <!-- Compose settings screen -->
