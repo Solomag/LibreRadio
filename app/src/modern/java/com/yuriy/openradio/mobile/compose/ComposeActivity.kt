@@ -33,6 +33,7 @@ import com.yuriy.openradio.shared.service.location.LocationService
 import android.content.Intent
 import android.widget.Toast
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
+import com.yuriy.openradio.shared.model.storage.FileStoreManager
 import java.lang.ref.WeakReference
 
 /**
@@ -110,11 +111,24 @@ class ComposeActivity : AppCompatActivity(), SettingsHost {
         }
     }
 
+    private fun setBackupFallback() {
+        DependencyRegistryCommonUi.fileStoreManager().onFallback = { exported, ok ->
+            runOnUiThread {
+                Toast.makeText(this, FileStoreManager.fallbackMessage(this, exported, ok), Toast.LENGTH_LONG).show()
+                if (ok && exported.not()) {
+                    mViewModel.refreshRoot()
+                }
+            }
+        }
+    }
+
     override fun exportFavorites() {
+        setBackupFallback()
         DependencyRegistryCommonUi.fileStoreManager().upload(this) { toast(com.yuriy.openradio.shared.R.string.failure) }
     }
 
     override fun importFavorites() {
+        setBackupFallback()
         DependencyRegistryCommonUi.fileStoreManager().download(this) { toast(com.yuriy.openradio.shared.R.string.failure) }
     }
 

@@ -17,9 +17,15 @@
 package com.yuriy.openradio.shared.model.storage
 
 import android.app.Activity
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
@@ -28,6 +34,7 @@ import com.yuriy.openradio.shared.utils.AppLogger
 import com.yuriy.openradio.shared.utils.AppUtils
 import com.yuriy.openradio.shared.utils.IntentUtils
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 class FileStoreManager : StorageManagerDependency {
 
@@ -41,7 +48,28 @@ class FileStoreManager : StorageManagerDependency {
         mStorageManagerLayer = storageManagerLayer
     }
 
+    /**
+     * Without a document picker (many Android TV boxes) the backup goes to Downloads directly;
+     * [onFallback] then gets the result instead of the picker flow.
+     */
+    var onFallback: ((exported: Boolean, ok: Boolean) -> Unit)? = null
+
+    private fun usePickerless(context: Context, intent: Intent): Boolean {
+        val pm = context.packageManager
+        return pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) || intent.resolveActivity(pm) == null
+    }
+
+    private fun fallback(context: Context, export: Boolean): Boolean {
+        val callback = onFallback ?: return false
+        val ok = if (export) exportToDownloads(context) else importFromDownloads(context)
+        callback(export, ok)
+        return true
+    }
+
     fun upload(activity: AppCompatActivity, onFailure: () -> Unit) {
+        if (usePickerless(activity, getUploadIntent()) && fallback(activity, true)) {
+            return
+        }
         // Even though it is deprecated, Android officially recommends this approach:
         // https://developer.android.com/training/data-storage/shared/documents-files
         // Was what recommended as alternative to deprecation require much more time to implement as it relies
@@ -52,6 +80,10 @@ class FileStoreManager : StorageManagerDependency {
     }
 
     fun upload(dialogFragment: DialogFragment, onFailure: () -> Unit) {
+        val ctx = dialogFragment.requireContext()
+        if (usePickerless(ctx, getUploadIntent()) && fallback(ctx, true)) {
+            return
+        }
         // Even though it is deprecated, Android officially recommends this approach:
         // https://developer.android.com/training/data-storage/shared/documents-files
         // Was what recommended as alternative to deprecation require much more time to implement as it relies
@@ -62,6 +94,9 @@ class FileStoreManager : StorageManagerDependency {
     }
 
     fun download(activity: AppCompatActivity, onFailure: () -> Unit) {
+        if (usePickerless(activity, getDownloadIntent()) && fallback(activity, false)) {
+            return
+        }
         // Even though it is deprecated, Android officially recommends this approach:
         // https://developer.android.com/training/data-storage/shared/documents-files
         // Was what recommended as alternative to deprecation require much more time to implement as it relies
@@ -72,6 +107,10 @@ class FileStoreManager : StorageManagerDependency {
     }
 
     fun download(dialogFragment: DialogFragment, onFailure: () -> Unit) {
+        val ctx = dialogFragment.requireContext()
+        if (usePickerless(ctx, getDownloadIntent()) && fallback(ctx, false)) {
+            return
+        }
         // Even though it is deprecated, Android officially recommends this approach:
         // https://developer.android.com/training/data-storage/shared/documents-files
         // Was what recommended as alternative to deprecation require much more time to implement as it relies
@@ -105,11 +144,7 @@ class FileStoreManager : StorageManagerDependency {
                 AppLogger.d("Save data file to:$uri")
                 if (uri != null) {
                     context.contentResolver?.openOutputStream(uri)?.use { outputStream ->
-                        val data = hashMapOf(
-                            KEY_FAV to mStorageManagerLayer.getAllFavoritesAsString(),
-                            KEY_LOC to mStorageManagerLayer.getAllDeviceLocalsAsString()
-                        )
-                        outputStream.write(AppUtils.encodeBase64(AppUtils.serializeMap(data)))
+                        outputStream.write(encodeData())
                         onSuccess()
                     } ?: run {
                         AppLogger.e("Error opening output stream for uri: $uri")
@@ -131,18 +166,7 @@ class FileStoreManager : StorageManagerDependency {
                             while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                                 byteArrayOutputStream.write(buffer, 0, bytesRead)
                             }
-                            val fileContent = byteArrayOutputStream.toByteArray()
-                            val data = AppUtils.deserializeMap(AppUtils.decodeBase64(fileContent))
-                            if (data.isEmpty().not()) {
-                                val fav: String? = data[KEY_FAV]
-                                if (!fav.isNullOrEmpty()) {
-                                    mStorageManagerLayer.mergeFavorites(fav)
-                                }
-                                val loc: String? = data[KEY_LOC]
-                                if (!loc.isNullOrEmpty()) {
-                                    mStorageManagerLayer.mergeDeviceLocals(loc)
-                                }
-                            }
+                            applyData(byteArrayOutputStream.toByteArray())
                             onSuccess()
                         }
                     } catch (e: Exception) {
@@ -152,6 +176,97 @@ class FileStoreManager : StorageManagerDependency {
                 } ?: onFailure()
             }
         }
+    }
+
+    private fun encodeData(): ByteArray {
+        val data = hashMapOf(
+            KEY_FAV to mStorageManagerLayer.getAllFavoritesAsString(),
+            KEY_LOC to mStorageManagerLayer.getAllDeviceLocalsAsString()
+        )
+        return AppUtils.encodeBase64(AppUtils.serializeMap(data))
+    }
+
+    private fun applyData(content: ByteArray) {
+        val data = AppUtils.deserializeMap(AppUtils.decodeBase64(content))
+        val fav: String? = data[KEY_FAV]
+        if (!fav.isNullOrEmpty()) {
+            mStorageManagerLayer.mergeFavorites(fav)
+        }
+        val loc: String? = data[KEY_LOC]
+        if (!loc.isNullOrEmpty()) {
+            mStorageManagerLayer.mergeDeviceLocals(loc)
+        }
+    }
+
+    /**
+     * Writes the backup to Downloads/[DOWNLOADS_FILE_NAME].
+     */
+    fun exportToDownloads(context: Context): Boolean {
+        return try {
+            val bytes = encodeData()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val resolver = context.contentResolver
+                findInDownloads(context)?.let { resolver.delete(it, null, null) }
+                val values = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, DOWNLOADS_FILE_NAME)
+                    put(MediaStore.Downloads.MIME_TYPE, FILE_TYPE)
+                }
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values) ?: return false
+                resolver.openOutputStream(uri)?.use { it.write(bytes) } ?: return false
+            } else {
+                @Suppress("DEPRECATION")
+                val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                dir.mkdirs()
+                File(dir, DOWNLOADS_FILE_NAME).writeBytes(bytes)
+            }
+            true
+        } catch (e: Exception) {
+            AppLogger.e("$TAG export to Downloads", e)
+            false
+        }
+    }
+
+    /**
+     * Merges the backup from Downloads/[DOWNLOADS_FILE_NAME] into Favorites and own stations.
+     */
+    fun importFromDownloads(context: Context): Boolean {
+        return try {
+            val bytes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val uri = findInDownloads(context) ?: return false
+                context.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return false
+            } else {
+                @Suppress("DEPRECATION")
+                val dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val file = File(dir, DOWNLOADS_FILE_NAME)
+                if (file.exists().not()) {
+                    return false
+                }
+                file.readBytes()
+            }
+            applyData(bytes)
+            true
+        } catch (e: Exception) {
+            AppLogger.e("$TAG import from Downloads", e)
+            false
+        }
+    }
+
+    private fun findInDownloads(context: Context): Uri? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return null
+        }
+        context.contentResolver.query(
+            MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Downloads._ID),
+            "${MediaStore.Downloads.DISPLAY_NAME} = ?",
+            arrayOf(DOWNLOADS_FILE_NAME),
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                return ContentUris.withAppendedId(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cursor.getLong(0))
+            }
+        }
+        return null
     }
 
     private fun getUploadIntent(): Intent {
@@ -176,6 +291,20 @@ class FileStoreManager : StorageManagerDependency {
         private const val KEY_LOC = "locals"
         private const val FILE_NAME = "openradio_data"
         private const val FILE_TYPE = "text/plain"
+        const val DOWNLOADS_FILE_NAME = "libreradio_favorites.txt"
+
+        /**
+         * Message for the result of a backup through Downloads.
+         */
+        fun fallbackMessage(context: Context, exported: Boolean, ok: Boolean): String {
+            val res = when {
+                exported && ok -> com.yuriy.openradio.shared.R.string.backup_saved_downloads
+                ok -> com.yuriy.openradio.shared.R.string.backup_loaded_downloads
+                exported -> com.yuriy.openradio.shared.R.string.backup_save_failed
+                else -> com.yuriy.openradio.shared.R.string.backup_no_file
+            }
+            return context.getString(res, DOWNLOADS_FILE_NAME)
+        }
         private const val REQUEST_CODE_CREATE_FILE = 1234
         private const val REQUEST_CODE_OPEN_FILE = 5678
     }

@@ -79,4 +79,8 @@
     <string name="reset_password">Сбросить пароль</string>
     <string name="success">Готово</string>
     <string name="failure">Не получилось</string>
+    <string name="backup_saved_downloads">Сохранено в «Загрузки»: %1$s</string>
+    <string name="backup_loaded_downloads">Загружено из «Загрузок»: %1$s</string>
+    <string name="backup_save_failed">Не удалось сохранить %1$s в «Загрузки»</string>
+    <string name="backup_no_file">Положите %1$s в «Загрузки» и повторите</string>
 </resources>
