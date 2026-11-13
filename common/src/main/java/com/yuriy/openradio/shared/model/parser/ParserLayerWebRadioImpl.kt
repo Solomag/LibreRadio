@@ -252,9 +252,23 @@ class ParserLayerWebRadioImpl(private val mCountriesCache:Set<Country>) : Parser
             AppLogger.e("$TAG get name", e)
             return RadioStation.INVALID_INSTANCE
         }
-        if (name.lowercase().contains(searchId.lowercase()).not()) {
+        val needle = searchId.lowercase().trim()
+        if (name.lowercase().contains(needle).not() && hasGenreContaining(jsonObject, needle).not()) {
             return RadioStation.INVALID_INSTANCE
         }
         return getRadioStation(jsonObject, uuid)
+    }
+
+    /**
+     * Whether any of the station's genres contains [needle] (lower case).
+     */
+    private fun hasGenreContaining(jsonObject: JSONObject, needle: String): Boolean {
+        val genres = jsonObject.optJSONArray(KEY_GENRE) ?: return false
+        for (j in 0 until genres.length()) {
+            if (genres.optString(j).lowercase().contains(needle)) {
+                return true
+            }
+        }
+        return false
     }
 }

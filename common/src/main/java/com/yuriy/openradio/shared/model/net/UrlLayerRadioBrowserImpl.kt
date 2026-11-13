@@ -109,8 +109,21 @@ class UrlLayerRadioBrowserImpl : UrlLayer {
     }
 
     override fun getSearchUrl(query: String): Uri {
+        return makeSearchUrl("name", query)
+    }
+
+    /**
+     * Search by station name and by tag (genre), most popular first.
+     * Radio Browser treats several filters in one request as AND, so these are separate requests.
+     */
+    override fun getSearchUrls(query: String): List<Uri> {
+        return listOf(makeSearchUrl("name", query), makeSearchUrl("tag", query))
+    }
+
+    private fun makeSearchUrl(field: String, query: String): Uri {
         return Uri.parse(
-            BASE_URL + "stations/search?name=" + encodeValue(query)
+            BASE_URL + "stations/search?" + field + "=" + Uri.encode(query.trim())
+                    + "&hidebroken=true&order=clickcount&reverse=true"
                     + "&offset=" + 0
                     + "&limit=" + DependencyRegistryCommon.PAGE_SIZE
         )

@@ -60,5 +60,13 @@ interface UrlLayer {
      */
     fun getSearchUrl(query: String): Uri
 
+    /**
+     * Get all Uris a search should query; results are merged.
+     * By default only [getSearchUrl] is used.
+     */
+    fun getSearchUrls(query: String): List<Uri> {
+        return listOf(getSearchUrl(query))
+    }
+
     fun getAllCountries(): Uri
 }

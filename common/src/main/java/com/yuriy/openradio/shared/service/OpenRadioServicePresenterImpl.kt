@@ -146,9 +146,17 @@ class OpenRadioServicePresenterImpl(
     }
 
     override fun getSearchStations(query: String, mediaIdBuilder: MediaIdBuilder): Set<RadioStation> {
-        return mModelLayer.getStations(
-            mUrlLayer.getSearchUrl(query), mediaIdBuilder
-        )
+        // Merge results of all search requests (e.g. by name and by tag), keeping the first occurrence.
+        val result = LinkedHashSet<RadioStation>()
+        val ids = HashSet<String>()
+        for (uri in mUrlLayer.getSearchUrls(query)) {
+            for (station in mModelLayer.getStations(uri, mediaIdBuilder)) {
+                if (ids.add(station.id)) {
+                    result.add(station)
+                }
+            }
+        }
+        return result
     }
 
     override fun getFeatured(): Set<RadioStation> {
