@@ -31,7 +31,7 @@ class LocationStorage(private val mContextRef: WeakReference<Context>) : Abstrac
      * SIM / system locale country (previously this silently defaulted to Canada).
      */
     fun getCountryCode(): String {
-        val stored = getStringValue(PREFS_KEY_LAST_COUNTRY_CODE, "")
+        val stored = getStringValue(PREFS_KEY_LAST_COUNTRY_CODE, "").uppercase(java.util.Locale.ROOT)
         if (stored.length == 2) {
             return stored
         }
@@ -43,7 +43,7 @@ class LocationStorage(private val mContextRef: WeakReference<Context>) : Abstrac
         if (value.length != 2) {
             return
         }
-        putStringValue(PREFS_KEY_LAST_COUNTRY_CODE, value)
+        putStringValue(PREFS_KEY_LAST_COUNTRY_CODE, value.uppercase(java.util.Locale.ROOT))
         putLongValue(PREFS_KEY_DETECTED_AT, System.currentTimeMillis())
     }
 

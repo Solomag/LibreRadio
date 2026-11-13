@@ -29,6 +29,8 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -502,97 +504,148 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
     val md = vm.nowPlaying ?: return
     val scheme = MaterialTheme.colorScheme
     Surface(color = scheme.surface, contentColor = scheme.onSurface, modifier = Modifier.fillMaxSize()) {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(scheme.primaryContainer, scheme.surface, scheme.surface)))
-            .clickable(enabled = false) {}
-    ) {
-        Column(
+        BoxWithConstraints(
             Modifier
                 .fillMaxSize()
+                .background(Brush.verticalGradient(listOf(scheme.primaryContainer, scheme.surface, scheme.surface)))
+                .clickable(enabled = false) {}
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onClose) { Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null) }
-                Spacer(Modifier.weight(1f))
-                Text(
-                    stringResource(R.string.compose_now_playing),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = scheme.onSurfaceVariant
-                )
-                Spacer(Modifier.weight(1f))
-                Spacer(Modifier.size(48.dp))
-            }
-            Spacer(Modifier.weight(0.6f))
-            Artwork(
-                md,
-                Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
-                RoundedCornerShape(32.dp),
-                iconSize = 120.dp
-            )
-            Spacer(Modifier.height(32.dp))
-            Text(
-                md.title?.toString()?.trim() ?: "",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                trackText(md) ?: " ",
-                style = MaterialTheme.typography.titleMedium,
-                color = scheme.onSurfaceVariant,
-                maxLines = 1,
-                modifier = Modifier.basicMarquee()
-            )
-            Spacer(Modifier.weight(0.4f))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButton(onClick = { vm.toggleNowPlayingFavorite() }) {
-                    Icon(
-                        if (vm.isNowPlayingFavorite()) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                        contentDescription = null,
-                        tint = if (vm.isNowPlayingFavorite()) scheme.primary else scheme.onSurface
-                    )
-                }
-                IconButton(onClick = { vm.previous() }, modifier = Modifier.size(56.dp)) {
-                    Icon(Icons.Rounded.SkipPrevious, contentDescription = null, modifier = Modifier.size(36.dp))
-                }
-                FilledIconButton(
-                    onClick = { vm.togglePlay() },
-                    modifier = Modifier.size(84.dp),
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = scheme.primary)
-                ) {
-                    if (vm.isBuffering) {
-                        CircularProgressIndicator(color = scheme.onPrimary, modifier = Modifier.size(36.dp))
-                    } else {
-                        Icon(
-                            if (vm.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.size(44.dp)
+            val landscape = maxWidth > maxHeight
+            Column(Modifier.fillMaxSize()) {
+                PlayerHeader(onClose)
+                if (landscape) {
+                    // Artwork on the left, title and controls on the right.
+                    Row(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(start = 28.dp, end = 28.dp, bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Artwork(
+                            md,
+                            Modifier
+                                .fillMaxHeight()
+                                .aspectRatio(1f),
+                            RoundedCornerShape(28.dp),
+                            iconSize = 96.dp
                         )
+                        Spacer(Modifier.width(32.dp))
+                        Column(Modifier.weight(1f)) {
+                            PlayerTexts(md)
+                            Spacer(Modifier.height(24.dp))
+                            PlayerControls(vm)
+                        }
+                    }
+                } else {
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 28.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(Modifier.weight(0.6f))
+                        Artwork(
+                            md,
+                            Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f),
+                            RoundedCornerShape(32.dp),
+                            iconSize = 120.dp
+                        )
+                        Spacer(Modifier.height(32.dp))
+                        PlayerTexts(md)
+                        Spacer(Modifier.weight(0.4f))
+                        PlayerControls(vm)
+                        Spacer(Modifier.height(40.dp))
                     }
                 }
-                IconButton(onClick = { vm.next() }, modifier = Modifier.size(56.dp)) {
-                    Icon(Icons.Rounded.SkipNext, contentDescription = null, modifier = Modifier.size(36.dp))
-                }
-                IconButton(onClick = { vm.stopService() }) {
-                    Icon(Icons.Rounded.PowerSettingsNew, contentDescription = null)
-                }
             }
-            Spacer(Modifier.height(40.dp))
         }
     }
+}
+
+@Composable
+private fun PlayerHeader(onClose: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onClose) { Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null) }
+        Spacer(Modifier.weight(1f))
+        Text(
+            stringResource(R.string.compose_now_playing),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.size(48.dp))
+    }
+}
+
+@Composable
+private fun PlayerTexts(md: MediaMetadata) {
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            md.title?.toString()?.trim() ?: "",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            trackText(md) ?: " ",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            modifier = Modifier.basicMarquee()
+        )
+    }
+}
+
+@Composable
+private fun PlayerControls(vm: RadioViewModel) {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        IconButton(onClick = { vm.toggleNowPlayingFavorite() }) {
+            Icon(
+                if (vm.isNowPlayingFavorite()) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                contentDescription = null,
+                tint = if (vm.isNowPlayingFavorite()) scheme.primary else scheme.onSurface
+            )
+        }
+        IconButton(onClick = { vm.previous() }, modifier = Modifier.size(56.dp)) {
+            Icon(Icons.Rounded.SkipPrevious, contentDescription = null, modifier = Modifier.size(36.dp))
+        }
+        FilledIconButton(
+            onClick = { vm.togglePlay() },
+            modifier = Modifier.size(84.dp),
+            colors = IconButtonDefaults.filledIconButtonColors(containerColor = scheme.primary)
+        ) {
+            if (vm.isBuffering) {
+                CircularProgressIndicator(color = scheme.onPrimary, modifier = Modifier.size(36.dp))
+            } else {
+                Icon(
+                    if (vm.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.size(44.dp)
+                )
+            }
+        }
+        IconButton(onClick = { vm.next() }, modifier = Modifier.size(56.dp)) {
+            Icon(Icons.Rounded.SkipNext, contentDescription = null, modifier = Modifier.size(36.dp))
+        }
+        IconButton(onClick = { vm.stopService() }) {
+            Icon(Icons.Rounded.PowerSettingsNew, contentDescription = null)
+        }
     }
 }
 
