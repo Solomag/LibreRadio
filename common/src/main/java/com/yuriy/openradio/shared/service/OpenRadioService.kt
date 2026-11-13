@@ -190,6 +190,13 @@ class OpenRadioService : MediaLibraryService() {
             override fun onEvents(player: Player, events: Player.Events) {
                 publishNowPlaying()
             }
+
+            // The stream's track names arrive here only (OpenRadioPlayer does not raise onEvents for them).
+            override fun onMediaMetadataChanged(mediaMetadata: androidx.media3.common.MediaMetadata) {
+                publishNowPlaying(mediaMetadata.takeIf {
+                    it.title?.toString()?.trim() == mPlayer.currentMediaItem?.mediaMetadata?.title?.toString()?.trim()
+                })
+            }
         })
         mSession = with(
             MediaLibrarySession.Builder(
@@ -265,14 +272,17 @@ class OpenRadioService : MediaLibraryService() {
     /**
      * Station, track and play state for the widget and the tile.
      */
-    private fun publishNowPlaying() {
+    private fun publishNowPlaying(streamMetadata: androidx.media3.common.MediaMetadata? = null) {
         val item = mPlayer.currentMediaItem
         val station = item?.mediaMetadata?.title?.toString()?.trim()?.ifEmpty { null } ?: mActiveRS.name.trim()
-        val md = mPlayer.mediaMetadata
-        val text = (md.subtitle ?: md.artist)?.toString()?.trim() ?: ""
+        // The player puts the stream's "Artist - Title" into the subtitle of the current item;
+        // before that the subtitle is the station's country.
+        val text = (streamMetadata?.subtitle ?: item?.mediaMetadata?.subtitle ?: mPlayer.mediaMetadata.subtitle)
+            ?.toString()?.trim() ?: ""
         val ignored = setOf(
-            item?.mediaMetadata?.subtitle?.toString()?.trim(),
             station,
+            mActiveRS.country.trim(),
+            com.yuriy.openradio.shared.service.location.LocationService.displayCountryName(mActiveRS.countryCode),
             getString(R.string.media_description_default),
             getString(R.string.buffering_infinite)
         )

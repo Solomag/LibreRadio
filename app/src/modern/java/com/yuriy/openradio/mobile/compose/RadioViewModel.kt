@@ -458,8 +458,11 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun syncPlayer(player: Player) {
         val previousId = currentMediaId
-        // The station's own subtitle (its country) is shown until the stream names a track.
-        stationSubtitle = player.currentMediaItem?.mediaMetadata?.subtitle?.toString()?.trim()
+        // The station's own subtitle (its country) is shown until the stream names a track; the player
+        // later writes the track into the item's subtitle, so remember it only when the station changes.
+        if (player.currentMediaItem?.mediaId != previousId) {
+            stationSubtitle = player.currentMediaItem?.mediaMetadata?.subtitle?.toString()?.trim()
+        }
         nowPlaying = if (player.currentMediaItem != null) player.mediaMetadata else null
         currentMediaId = player.currentMediaItem?.mediaId
         nowPlaying?.let { recordTrack(it) }
