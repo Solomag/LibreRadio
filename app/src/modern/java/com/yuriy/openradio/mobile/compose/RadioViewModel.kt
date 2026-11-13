@@ -84,6 +84,8 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
      */
     data class TrackEntry(val time: Long, val station: String, val track: String)
 
+    private var stationSubtitle: String? = null
+
     /**
      * Tracks heard, newest first (kept between launches).
      */
@@ -456,6 +458,8 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun syncPlayer(player: Player) {
         val previousId = currentMediaId
+        // The station's own subtitle (its country) is shown until the stream names a track.
+        stationSubtitle = player.currentMediaItem?.mediaMetadata?.subtitle?.toString()?.trim()
         nowPlaying = if (player.currentMediaItem != null) player.mediaMetadata else null
         currentMediaId = player.currentMediaItem?.mediaId
         nowPlaying?.let { recordTrack(it) }
@@ -473,7 +477,9 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     fun trackOf(md: MediaMetadata?): String? {
         md ?: return null
         val text = (md.subtitle ?: md.artist)?.toString()?.trim()
-        if (text.isNullOrEmpty() || text == md.title?.toString()?.trim() || text in notTracks) {
+        if (text.isNullOrEmpty() || text == md.title?.toString()?.trim() || text in notTracks ||
+            text == stationSubtitle
+        ) {
             return null
         }
         return text

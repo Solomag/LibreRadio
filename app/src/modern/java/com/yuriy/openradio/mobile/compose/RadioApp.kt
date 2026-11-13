@@ -928,12 +928,14 @@ private fun Artwork(
                 modifier = Modifier.size(iconSize)
             )
         } else {
+            // A site icon is small: show it centred instead of stretched over the artwork.
+            val siteIcon = index > 0 || (md.artworkUri == null && candidates.isNotEmpty())
             AsyncImage(
                 model = uri,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = if (siteIcon) ContentScale.Fit else ContentScale.Crop,
                 onError = { index++ },
-                modifier = Modifier.fillMaxSize()
+                modifier = if (siteIcon) Modifier.fillMaxSize(0.5f) else Modifier.fillMaxSize()
             )
         }
     }

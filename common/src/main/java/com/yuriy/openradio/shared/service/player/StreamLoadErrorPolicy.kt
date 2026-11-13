@@ -39,11 +39,17 @@ class StreamLoadErrorPolicy : DefaultLoadErrorHandlingPolicy() {
         ) {
             return C.TIME_UNSET
         }
+        // A station that never sent a byte is most likely down: give up after a few attempts
+        // instead of minutes of "Buffering". Drops of a playing stream keep the long retry.
+        if (loadErrorInfo.loadEventInfo.bytesLoaded == 0L && loadErrorInfo.errorCount >= DEAD_STATION_ATTEMPTS) {
+            return C.TIME_UNSET
+        }
         return minOf(loadErrorInfo.errorCount * 1000L, MAX_DELAY_MS)
     }
 
     companion object {
         private const val RETRIES = 12
         private const val MAX_DELAY_MS = 5_000L
+        private const val DEAD_STATION_ATTEMPTS = 3
     }
 }
