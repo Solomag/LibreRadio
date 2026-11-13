@@ -70,6 +70,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 object DependencyRegistryCommon {
 
     const val PAGE_SIZE = 250
+
+    /**
+     * Page size the app's own UI asks the media library for. A page can hold more than [PAGE_SIZE]
+     * items because results of several catalogs / requests are merged (name + tag search, Web Radio).
+     */
+    const val UI_PAGE_SIZE = 5000
     const val UNKNOWN_ID = -1
 
     private lateinit var sFavoritesStorage: FavoritesStorage

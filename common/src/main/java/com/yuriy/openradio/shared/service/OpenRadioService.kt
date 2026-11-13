@@ -666,7 +666,8 @@ class OpenRadioService : MediaLibraryService() {
             mBrowser = browser
             return callWhenSourceReady(parentId, page, pageSize) {
                 val list = mBrowseTree[parentId] ?: ImmutableList.of()
-                val sublist = list.subList(it, list.size)
+                // Media3 rejects results larger than the requested page size (crash), so never exceed it.
+                val sublist = pageOf(list, it, pageSize)
                 AppLogger.d("$TAG GetChildren for $parentId page $page return ${sublist.size}|${list.size} from pos:$it")
                 LibraryResult.ofItemList(
                     sublist,
@@ -731,17 +732,26 @@ class OpenRadioService : MediaLibraryService() {
             if (list.isEmpty()) {
                 return callWhenSearchReady(queryStr) {
                     LibraryResult.ofItemList(
-                        mBrowseTree[queryStr] ?: mutableListOf(),
+                        pageOf(mBrowseTree[queryStr] ?: mutableListOf(), page * pageSize, pageSize),
                         LibraryParams.Builder().build()
                     )
                 }
             }
             return Futures.immediateFuture(
                 LibraryResult.ofItemList(
-                    list,
+                    pageOf(list, page * pageSize, pageSize),
                     LibraryParams.Builder().build()
                 )
             )
+        }
+
+        /**
+         * Items [from, from + pageSize) of [list], clamped to its bounds.
+         */
+        private fun pageOf(list: List<MediaItem>, from: Int, pageSize: Int): List<MediaItem> {
+            val start = from.coerceIn(0, list.size)
+            val end = if (pageSize > 0) minOf(list.size, start + pageSize) else list.size
+            return list.subList(start, end)
         }
 
         override fun onAddMediaItems(

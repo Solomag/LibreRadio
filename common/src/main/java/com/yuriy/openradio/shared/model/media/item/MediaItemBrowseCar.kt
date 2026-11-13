@@ -20,6 +20,8 @@ import com.yuriy.openradio.R
 import com.yuriy.openradio.shared.model.media.item.MediaItemCommand.IUpdatePlaybackState
 import com.yuriy.openradio.shared.model.source.Source
 import com.yuriy.openradio.shared.utils.MediaItemBuilder
+import com.yuriy.openradio.shared.service.location.Country
+import com.yuriy.openradio.shared.service.location.LocationService
 
 /**
  * Created by Yuriy Chernyshov
@@ -47,6 +49,14 @@ class MediaItemBrowseCar(private val mSource: Source) : MediaItemCommand {
         val countryCode = dependencies.countryCode
         if (countryCode.isNotEmpty() && countryCode != locationStr) {
             dependencies.addMediaItem(MediaItemBuilder.buildCountryMenuItem(context, countryCode))
+        }
+        // Country of the system language, if it differs from the detected one (e.g. ru-RU while in Montenegro).
+        val languageCountry = java.util.Locale.getDefault().country.uppercase(java.util.Locale.ROOT)
+        val languageCountryName = LocationService.COUNTRY_CODE_TO_NAME[languageCountry]
+        if (languageCountryName != null && languageCountry != countryCode) {
+            dependencies.addMediaItem(
+                MediaItemBuilder.buildCountryMenuItem(context, Country(languageCountryName, languageCountry))
+            )
         }
         // Show Local Radio Stations if they are exists
         val deviceLocal = dependencies.presenter.getAllDeviceLocal()

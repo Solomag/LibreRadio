@@ -118,7 +118,7 @@ class MediaResourcesManager(context: Context, className: String, private val mLi
             mMediaBrowser?.getSearchResult(
                 query,
                 page,
-                DependencyRegistryCommon.PAGE_SIZE,
+                DependencyRegistryCommon.UI_PAGE_SIZE,
                 null
             )
                 ?.await()?.value ?: ImmutableList.of()
@@ -126,7 +126,7 @@ class MediaResourcesManager(context: Context, className: String, private val mLi
             val children = mMediaBrowser?.getChildren(
                 parentId,
                 page,
-                DependencyRegistryCommon.PAGE_SIZE,
+                DependencyRegistryCommon.UI_PAGE_SIZE,
                 null
             )
             children?.addListener(
