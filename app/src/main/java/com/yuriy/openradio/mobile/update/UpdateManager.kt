@@ -160,7 +160,14 @@ object UpdateManager {
         for (i in 0 until assets.length()) {
             val asset = assets.getJSONObject(i)
             val name = asset.getString("name")
-            if (!name.endsWith(".apk") || name.endsWith("$LEGACY_SUFFIX.apk") != legacy) {
+            if (!name.endsWith(".apk")) {
+                continue
+            }
+            // "LibreRadio-15.4.0.apk" is the modern phone build, "-legacy" the legacy one;
+            // "-tv" and "-automotive" builds are for other devices.
+            val edition = name.removeSuffix(".apk").substringAfterLast('-')
+            val matches = if (legacy) "-$edition" == LEGACY_SUFFIX else edition.firstOrNull()?.isDigit() == true
+            if (!matches) {
                 continue
             }
             val digest = asset.optString("digest", "")

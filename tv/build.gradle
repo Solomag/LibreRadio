@@ -15,7 +15,8 @@ android {
         // TV keeps the classic UI and API 21 support.
         missingDimensionStrategy "platform", "legacy"
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode project.ext.versionCode
+        // Phone builds use N*10 (legacy) and N*10+1 (modern).
+        versionCode project.ext.versionCode * 10 + 2
         versionName project.ext.versionName
     }
 
@@ -46,6 +47,12 @@ android {
 
     kotlinOptions {
         jvmTarget = project.ext.kotlinJvmTarget
+    }
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
+            def type = variant.buildType.name == "release" ? "" : "-${variant.buildType.name}"
+            outputFileName = "LibreRadio-${project.ext.versionName}-tv${type}.apk"
+        }
     }
     packagingOptions {
         resources {
