@@ -454,6 +454,8 @@ class OpenRadioService : MediaLibraryService() {
         if (mPlayer.isStoppedByNetwork().not()) {
             return
         }
+        // One attempt per network error.
+        mPlayer.clearStoppedByNetwork()
         handlePlayRequest()
     }
 

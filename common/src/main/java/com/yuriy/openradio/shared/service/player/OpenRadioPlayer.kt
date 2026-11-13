@@ -116,7 +116,12 @@ class OpenRadioPlayer(
     private val mComponentListener = ComponentListener()
 
     @Volatile
-    private var mStoppedByNetwork = false
+    /**
+     * Time of the network error that stopped playback, 0 when playback was not stopped by the network.
+     * Cleared on any pause, focus loss or successful start, so a later network change never starts
+     * the radio over another app (4PDA report: Open Radio started over an audiobook).
+     */
+    private var mStoppedByNetworkAt = 0L
 
     /**
      * If Cast is available, create a CastPlayer to handle communication with a Cast session.
@@ -785,8 +790,16 @@ class OpenRadioPlayer(
         stopCurrentPlayer()
     }
 
+    /**
+     * @return True if a network error stopped playback a short time ago and nothing paused it since.
+     */
     fun isStoppedByNetwork(): Boolean {
-        return mStoppedByNetwork
+        val at = mStoppedByNetworkAt
+        return at != 0L && System.currentTimeMillis() - at < NETWORK_RESUME_WINDOW_MS
+    }
+
+    fun clearStoppedByNetwork() {
+        mStoppedByNetworkAt = 0L
     }
 
     private fun stopCurrentPlayer() {
@@ -902,6 +915,19 @@ class OpenRadioPlayer(
             updateStreamMetadata(title)
         }
 
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            if (isPlaying) {
+                clearStoppedByNetwork()
+            }
+        }
+
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+            // Paused by the user, audio focus loss, headphones unplugged...
+            if (playWhenReady.not()) {
+                clearStoppedByNetwork()
+            }
+        }
+
         override fun onPlaybackStateChanged(playerState: Int) {
             val mediaItem = mPlayer.currentMediaItem
             AppLogger.d(
@@ -947,7 +973,7 @@ class OpenRadioPlayer(
         override fun onPlayerError(exception: PlaybackException) {
             AppLogger.e("$TAG onPlayerError [${mNumOfExceptions.get()}]", exception)
             if (exception.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED) {
-                mStoppedByNetwork = true
+                mStoppedByNetworkAt = System.currentTimeMillis()
                 updateStreamMetadata(toDisplayString(mContext, exception))
                 return
             }
@@ -1047,6 +1073,11 @@ class OpenRadioPlayer(
     }
 
     companion object {
+
+        /**
+         * After a network error, playback resumes on reconnect only within this time.
+         */
+        private const val NETWORK_RESUME_WINDOW_MS = 5 * 60 * 1000L
         /**
          * String tag to use in logs.
          */
