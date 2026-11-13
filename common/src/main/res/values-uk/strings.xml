@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_agent_can_not_apply">Не вдалося застосувати User-Agent</string>
+    <string name="ok_label">OK</string>
+    <string name="buffering">Буферизація</string>
+    <string name="network">Мережа</string>
+    <string name="source">Джерело</string>
+    <string name="source_semicolon">Джерело:</string>
+    <string name="buffering_infinite">Буферизація…</string>
+    <string name="no_network_connection_toast">Немає з’єднання з мережею</string>
+    <string name="category_empty">Тут порожньо</string>
+    <string name="media_stream_error">Помилка</string>
+    <string name="media_stream_http_403">Доступ заборонено</string>
+    <string name="media_stream_http_404">Не знайдено</string>
+    <string name="media_stream_network_failed">Помилка мережі</string>
+    <string name="no_data_message">Дані не отримано</string>
+    <string name="favorite">Обране</string>
+    <string name="favorites_list_title">Обране</string>
+    <string name="new_stations_title">Нові</string>
+    <string name="browse_title">Огляд</string>
+    <string name="popular_stations_title">Популярні</string>
+    <string name="all_categories_title">Жанри</string>
+    <string name="countries_list_title">Країни</string>
+    <string name="local_radio_stations_list_title">Власні станції</string>
+    <string name="no_search_results">Нічого не знайдено</string>
+    <string name="search_label">Пошук</string>
+    <string name="cancel_label">Скасувати</string>
+    <string name="storage_permission_proposed">Доступ до сховища необов’язковий і потрібен лише для зображень станцій</string>
+    <string name="record_audio_permission_proposed">Доступ до мікрофона потрібен для голосового пошуку</string>
+    <string name="bluetooth_permission_proposed">Доступ до Bluetooth потрібен, щоб продовжувати відтворення при повторному підключенні пристрою</string>
+    <string name="radio_station">радіостанція</string>
+    <string name="radio_stations">радіостанції</string>
+    <string name="clear_completed">Кеш очищено</string>
+    <string name="media_description_default">Пряма трансляція</string>
+    <string name="location_access_proposed">Доступ до місцезнаходження необов’язковий: він потрібен, щоб показати станції вашої країни.</string>
+    <string name="default_country_use_location">За місцезнаходженням</string>
+    <string name="mobile_network_disabled">Мобільну мережу вимкнено в налаштуваннях</string>
+    <string name="notif_close_app_label">Закрити Libre Radio</string>
+    <string name="notification_channel">Зараз грає</string>
+    <string name="notification_channel_description">Показує, що зараз грає в Libre Radio</string>
+    <string name="recent_list_title">Нещодавні</string>
+</resources>

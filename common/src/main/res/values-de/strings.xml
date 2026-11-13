@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_agent_can_not_apply">User-Agent kann nicht übernommen werden</string>
+    <string name="ok_label">OK</string>
+    <string name="buffering">Pufferung</string>
+    <string name="network">Netzwerk</string>
+    <string name="source">Quelle</string>
+    <string name="source_semicolon">Quelle:</string>
+    <string name="buffering_infinite">Puffern…</string>
+    <string name="no_network_connection_toast">Keine Netzwerkverbindung</string>
+    <string name="category_empty">Hier ist nichts</string>
+    <string name="media_stream_error">Fehler</string>
+    <string name="media_stream_http_403">Zugriff verweigert</string>
+    <string name="media_stream_http_404">Nicht gefunden</string>
+    <string name="media_stream_network_failed">Netzwerkfehler</string>
+    <string name="no_data_message">Keine Daten erhalten</string>
+    <string name="favorite">Favorit</string>
+    <string name="favorites_list_title">Favoriten</string>
+    <string name="new_stations_title">Neu</string>
+    <string name="browse_title">Durchsuchen</string>
+    <string name="popular_stations_title">Beliebt</string>
+    <string name="all_categories_title">Genres</string>
+    <string name="countries_list_title">Länder</string>
+    <string name="local_radio_stations_list_title">Eigene Sender</string>
+    <string name="no_search_results">Keine Ergebnisse</string>
+    <string name="search_label">Suche</string>
+    <string name="cancel_label">Abbrechen</string>
+    <string name="storage_permission_proposed">Der Speicherzugriff ist optional und nur für Senderbilder nötig</string>
+    <string name="record_audio_permission_proposed">Für die Sprachsuche wird das Mikrofon benötigt</string>
+    <string name="bluetooth_permission_proposed">Bluetooth-Zugriff wird benötigt, um nach dem erneuten Verbinden weiterzuspielen</string>
+    <string name="radio_station">Radiosender</string>
+    <string name="radio_stations">Radiosender</string>
+    <string name="clear_completed">Cache geleert</string>
+    <string name="media_description_default">Livestream</string>
+    <string name="location_access_proposed">Der Standortzugriff ist optional und dient nur dazu, Sender deines Landes zu zeigen.</string>
+    <string name="default_country_use_location">Nach Standort</string>
+    <string name="mobile_network_disabled">Mobile Daten sind in den Einstellungen aus</string>
+    <string name="notif_close_app_label">Libre Radio beenden</string>
+    <string name="notification_channel">Läuft gerade</string>
+    <string name="notification_channel_description">Zeigt, was gerade in Libre Radio läuft</string>
+    <string name="recent_list_title">Zuletzt gehört</string>
+</resources>

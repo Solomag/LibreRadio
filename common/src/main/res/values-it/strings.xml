@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_agent_can_not_apply">Impossibile applicare lo User-Agent</string>
+    <string name="ok_label">OK</string>
+    <string name="buffering">Buffer</string>
+    <string name="network">Rete</string>
+    <string name="source">Fonte</string>
+    <string name="source_semicolon">Fonte:</string>
+    <string name="buffering_infinite">Caricamento…</string>
+    <string name="no_network_connection_toast">Nessuna connessione di rete</string>
+    <string name="category_empty">Qui non c’è niente</string>
+    <string name="media_stream_error">Errore</string>
+    <string name="media_stream_http_403">Accesso negato</string>
+    <string name="media_stream_http_404">Non trovato</string>
+    <string name="media_stream_network_failed">Errore di rete</string>
+    <string name="no_data_message">Nessun dato ricevuto</string>
+    <string name="favorite">Preferito</string>
+    <string name="favorites_list_title">Preferiti</string>
+    <string name="new_stations_title">Nuove</string>
+    <string name="browse_title">Sfoglia</string>
+    <string name="popular_stations_title">Popolari</string>
+    <string name="all_categories_title">Generi</string>
+    <string name="countries_list_title">Paesi</string>
+    <string name="local_radio_stations_list_title">Le mie stazioni</string>
+    <string name="no_search_results">Nessun risultato</string>
+    <string name="search_label">Cerca</string>
+    <string name="cancel_label">Annulla</string>
+    <string name="storage_permission_proposed">L’accesso alla memoria è facoltativo e serve solo per le immagini delle stazioni</string>
+    <string name="record_audio_permission_proposed">Il microfono serve per la ricerca vocale</string>
+    <string name="bluetooth_permission_proposed">Il Bluetooth serve per riprendere la riproduzione alla riconnessione</string>
+    <string name="radio_station">stazione radio</string>
+    <string name="radio_stations">stazioni radio</string>
+    <string name="clear_completed">Cache svuotata</string>
+    <string name="media_description_default">In diretta</string>
+    <string name="location_access_proposed">La posizione è facoltativa: serve a mostrare le stazioni del tuo paese.</string>
+    <string name="default_country_use_location">In base alla posizione</string>
+    <string name="mobile_network_disabled">I dati mobili sono disattivati nelle impostazioni</string>
+    <string name="notif_close_app_label">Chiudi Libre Radio</string>
+    <string name="notification_channel">In riproduzione</string>
+    <string name="notification_channel_description">Mostra cosa suona in Libre Radio</string>
+    <string name="recent_list_title">Recenti</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_agent_can_not_apply">Nie można zastosować User-Agent</string>
+    <string name="ok_label">OK</string>
+    <string name="buffering">Buforowanie</string>
+    <string name="network">Sieć</string>
+    <string name="source">Źródło</string>
+    <string name="source_semicolon">Źródło:</string>
+    <string name="buffering_infinite">Buforowanie…</string>
+    <string name="no_network_connection_toast">Brak połączenia z siecią</string>
+    <string name="category_empty">Nic tu nie ma</string>
+    <string name="media_stream_error">Błąd</string>
+    <string name="media_stream_http_403">Brak dostępu</string>
+    <string name="media_stream_http_404">Nie znaleziono</string>
+    <string name="media_stream_network_failed">Błąd sieci</string>
+    <string name="no_data_message">Nie otrzymano danych</string>
+    <string name="favorite">Ulubione</string>
+    <string name="favorites_list_title">Ulubione</string>
+    <string name="new_stations_title">Nowe</string>
+    <string name="browse_title">Przeglądaj</string>
+    <string name="popular_stations_title">Popularne</string>
+    <string name="all_categories_title">Gatunki</string>
+    <string name="countries_list_title">Kraje</string>
+    <string name="local_radio_stations_list_title">Moje stacje</string>
+    <string name="no_search_results">Brak wyników</string>
+    <string name="search_label">Szukaj</string>
+    <string name="cancel_label">Anuluj</string>
+    <string name="storage_permission_proposed">Dostęp do pamięci jest opcjonalny i służy tylko do obrazków stacji</string>
+    <string name="record_audio_permission_proposed">Mikrofon jest potrzebny do wyszukiwania głosowego</string>
+    <string name="bluetooth_permission_proposed">Bluetooth jest potrzebny, aby wznowić odtwarzanie po ponownym połączeniu</string>
+    <string name="radio_station">stacja radiowa</string>
+    <string name="radio_stations">stacje radiowe</string>
+    <string name="clear_completed">Wyczyszczono</string>
+    <string name="media_description_default">Na żywo</string>
+    <string name="location_access_proposed">Lokalizacja jest opcjonalna: służy do pokazania stacji twojego kraju.</string>
+    <string name="default_country_use_location">Według lokalizacji</string>
+    <string name="mobile_network_disabled">Dane komórkowe są wyłączone w ustawieniach</string>
+    <string name="notif_close_app_label">Zamknij Libre Radio</string>
+    <string name="notification_channel">Teraz gra</string>
+    <string name="notification_channel_description">Pokazuje, co gra w Libre Radio</string>
+    <string name="recent_list_title">Ostatnie</string>
+</resources>

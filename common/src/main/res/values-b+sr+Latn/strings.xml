@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_agent_can_not_apply">User-Agent ne može da se primeni</string>
+    <string name="ok_label">U redu</string>
+    <string name="buffering">Baferovanje</string>
+    <string name="network">Mreža</string>
+    <string name="source">Izvor</string>
+    <string name="source_semicolon">Izvor:</string>
+    <string name="buffering_infinite">Učitavanje…</string>
+    <string name="no_network_connection_toast">Nema mrežne veze</string>
+    <string name="category_empty">Ovde nema ničega</string>
+    <string name="media_stream_error">Greška</string>
+    <string name="media_stream_http_403">Pristup odbijen</string>
+    <string name="media_stream_http_404">Nije pronađeno</string>
+    <string name="media_stream_network_failed">Greška mreže</string>
+    <string name="no_data_message">Podaci nisu primljeni</string>
+    <string name="favorite">Omiljeno</string>
+    <string name="favorites_list_title">Omiljene</string>
+    <string name="new_stations_title">Nove</string>
+    <string name="browse_title">Pregled</string>
+    <string name="popular_stations_title">Popularne</string>
+    <string name="all_categories_title">Žanrovi</string>
+    <string name="countries_list_title">Zemlje</string>
+    <string name="local_radio_stations_list_title">Moje stanice</string>
+    <string name="no_search_results">Nema rezultata</string>
+    <string name="search_label">Pretraga</string>
+    <string name="cancel_label">Otkaži</string>
+    <string name="storage_permission_proposed">Pristup skladištu nije obavezan i služi samo za slike stanica</string>
+    <string name="record_audio_permission_proposed">Mikrofon je potreban za glasovnu pretragu</string>
+    <string name="bluetooth_permission_proposed">Bluetooth je potreban da reprodukcija nastavi posle ponovnog povezivanja</string>
+    <string name="radio_station">radio stanica</string>
+    <string name="radio_stations">radio stanice</string>
+    <string name="clear_completed">Keš obrisan</string>
+    <string name="media_description_default">Uživo</string>
+    <string name="location_access_proposed">Lokacija nije obavezna: služi da prikaže stanice tvoje zemlje.</string>
+    <string name="default_country_use_location">Po lokaciji</string>
+    <string name="mobile_network_disabled">Mobilni podaci su isključeni u podešavanjima</string>
+    <string name="notif_close_app_label">Zatvori Libre Radio</string>
+    <string name="notification_channel">Sada svira</string>
+    <string name="notification_channel_description">Prikazuje šta sada svira u aplikaciji Libre Radio</string>
+    <string name="recent_list_title">Nedavno</string>
+</resources>
