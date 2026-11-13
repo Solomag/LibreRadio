@@ -80,4 +80,14 @@
     <string name="navigation_drawer_open">Открыть меню</string>
     <string name="navigation_drawer_close">Закрыть меню</string>
     <string name="media_route_menu_title">Трансляция</string>
+    <string name="history_title">История треков</string>
+    <string name="history_empty">Здесь появятся песни, которые объявляют станции</string>
+    <string name="history_clear">Очистить</string>
+    <string name="song_find">Найти песню</string>
+    <string name="song_search_web">Найти в интернете</string>
+    <string name="song_search_music_app">Открыть в музыкальном приложении</string>
+    <string name="song_copy">Скопировать</string>
+    <string name="song_copied">Скопировано</string>
+    <string name="player_timer_active">Выключится в %1$s</string>
+    <string name="compose_drag">Перетащите, чтобы изменить порядок</string>
 </resources>

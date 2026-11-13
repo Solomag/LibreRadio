@@ -181,7 +181,7 @@ class RSSettingsDialog : BaseDialogFragment(), MediaPresenterDependency {
             }
             return if (!bundle.containsKey(KEY_MEDIA_ITEM)) {
                 null
-            } else MediaItem.CREATOR.fromBundle(bundle.getBundle(KEY_MEDIA_ITEM) ?: Bundle())
+            } else com.yuriy.openradio.shared.service.player.mediaItemFromBundle(bundle.getBundle(KEY_MEDIA_ITEM) ?: Bundle())
         }
     }
 }

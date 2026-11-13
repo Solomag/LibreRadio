@@ -97,4 +97,14 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- Cast menu item -->
     <string name="media_route_menu_title">Cast</string>
+    <string name="history_title">Track history</string>
+    <string name="history_empty">Track names appear here as stations play them</string>
+    <string name="history_clear">Clear</string>
+    <string name="song_find">Find song</string>
+    <string name="song_search_web">Search the web</string>
+    <string name="song_search_music_app">Open in a music app</string>
+    <string name="song_copy">Copy</string>
+    <string name="song_copied">Copied</string>
+    <string name="player_timer_active">Sleep at %1$s</string>
+    <string name="compose_drag">Drag to reorder</string>
 </resources>

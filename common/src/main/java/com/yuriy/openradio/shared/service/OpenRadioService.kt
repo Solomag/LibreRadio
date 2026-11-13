@@ -546,9 +546,15 @@ class OpenRadioService : MediaLibraryService() {
                     }
                     setActiveRS(it)
                     mPresenter.setLastRadioStation(it)
+                    val recentChanged = mPresenter.pushRecent(it)
                     mUiScope.launch {
                         // Update custom commands:
                         updateFavoriteState()
+                        if (recentChanged) {
+                            // The root shows "Recent" once something was played.
+                            mBrowseTree.invalidate(MediaId.MEDIA_ID_RECENT_LIST)
+                            mBrowseTree.invalidate(MediaId.MEDIA_ID_ROOT)
+                        }
                     }
                 }
             }

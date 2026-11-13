@@ -19,6 +19,17 @@
 package com.yuriy.openradio.mobile.compose
 
 import androidx.activity.compose.BackHandler
+import java.util.Date
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.zIndex
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.DragHandle
+import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.foundation.gestures.detectDragGestures
+import android.text.format.DateFormat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
@@ -109,6 +120,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -397,19 +409,63 @@ private fun Catalog(vm: RadioViewModel) {
             }
         )
     }
+    // Drag state of the reorder mode: the dragged item and its offset from its slot.
+    var draggedId by remember { mutableStateOf<String?>(null) }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
     LazyColumn(state = state, contentPadding = PaddingValues(vertical = 8.dp), modifier = Modifier.fillMaxSize()) {
         items(items, key = { it.mediaId }) { item ->
             if (item.mediaMetadata.isBrowsable == true) {
                 FolderRow(item) { vm.open(item) }
             } else {
+                val dragging = draggedId == item.mediaId
                 StationRow(
                     item = item,
                     playing = item.mediaId == vm.currentMediaId,
                     favorite = vm.isFavorite(item),
                     onClick = { vm.open(item) },
                     onFavorite = { vm.toggleFavorite(item) },
-                    onMove = if (vm.reordering) ({ delta -> vm.move(item, delta) }) else null,
-                    onLongClick = if (vm.canDelete) ({ toDelete = item }) else null
+                    dragHandle = if (vm.reordering) {
+                        Modifier.pointerInput(item.mediaId) {
+                            detectDragGestures(
+                                onDragStart = {
+                                    draggedId = item.mediaId
+                                    dragOffset = 0f
+                                },
+                                onDragEnd = {
+                                    draggedId = null
+                                    dragOffset = 0f
+                                    vm.saveOrder()
+                                },
+                                onDragCancel = {
+                                    draggedId = null
+                                    dragOffset = 0f
+                                    vm.saveOrder()
+                                },
+                                onDrag = { change, amount ->
+                                    change.consume()
+                                    dragOffset += amount.y
+                                    // Swap with the neighbour once the row passes half of its height.
+                                    val info = state.layoutInfo.visibleItemsInfo.firstOrNull { it.key == item.mediaId }
+                                    val size = (info?.size ?: 200).toFloat()
+                                    if (dragOffset > size / 2 && vm.moveLocal(item.mediaId, 1)) {
+                                        dragOffset -= size
+                                    } else if (dragOffset < -size / 2 && vm.moveLocal(item.mediaId, -1)) {
+                                        dragOffset += size
+                                    }
+                                }
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                    onLongClick = if (vm.canDelete) ({ toDelete = item }) else null,
+                    modifier = if (dragging) {
+                        Modifier
+                            .zIndex(1f)
+                            .graphicsLayer { translationY = dragOffset }
+                    } else {
+                        Modifier.animateItem()
+                    }
                 )
             }
         }
@@ -480,8 +536,9 @@ private fun StationRow(
     favorite: Boolean,
     onClick: () -> Unit,
     onFavorite: () -> Unit,
-    onMove: ((Int) -> Unit)? = null,
-    onLongClick: (() -> Unit)? = null
+    dragHandle: Modifier? = null,
+    onLongClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
 ) {
     val md = item.mediaMetadata
     val colors = if (playing) {
@@ -520,15 +577,14 @@ private fun StationRow(
             }
         },
         trailingContent = {
-            if (onMove != null) {
-                Row {
-                    IconButton(onClick = { onMove(-1) }) {
-                        Icon(Icons.Rounded.KeyboardArrowUp, contentDescription = stringResource(R.string.compose_move_up))
-                    }
-                    IconButton(onClick = { onMove(1) }) {
-                        Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = stringResource(R.string.compose_move_down))
-                    }
-                }
+            if (dragHandle != null) {
+                Icon(
+                    Icons.Rounded.DragHandle,
+                    contentDescription = stringResource(R.string.compose_drag),
+                    modifier = dragHandle
+                        .size(48.dp)
+                        .padding(12.dp)
+                )
                 return@ListItem
             }
             IconButton(onClick = onFavorite) {
@@ -540,7 +596,7 @@ private fun StationRow(
             }
         },
         colors = colors,
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 8.dp, vertical = 2.dp)
             .clip(RoundedCornerShape(18.dp))
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
@@ -613,7 +669,7 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
         ) {
             val landscape = maxWidth > maxHeight
             Column(Modifier.fillMaxSize()) {
-                PlayerHeader(onClose)
+                PlayerHeader(vm, onClose)
                 if (landscape) {
                     // Artwork on the left, title and controls on the right.
                     Row(
@@ -632,7 +688,7 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
                         )
                         Spacer(Modifier.width(32.dp))
                         Column(Modifier.weight(1f)) {
-                            PlayerTexts(md)
+                            PlayerTexts(vm, md)
                             Spacer(Modifier.height(24.dp))
                             PlayerControls(vm)
                         }
@@ -654,7 +710,7 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
                             iconSize = 120.dp
                         )
                         Spacer(Modifier.height(32.dp))
-                        PlayerTexts(md)
+                        PlayerTexts(vm, md)
                         Spacer(Modifier.weight(0.4f))
                         PlayerControls(vm)
                         Spacer(Modifier.height(40.dp))
@@ -666,7 +722,11 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
 }
 
 @Composable
-private fun PlayerHeader(onClose: () -> Unit) {
+private fun PlayerHeader(vm: RadioViewModel, onClose: () -> Unit) {
+    val context = LocalContext.current
+    val timerEnd by rememberSleepTimerEnd()
+    var timerOpen by remember { mutableStateOf(false) }
+    var historyOpen by remember { mutableStateOf(false) }
     Row(
         Modifier
             .fillMaxWidth()
@@ -674,19 +734,40 @@ private fun PlayerHeader(onClose: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onClose) { Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null) }
+        Spacer(Modifier.size(48.dp))
         Spacer(Modifier.weight(1f))
+        val end = timerEnd
         Text(
-            stringResource(R.string.compose_now_playing),
+            if (end == null) {
+                stringResource(R.string.compose_now_playing)
+            } else {
+                stringResource(R.string.player_timer_active, DateFormat.getTimeFormat(context).format(Date(end)))
+            },
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (end == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
         )
         Spacer(Modifier.weight(1f))
-        Spacer(Modifier.size(48.dp))
+        IconButton(onClick = { timerOpen = true }) {
+            Icon(
+                Icons.Rounded.Bedtime,
+                contentDescription = stringResource(R.string.settings_section_timer),
+                tint = if (end == null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary
+            )
+        }
+        IconButton(onClick = { historyOpen = true }) {
+            Icon(Icons.Rounded.History, contentDescription = stringResource(R.string.history_title))
+        }
+    }
+    if (timerOpen) {
+        SleepTimerDialog { timerOpen = false }
+    }
+    if (historyOpen) {
+        TrackHistoryDialog(vm) { historyOpen = false }
     }
 }
 
 @Composable
-private fun PlayerTexts(md: MediaMetadata) {
+private fun PlayerTexts(vm: RadioViewModel, md: MediaMetadata) {
     Column(Modifier.fillMaxWidth()) {
         Text(
             md.title?.toString()?.trim() ?: "",
@@ -703,6 +784,18 @@ private fun PlayerTexts(md: MediaMetadata) {
             maxLines = 1,
             modifier = Modifier.basicMarquee()
         )
+        val track = vm.trackOf(md)
+        var menu by remember { mutableStateOf(false) }
+        Box(Modifier.height(48.dp)) {
+            if (track != null) {
+                TextButton(onClick = { menu = true }, contentPadding = PaddingValues(0.dp)) {
+                    Icon(Icons.Rounded.Search, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.song_find))
+                }
+                FindSongMenu(track, menu) { menu = false }
+            }
+        }
     }
 }
 
@@ -817,15 +910,17 @@ private fun Artwork(
     shape: RoundedCornerShape,
     iconSize: androidx.compose.ui.unit.Dp = 28.dp
 ) {
-    val uri = md.artworkUri
-    var failed by remember(uri) { mutableStateOf(false) }
+    // The catalog logo, then the station site's own icons (no third-party icon service).
+    val candidates = remember(md.artworkUri, md.extras) { artworkCandidates(md) }
+    var index by remember(candidates) { mutableIntStateOf(0) }
+    val uri = candidates.getOrNull(index)
     Box(
         modifier
             .clip(shape)
             .background(MaterialTheme.colorScheme.secondaryContainer),
         contentAlignment = Alignment.Center
     ) {
-        if (uri == null || failed) {
+        if (uri == null) {
             Icon(
                 Icons.Rounded.Radio,
                 contentDescription = null,
@@ -837,11 +932,26 @@ private fun Artwork(
                 model = uri,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                onError = { failed = true },
+                onError = { index++ },
                 modifier = Modifier.fillMaxSize()
             )
         }
     }
+}
+
+/**
+ * Logo sources of a station: the catalog image, then the touch icon and favicon of its web site.
+ */
+private fun artworkCandidates(md: MediaMetadata): List<Any> {
+    val list = ArrayList<Any>()
+    md.artworkUri?.let { list.add(it) }
+    val site = MediaItemHelper.getHomePage(md.extras)
+    val host = runCatching { android.net.Uri.parse(site).host }.getOrNull()
+    if (!host.isNullOrEmpty() && (site.startsWith("http://") || site.startsWith("https://"))) {
+        list.add("https://$host/apple-touch-icon.png")
+        list.add("https://$host/favicon.ico")
+    }
+    return list
 }
 
 /**

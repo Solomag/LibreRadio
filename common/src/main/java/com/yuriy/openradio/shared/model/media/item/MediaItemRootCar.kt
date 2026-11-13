@@ -38,6 +38,10 @@ class MediaItemRootCar(private val mSource: Source) : MediaItemCommand {
         if (favorites.isNotEmpty()) {
             dependencies.addMediaItem(MediaItemBuilder.buildFavoritesMenuItem(context))
         }
+        // Recently played stations.
+        if (dependencies.presenter.getRecentStations().isNotEmpty()) {
+            dependencies.addMediaItem(MediaItemBuilder.buildRecentMenuItem(context))
+        }
         // Featured list was hosted on the original author's Firebase project; no longer available.
         if (mSource == Source.RADIO_BROWSER) {
             // Recently added Radio Stations.

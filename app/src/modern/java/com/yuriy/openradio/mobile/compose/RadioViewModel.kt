@@ -80,6 +80,30 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     var reordering by mutableStateOf(false)
 
     /**
+     * A track heard on the radio.
+     */
+    data class TrackEntry(val time: Long, val station: String, val track: String)
+
+    /**
+     * Tracks heard, newest first (kept between launches).
+     */
+    val history = mutableStateListOf<TrackEntry>()
+
+    private val prefs = app.getSharedPreferences("compose_track_history", android.content.Context.MODE_PRIVATE)
+
+    /**
+     * Texts the service puts in place of a track: "Live stream", "Buffering…", errors.
+     */
+    private val notTracks: Set<String> = setOf(
+        app.getString(com.yuriy.openradio.R.string.media_description_default),
+        app.getString(com.yuriy.openradio.R.string.buffering_infinite),
+        app.getString(com.yuriy.openradio.R.string.media_stream_error),
+        app.getString(com.yuriy.openradio.R.string.media_stream_network_failed),
+        app.getString(com.yuriy.openradio.R.string.media_stream_http_403),
+        app.getString(com.yuriy.openradio.R.string.media_stream_http_404),
+    )
+
+    /**
      * Favorite state changed in this session, by media id (the catalog is not re-fetched on every toggle).
      */
     private val favoriteOverrides = mutableStateMapOf<String, Boolean>()
@@ -95,6 +119,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     init {
+        loadHistory()
         val title = app.getString(R.string.app_name)
         folders.add(Folder(MediaId.MEDIA_ID_ROOT, title))
         viewModelScope.launch {
@@ -213,6 +238,33 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     val canReorder: Boolean
         get() = current.id == MediaId.MEDIA_ID_FAVORITES_LIST ||
                 current.id == MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST
+
+    /**
+     * Moves a station one place while it is dragged; [saveOrder] stores the order afterwards.
+     *
+     * @return False at the ends of the list.
+     */
+    fun moveLocal(mediaId: String, delta: Int): Boolean {
+        val list = items.toMutableList()
+        val from = list.indexOfFirst { it.mediaId == mediaId }
+        val to = from + delta
+        if (from < 0 || to !in list.indices) {
+            return false
+        }
+        java.util.Collections.swap(list, from, to)
+        items = list
+        return true
+    }
+
+    fun saveOrder() {
+        if (canReorder.not()) {
+            return
+        }
+        sendCommand(
+            OpenRadioService.CMD_SET_ORDER,
+            OpenRadioStore.makeSetOrderBundle(items.map { it.mediaId }, current.id)
+        )
+    }
 
     /**
      * Moves a station of Favorites / own stations up (-1) or down (+1) and stores the new order.
@@ -403,10 +455,64 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun syncPlayer(player: Player) {
+        val previousId = currentMediaId
         nowPlaying = if (player.currentMediaItem != null) player.mediaMetadata else null
         currentMediaId = player.currentMediaItem?.mediaId
+        nowPlaying?.let { recordTrack(it) }
+        if (previousId == null && currentMediaId != null) {
+            // The first station played may add "Recent" to the root.
+            refreshRoot()
+        }
         isPlaying = player.isPlaying
         isBuffering = player.playbackState == Player.STATE_BUFFERING && player.playWhenReady
+    }
+
+    /**
+     * The current track ("Artist - Title"), or null for station texts like "Live stream".
+     */
+    fun trackOf(md: MediaMetadata?): String? {
+        md ?: return null
+        val text = (md.subtitle ?: md.artist)?.toString()?.trim()
+        if (text.isNullOrEmpty() || text == md.title?.toString()?.trim() || text in notTracks) {
+            return null
+        }
+        return text
+    }
+
+    private fun recordTrack(md: MediaMetadata) {
+        val track = trackOf(md) ?: return
+        if (history.firstOrNull()?.track == track) {
+            return
+        }
+        history.add(0, TrackEntry(System.currentTimeMillis(), md.title?.toString()?.trim() ?: "", track))
+        while (history.size > MAX_HISTORY) {
+            history.removeAt(history.lastIndex)
+        }
+        saveHistory()
+    }
+
+    fun clearHistory() {
+        history.clear()
+        saveHistory()
+    }
+
+    private fun saveHistory() {
+        val array = org.json.JSONArray()
+        history.forEach {
+            array.put(org.json.JSONObject().put("t", it.time).put("s", it.station).put("k", it.track))
+        }
+        prefs.edit().putString(KEY_HISTORY, array.toString()).apply()
+    }
+
+    private fun loadHistory() {
+        val raw = prefs.getString(KEY_HISTORY, null) ?: return
+        runCatching {
+            val array = org.json.JSONArray(raw)
+            for (i in 0 until array.length()) {
+                val o = array.getJSONObject(i)
+                history.add(TrackEntry(o.getLong("t"), o.getString("s"), o.getString("k")))
+            }
+        }
     }
 
     override fun onCleared() {
@@ -416,5 +522,10 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         }
         browser = null
         super.onCleared()
+    }
+
+    companion object {
+        private const val MAX_HISTORY = 100
+        private const val KEY_HISTORY = "history"
     }
 }

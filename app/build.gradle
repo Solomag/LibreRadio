@@ -101,7 +101,7 @@ dependencies {
     modernImplementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleComposeVersion"
     modernImplementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycleComposeVersion"
     modernImplementation "io.coil-kt:coil-compose:$coilVersion"
-    modernImplementation "androidx.media3:media3-session:$media3Version"
+    modernImplementation "androidx.media3:media3-session:$media3VersionModern"
     modernImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:$kotlinxCoroutinesAndroid"
     // The Compose compiler plugin needs the runtime on the classpath for every variant;
     // legacy has no composables, so it is compile-only there (not packaged).

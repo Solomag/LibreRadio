@@ -29,6 +29,8 @@ import com.yuriy.openradio.shared.model.source.Source
 import com.yuriy.openradio.shared.model.storage.DeviceLocalsStorage
 import com.yuriy.openradio.shared.model.storage.FavoritesStorage
 import com.yuriy.openradio.shared.model.storage.LatestRadioStationStorage
+import com.yuriy.openradio.shared.model.storage.RecentStationsStorage
+import com.yuriy.openradio.shared.model.media.item.MediaItemRecentList
 import com.yuriy.openradio.shared.model.storage.LocationStorage
 import com.yuriy.openradio.shared.model.storage.NetworkSettingsStorage
 import com.yuriy.openradio.shared.model.storage.cache.api.ApiCache
@@ -65,6 +67,10 @@ class OpenRadioServicePresenterImpl(
      * Additional catalogs merged into the primary one (e.g. Web Radio next to Radio Browser).
      * Each catalog returns all its matches at once, so they are only queried for the first page.
      */
+    /**
+     * The last played stations ("Recent" folder).
+     */
+    private val mRecentStorage: RecentStationsStorage,
     private val mExtraCatalogs: List<kotlin.Pair<UrlLayer, ModelLayer>> = emptyList()
 ) : OpenRadioServicePresenter {
 
@@ -85,6 +91,7 @@ class OpenRadioServicePresenterImpl(
         mMediaItemCommands[MediaId.MEDIA_ID_COUNTRY_STATIONS] = MediaItemCountryStations()
         mMediaItemCommands[MediaId.MEDIA_ID_CHILD_CATEGORIES] = MediaItemChildCategories()
         mMediaItemCommands[MediaId.MEDIA_ID_FAVORITES_LIST] = MediaItemFavoritesList()
+        mMediaItemCommands[MediaId.MEDIA_ID_RECENT_LIST] = MediaItemRecentList()
         mMediaItemCommands[MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST] = MediaItemLocalsList()
         mMediaItemCommands[MediaId.MEDIA_ID_SEARCH_FROM_APP] = MediaItemSearchFromApp()
         mMediaItemCommands[MediaId.MEDIA_ID_SEARCH_FROM_SERVICE] = MediaItemSearchFromService()
@@ -236,6 +243,14 @@ class OpenRadioServicePresenterImpl(
 
     override fun getAllDeviceLocal(): Set<RadioStation> {
         return mDeviceLocalsStorage.getAll()
+    }
+
+    override fun getRecentStations(): List<RadioStation> {
+        return mRecentStorage.getAll().toList()
+    }
+
+    override fun pushRecent(radioStation: RadioStation): Boolean {
+        return mRecentStorage.push(radioStation)
     }
 
     override fun getLastRadioStation(): RadioStation {

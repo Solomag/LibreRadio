@@ -169,52 +169,10 @@ fun SettingsScreen(vm: RadioViewModel, host: SettingsHost, onBack: () -> Unit) {
 
 // region Sleep timer
 
-/**
- * @return End of the running sleep timer, or null when it is off.
- */
-private fun timerEnd(model: SleepTimerModel): Long? {
-    if (model.isEnabled().not()) {
-        return null
-    }
-    model.updateTime(true)
-    val ts = model.getTimestamp()
-    return if (model.isTimestampNotValid(ts)) null else ts
-}
-
 @Composable
 private fun SleepTimerSection() {
     val context = LocalContext.current
-    val model = remember { DependencyRegistryCommonUi.sleepTimerModel() }
-    var end by remember { mutableStateOf(timerEnd(model)) }
-    var picking by remember { mutableStateOf(false) }
-
-    DisposableEffect(model) {
-        val listener = object : SleepTimerListener {
-            override fun onComplete() {
-                end = null
-            }
-        }
-        model.addSleepTimerListener(listener)
-        onDispose { model.removeSleepTimerListener(listener) }
-    }
-
-    fun start(at: Long) {
-        val c = Calendar.getInstance().apply { timeInMillis = at }
-        model.setDate(c[Calendar.YEAR], c[Calendar.MONTH], c[Calendar.DAY_OF_MONTH])
-        model.setTime(c[Calendar.HOUR_OF_DAY], c[Calendar.MINUTE])
-        model.setEnabled(true)
-        model.updateTimer(model.getTimestamp(), true)
-        end = model.getTimestamp()
-    }
-
-    fun stop() {
-        model.setEnabled(false)
-        model.updateTimer(model.getTimestamp(), false)
-        end = null
-    }
-
-    fun inMinutes(min: Int) = System.currentTimeMillis() + min * 60_000L
-
+    var end by rememberSleepTimerEnd()
     Header(stringResource(R.string.settings_section_timer))
     val endValue = end
     SwitchRow(
@@ -226,55 +184,18 @@ private fun SleepTimerSection() {
             stringResource(R.string.settings_timer_at, DateFormat.getTimeFormat(context).format(Date(endValue)))
         },
         checked = endValue != null
-    ) { on -> if (on) start(inMinutes(30)) else stop() }
-    if (endValue != null) {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(start = 56.dp, end = 16.dp)
-        ) {
-            listOf(15, 30, 60, 120).forEach { min ->
-                val label = if (min < 60) {
-                    stringResource(R.string.settings_timer_in_min, min)
-                } else {
-                    stringResource(R.string.settings_timer_in_hours, min / 60)
-                }
-                AssistChip(onClick = { start(inMinutes(min)) }, label = { Text("+$label") })
-            }
-            AssistChip(
-                onClick = { picking = true },
-                label = { Text(stringResource(R.string.settings_timer_pick)) },
-                leadingIcon = { Icon(Icons.Rounded.Schedule, contentDescription = null) }
-            )
+    ) { on ->
+        end = if (on) {
+            SleepTimer.start(SleepTimer.inMinutes(30))
+        } else {
+            SleepTimer.stop()
+            null
         }
     }
-    if (picking) {
-        val now = Calendar.getInstance().apply { timeInMillis = end ?: inMinutes(30) }
-        val state = rememberTimePickerState(
-            initialHour = now[Calendar.HOUR_OF_DAY],
-            initialMinute = now[Calendar.MINUTE],
-            is24Hour = DateFormat.is24HourFormat(context)
-        )
-        AlertDialog(
-            onDismissRequest = { picking = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    val c = Calendar.getInstance().apply {
-                        set(Calendar.HOUR_OF_DAY, state.hour)
-                        set(Calendar.MINUTE, state.minute)
-                        set(Calendar.SECOND, 0)
-                        if (timeInMillis <= System.currentTimeMillis()) {
-                            add(Calendar.DAY_OF_MONTH, 1)
-                        }
-                    }
-                    start(c.timeInMillis)
-                    picking = false
-                }) { Text(stringResource(R.string.settings_ok)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { picking = false }) { Text(stringResource(R.string.settings_cancel)) }
-            },
-            text = { TimePicker(state) }
-        )
+    if (endValue != null) {
+        Column(Modifier.padding(start = 56.dp, end = 16.dp)) {
+            SleepTimerChips(endValue, { end = it }, showOff = false)
+        }
     }
 }
 

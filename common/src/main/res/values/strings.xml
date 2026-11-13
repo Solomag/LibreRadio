@@ -64,4 +64,5 @@
     <!-- Notification Channel -->
     <string name="notification_channel">Now Playing</string>
     <string name="notification_channel_description">Shows what music is currently playing on Libre Radio</string>
+    <string name="recent_list_title">Recent</string>
 </resources>

@@ -36,6 +36,7 @@ object MediaItemHelper {
     private const val KEY_IS_LOCAL = "KEY_IS_LOCAL"
     private const val KEY_SORT_ID = "KEY_SORT_ID"
     private const val KEY_BITRATE = "KEY_BITRATE"
+    private const val KEY_HOME_PAGE = "KEY_HOME_PAGE"
     private const val KEY_DRAWABLE_ID = "DRAWABLE_ID"
 
     fun setDrawableId(bundle: Bundle?, drawableId: Int) {
@@ -49,6 +50,17 @@ object MediaItemHelper {
 
     fun isDrawableIdValid(drawableId: Int): Boolean {
         return drawableId != DRAWABLE_ID_UNDEFINED
+    }
+
+    /**
+     * Web site of the station (used to find a logo when the catalog has none).
+     */
+    fun setHomePage(bundle: Bundle, homePage: String) {
+        bundle.putString(KEY_HOME_PAGE, homePage)
+    }
+
+    fun getHomePage(extras: Bundle?): String {
+        return extras?.getString(KEY_HOME_PAGE) ?: ""
     }
 
     fun updateBitrateField(bundle: Bundle, bitrate: Int) {

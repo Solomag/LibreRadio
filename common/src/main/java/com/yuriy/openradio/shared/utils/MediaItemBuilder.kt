@@ -111,6 +111,23 @@ object MediaItemBuilder {
             .build()
     }
 
+    fun buildRecentMenuItem(context: Context): MediaItem {
+        val bundle = Bundle()
+        MediaItemHelper.setDrawableId(bundle, R.drawable.ic_history_black_24dp)
+        return MediaItem.Builder()
+            .setMediaId(MediaId.MEDIA_ID_RECENT_LIST)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_RADIO_STATIONS)
+                    .setTitle(context.getString(R.string.recent_list_title))
+                    .setExtras(bundle)
+                    .setIsBrowsable(true)
+                    .setIsPlayable(false)
+                    .build()
+            )
+            .build()
+    }
+
     fun buildNewStationsMenuItem(context: Context): MediaItem {
         val bundle = Bundle()
         MediaItemHelper.setDrawableId(bundle, R.drawable.ic_fiber_new_black_24dp)
@@ -264,7 +281,14 @@ object MediaItemBuilder {
         MediaItemHelper.updateSortIdField(bundle, radioStation.sortId)
         MediaItemHelper.updateLocalRadioStationField(bundle, isLocal)
         MediaItemHelper.setDrawableId(bundle, R.drawable.ic_radio_station_empty)
+        MediaItemHelper.setHomePage(bundle, radioStation.homePage)
         val uri = Uri.parse(radioStation.getStreamUrlFixed())
+        // Country in the system language when the code is known ("Финляндия", not "Finland").
+        val country = if (radioStation.countryCode.length == 2) {
+            LocationService.displayCountryName(radioStation.countryCode)
+        } else {
+            radioStation.country
+        }
         return MediaItem.Builder()
             .setMediaId(radioStation.id)
             .setUri(uri)
@@ -273,7 +297,7 @@ object MediaItemBuilder {
                 MediaMetadata.Builder()
                     .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC)
                     .setTitle(radioStation.name)
-                    .setSubtitle(radioStation.country)
+                    .setSubtitle(country)
                     .setDescription(radioStation.genre)
                     .setArtworkUri(radioStation.imageUri)
                     .setExtras(bundle)

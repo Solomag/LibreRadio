@@ -42,6 +42,10 @@ class MediaItemRoot(private val mSource: Source) : MediaItemCommand {
         if (favorites.isNotEmpty()) {
             dependencies.addMediaItem(MediaItemBuilder.buildFavoritesMenuItem(context))
         }
+        // Recently played stations.
+        if (dependencies.presenter.getRecentStations().isNotEmpty()) {
+            dependencies.addMediaItem(MediaItemBuilder.buildRecentMenuItem(context))
+        }
         if (mSource == Source.RADIO_BROWSER) {
             // Recently added Radio Stations
             dependencies.addMediaItem(MediaItemBuilder.buildNewStationsMenuItem(context))

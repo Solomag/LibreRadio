@@ -48,6 +48,7 @@ import com.yuriy.openradio.shared.model.storage.DeviceLocalsStorage
 import com.yuriy.openradio.shared.model.storage.EqualizerStorage
 import com.yuriy.openradio.shared.model.storage.FavoritesStorage
 import com.yuriy.openradio.shared.model.storage.LatestRadioStationStorage
+import com.yuriy.openradio.shared.model.storage.RecentStationsStorage
 import com.yuriy.openradio.shared.model.storage.LocationStorage
 import com.yuriy.openradio.shared.model.storage.NetworkSettingsStorage
 import com.yuriy.openradio.shared.model.storage.cache.api.InMemoryApiCache
@@ -194,6 +195,7 @@ object DependencyRegistryCommon {
             countriesCache,
             listenerProxy,
             sCastLayer,
+            RecentStationsStorage(contextRef),
             listOf(kotlin.Pair(webRadioUrlLayer, webRadioModelLayer))
         )
 

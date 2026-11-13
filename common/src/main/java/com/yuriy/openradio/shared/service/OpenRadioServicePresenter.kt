@@ -57,6 +57,18 @@ interface OpenRadioServicePresenter {
 
     fun getAllFavorites(): Set<RadioStation>
 
+    /**
+     * The last played stations, newest first.
+     */
+    fun getRecentStations(): List<RadioStation>
+
+    /**
+     * Puts the station on top of the recent ones.
+     *
+     * @return True if the list changed.
+     */
+    fun pushRecent(radioStation: RadioStation): Boolean
+
     fun getAllDeviceLocal(): Set<RadioStation>
 
 

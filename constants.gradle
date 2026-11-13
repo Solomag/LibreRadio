@@ -56,6 +56,8 @@ project.ext {
     preferenceKtxVersion = "1.2.1"
     workVersion = "2.9.0"
     media3Version = "1.2.1"
+    // Modern edition (API 24+): current Media3; 1.6.1 is the newest with a matching FFmpeg decoder build.
+    media3VersionModern = "1.6.1"
     // Seems like this is max version that supports Android 17
     okhttp3Version = "3.12.13"
     okhttp3VersionModern = "4.12.0"

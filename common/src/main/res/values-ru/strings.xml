@@ -38,4 +38,5 @@
     <string name="notif_close_app_label">Закрыть Libre Radio</string>
     <string name="notification_channel">Сейчас играет</string>
     <string name="notification_channel_description">Показывает, что сейчас играет в Libre Radio</string>
+    <string name="recent_list_title">Недавние</string>
 </resources>

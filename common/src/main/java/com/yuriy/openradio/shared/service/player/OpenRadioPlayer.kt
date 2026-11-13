@@ -84,7 +84,7 @@ class OpenRadioPlayer(
     private val mEqualizerLayer: EqualizerLayer,
     private val mBrowseTree: BrowseTree,
     private val mCastLayer: CastLayer
-) : Player {
+) : PlayerCompat() {
     /**
      * Listener for the main public events.
      */
@@ -100,6 +100,8 @@ class OpenRadioPlayer(
      * or a CastPlayer (for remote playback through a Cast device).
      */
     private var mPlayer: Player
+
+    override fun compatTarget(): Player = mPlayer
 
     private val mListeners = arrayListOf<Player.Listener>()
 
@@ -445,23 +447,8 @@ class OpenRadioPlayer(
         mPlayer.seekForward()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun hasPrevious(): Boolean {
-        return mPlayer.hasPrevious()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun hasPreviousWindow(): Boolean {
-        return mPlayer.hasPreviousWindow()
-    }
-
     override fun hasPreviousMediaItem(): Boolean {
         return mPlayer.hasPreviousMediaItem()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun previous() {
-        mPlayer.previous()
     }
 
     @Deprecated("Deprecated in Java")
