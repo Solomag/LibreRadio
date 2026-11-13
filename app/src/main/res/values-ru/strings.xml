@@ -25,6 +25,8 @@
     <string name="settings_volume">Громкость плеера</string>
     <string name="settings_section_eq">Эквалайзер</string>
     <string name="settings_eq_preset">Пресет</string>
+    <string name="settings_eq_custom">Своя настройка</string>
+    <string name="settings_eq_bands_hint">Подвиньте полосу, чтобы настроить звук под себя</string>
     <string name="settings_section_network">Сеть</string>
     <string name="settings_mobile_data">Мобильный интернет</string>
     <string name="settings_mobile_data_desc">Если выключено, станции играют только по Wi-Fi</string>

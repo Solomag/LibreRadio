@@ -28,4 +28,6 @@ interface EqualizerPresenter {
     fun loadEqualizerState(): EqualizerState
 
     fun hasEqualizerState(): Boolean
+
+    fun setBandLevel(band: Int, level: Short): EqualizerState
 }

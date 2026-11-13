@@ -62,7 +62,8 @@ class EqualizerState() {
     var currentPreset: Short
         get() = mCurrentPreset
         set(value) {
-            mCurrentPreset = if (value < 0) {
+            // CUSTOM_PRESET (-1): band levels set one by one.
+            mCurrentPreset = if (value < CUSTOM_PRESET) {
                 AppLogger.e("$CLASS_NAME invalid curr preset id:$value, convert to 0")
                 0
             } else {
@@ -108,6 +109,12 @@ class EqualizerState() {
     }
 
     companion object {
+
+        /**
+         * [currentPreset] of band levels set by the user instead of a system preset.
+         */
+        const val CUSTOM_PRESET: Short = -1
+
 
         private val CLASS_NAME = EqualizerState::class.java.simpleName
     }

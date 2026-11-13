@@ -75,7 +75,7 @@ class EqualizerDialog : BaseDialogFragment() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val spinner = view.findSpinner(R.id.eq_presets_spinner)
         spinner.adapter = adapter
-        spinner.setSelection(state.currentPreset.toInt())
+        spinner.setSelection(state.currentPreset.toInt().coerceAtLeast(0))
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

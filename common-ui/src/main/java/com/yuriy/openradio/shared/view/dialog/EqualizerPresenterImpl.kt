@@ -39,6 +39,10 @@ class EqualizerPresenterImpl(
         return mEqualizer.loadState()
     }
 
+    override fun setBandLevel(band: Int, level: Short): EqualizerState {
+        return mEqualizer.setBandLevel(band, level)
+    }
+
     override fun hasEqualizerState(): Boolean {
         return mEqualizer.isInit()
     }

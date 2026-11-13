@@ -81,7 +81,15 @@ class EqualizerLayerImpl(
         try {
             mEqualizer?.enabled = false
             mEqualizer?.enabled = true
-            mEqualizer?.usePreset(state.currentPreset)
+            if (state.currentPreset >= 0) {
+                mEqualizer?.usePreset(state.currentPreset)
+            } else {
+                // Custom levels.
+                val levels = state.bandLevels
+                for (i in 0 until minOf(levels.size, mEqualizer!!.numberOfBands.toInt())) {
+                    mEqualizer?.setBandLevel(i.toShort(), levels[i])
+                }
+            }
             val newState = EqualizerState(mEqualizer!!)
             saveState(newState)
             onSuccess(newState)
@@ -89,6 +97,30 @@ class EqualizerLayerImpl(
             AppLogger.e("$CLASS_NAME apply state", e)
         }
         state.printState()
+    }
+
+    override fun setBandLevel(band: Int, level: Short): EqualizerState {
+        val eq = mEqualizer
+        if (eq != null) {
+            try {
+                eq.setBandLevel(band.toShort(), level)
+                val state = EqualizerState(eq)
+                state.currentPreset = EqualizerState.CUSTOM_PRESET
+                saveState(state)
+                return state
+            } catch (e: Exception) {
+                AppLogger.e("$CLASS_NAME set band level", e)
+            }
+        }
+        val state = loadState()
+        val levels = state.bandLevels
+        if (band in levels.indices) {
+            levels[band] = level
+            state.bandLevels = levels
+        }
+        state.currentPreset = EqualizerState.CUSTOM_PRESET
+        saveState(state)
+        return state
     }
 
     companion object {

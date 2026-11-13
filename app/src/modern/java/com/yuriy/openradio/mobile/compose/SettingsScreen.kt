@@ -354,13 +354,14 @@ private fun EqualizerSection() {
     var preset by remember { mutableStateOf(state.currentPreset.toInt()) }
     var expanded by remember { mutableStateOf(false) }
     val presets = state.presets
+    val custom = stringResource(R.string.settings_eq_custom)
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         OutlinedTextField(
-            value = presets.getOrElse(preset) { "" },
+            value = if (preset < 0) custom else presets.getOrElse(preset) { "" },
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(R.string.settings_eq_preset)) },
@@ -379,14 +380,23 @@ private fun EqualizerSection() {
             }
         }
     }
-    EqualizerBands(state)
+    Text(
+        stringResource(R.string.settings_eq_bands_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+    )
+    EqualizerBands(state) { band, level ->
+        preset = EqualizerState.CUSTOM_PRESET.toInt()
+        state = presenter.setBandLevel(band, level)
+    }
 }
 
 /**
- * Band levels of the current preset (presets only; bands are not editable one by one).
+ * One slider per band; moving one switches to the custom preset.
  */
 @Composable
-private fun EqualizerBands(state: EqualizerState) {
+private fun EqualizerBands(state: EqualizerState, onLevel: (Int, Short) -> Unit) {
     val range = state.bandLevelRange
     if (range.size < 2 || range[1] <= range[0]) {
         return
@@ -395,20 +405,22 @@ private fun EqualizerBands(state: EqualizerState) {
     val high = range[1].toFloat()
     val freqs = state.centerFrequencies
     val levels = state.bandLevels
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         for (i in 0 until minOf(freqs.size, levels.size)) {
             val hz = freqs[i] / 1000
             val label = if (hz >= 1000) "${hz / 1000} kHz" else "$hz Hz"
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+            var value by remember(state, i) { mutableFloatStateOf(levels[i].toFloat()) }
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(64.dp))
-                LinearProgressIndicator(
-                    progress = { ((levels[i] - low) / (high - low)).coerceIn(0f, 1f) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(6.dp)
+                Slider(
+                    value = value,
+                    onValueChange = { value = it },
+                    valueRange = low..high,
+                    onValueChangeFinished = { onLevel(i, value.toInt().toShort()) },
+                    modifier = Modifier.weight(1f)
                 )
                 Text(
-                    "%+d dB".format(levels[i] / 100),
+                    "%+d dB".format(value.toInt() / 100),
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier
                         .width(56.dp)

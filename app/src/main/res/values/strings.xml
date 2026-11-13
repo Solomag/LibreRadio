@@ -41,6 +41,8 @@
     <string name="settings_volume">Player volume</string>
     <string name="settings_section_eq">Equalizer</string>
     <string name="settings_eq_preset">Preset</string>
+    <string name="settings_eq_custom">Custom</string>
+    <string name="settings_eq_bands_hint">Move a band to set your own sound</string>
     <string name="settings_section_network">Network</string>
     <string name="settings_mobile_data">Use mobile data</string>
     <string name="settings_mobile_data_desc">When off, streams play only over Wi-Fi</string>

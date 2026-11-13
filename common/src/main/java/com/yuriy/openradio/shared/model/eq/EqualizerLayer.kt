@@ -29,4 +29,10 @@ interface EqualizerLayer {
     fun loadState(): EqualizerState
 
     fun applyState(state: EqualizerState, onSuccess: (state: EqualizerState) -> Unit)
+
+    /**
+     * Sets one band to [level] (millibels) and switches to the custom preset.
+     * Works without an active player too: the level is stored and applied on the next start.
+     */
+    fun setBandLevel(band: Int, level: Short): EqualizerState
 }
