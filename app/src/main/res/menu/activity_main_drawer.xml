@@ -50,6 +50,10 @@
             android:icon="@drawable/ic_file_storage"
             android:title="@string/main_menu_file_storage"/>
         <item
+            android:id="@+id/nav_check_updates"
+            android:icon="@drawable/ic_file_download"
+            android:title="@string/update_check_menu"/>
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_info_black_24dp"
             android:title="@string/main_menu_about"/>

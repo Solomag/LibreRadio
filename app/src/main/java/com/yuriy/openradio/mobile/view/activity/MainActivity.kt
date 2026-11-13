@@ -35,6 +35,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.material.navigation.NavigationView
 import com.yuriy.openradio.mobile.R
+import com.yuriy.openradio.mobile.update.UpdateManager
 import com.yuriy.openradio.mobile.view.list.MobileMediaItemsAdapter
 import com.yuriy.openradio.shared.broadcast.AppLocalReceiverCallback
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommon
@@ -163,6 +164,7 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
         super.onResume()
         mMediaPresenter.handleResume()
         hideProgressBar()
+        UpdateManager.onResume(this)
         mPendingChildren?.let { (parentId, children) ->
             mPendingChildren = null
             MediaItemsSubscriptionCallback(WeakReference(this)).onChildrenLoaded(parentId, children)
@@ -291,6 +293,10 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
                     // Show File Storage Dialog
                     val dialog = BaseDialogFragment.newInstance(FileStorageDialog::class.java.name)
                     dialog.show(transaction, FileStorageDialog.DIALOG_TAG)
+                }
+
+                R.id.nav_check_updates -> {
+                    UpdateManager.check(this, manual = true)
                 }
 
                 R.id.nav_about -> {

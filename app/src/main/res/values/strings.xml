@@ -16,6 +16,17 @@
 -->
 <resources>
     <string name="eq_label">Equalizer</string>
+    <string name="update_check_menu">Check for updates</string>
+    <string name="update_checking">Checking for updates…</string>
+    <string name="update_check_failed">Could not check for updates</string>
+    <string name="update_up_to_date">You have the latest version</string>
+    <string name="update_available_title">Libre Radio %1$s is available</string>
+    <string name="update_download">Download and install</string>
+    <string name="update_later">Later</string>
+    <string name="update_skip">Skip this version</string>
+    <string name="update_downloading">Downloading update</string>
+    <string name="update_download_failed">Update failed</string>
+    <string name="update_allow_install">Allow Libre Radio to install updates, then come back</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- Cast menu item -->
