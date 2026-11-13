@@ -16,6 +16,7 @@
 
 package com.yuriy.openradio.shared.model.storage
 
+import android.Manifest
 import android.app.Activity
 import android.content.ContentUris
 import android.content.ContentValues
@@ -27,6 +28,8 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
 import com.yuriy.openradio.shared.dependencies.StorageManagerDependency
@@ -50,19 +53,32 @@ class FileStoreManager : StorageManagerDependency {
 
     /**
      * Without a document picker (many Android TV boxes) the backup goes to Downloads directly;
-     * [onFallback] then gets the result instead of the picker flow.
+     * [onFallback] then gets a message for the user and whether the stations changed.
      */
-    var onFallback: ((exported: Boolean, ok: Boolean) -> Unit)? = null
+    var onFallback: ((message: String, stationsChanged: Boolean) -> Unit)? = null
 
     private fun usePickerless(context: Context, intent: Intent): Boolean {
         val pm = context.packageManager
         return pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) || intent.resolveActivity(pm) == null
     }
 
-    private fun fallback(context: Context, export: Boolean): Boolean {
+    private fun fallback(activity: Activity, export: Boolean): Boolean {
         val callback = onFallback ?: return false
-        val ok = if (export) exportToDownloads(context) else importFromDownloads(context)
-        callback(export, ok)
+        // Before Android 10 the public Downloads folder needs the storage permission.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_CODE_STORAGE
+            )
+            callback(activity.getString(com.yuriy.openradio.shared.R.string.backup_allow_storage), false)
+            return true
+        }
+        val ok = if (export) exportToDownloads(activity) else importFromDownloads(activity)
+        callback(fallbackMessage(activity, export, ok), ok && export.not())
         return true
     }
 
@@ -80,7 +96,7 @@ class FileStoreManager : StorageManagerDependency {
     }
 
     fun upload(dialogFragment: DialogFragment, onFailure: () -> Unit) {
-        val ctx = dialogFragment.requireContext()
+        val ctx = dialogFragment.requireActivity()
         if (usePickerless(ctx, getUploadIntent()) && fallback(ctx, true)) {
             return
         }
@@ -107,7 +123,7 @@ class FileStoreManager : StorageManagerDependency {
     }
 
     fun download(dialogFragment: DialogFragment, onFailure: () -> Unit) {
-        val ctx = dialogFragment.requireContext()
+        val ctx = dialogFragment.requireActivity()
         if (usePickerless(ctx, getDownloadIntent()) && fallback(ctx, false)) {
             return
         }
@@ -292,6 +308,7 @@ class FileStoreManager : StorageManagerDependency {
         private const val FILE_NAME = "openradio_data"
         private const val FILE_TYPE = "text/plain"
         const val DOWNLOADS_FILE_NAME = "libreradio_favorites.txt"
+        private const val REQUEST_CODE_STORAGE = 9012
 
         /**
          * Message for the result of a backup through Downloads.

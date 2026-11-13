@@ -112,11 +112,11 @@ class ComposeActivity : AppCompatActivity(), SettingsHost {
     }
 
     private fun setBackupFallback() {
-        DependencyRegistryCommonUi.fileStoreManager().onFallback = { exported, ok ->
+        DependencyRegistryCommonUi.fileStoreManager().onFallback = { message, stationsChanged ->
             runOnUiThread {
-                Toast.makeText(this, FileStoreManager.fallbackMessage(this, exported, ok), Toast.LENGTH_LONG).show()
-                if (ok && exported.not()) {
-                    mViewModel.refreshRoot()
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                if (stationsChanged) {
+                    mViewModel.stationsChanged()
                 }
             }
         }
@@ -157,7 +157,7 @@ class ComposeActivity : AppCompatActivity(), SettingsHost {
             {
                 runOnUiThread {
                     toast(com.yuriy.openradio.shared.R.string.success)
-                    mViewModel.refreshRoot()
+                    mViewModel.stationsChanged()
                 }
             },
             { runOnUiThread { toast(com.yuriy.openradio.shared.R.string.failure) } }

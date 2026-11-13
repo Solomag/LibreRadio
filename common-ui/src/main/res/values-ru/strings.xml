@@ -83,4 +83,5 @@
     <string name="backup_loaded_downloads">Загружено из «Загрузок»: %1$s</string>
     <string name="backup_save_failed">Не удалось сохранить %1$s в «Загрузки»</string>
     <string name="backup_no_file">Положите %1$s в «Загрузки» и повторите</string>
+    <string name="backup_allow_storage">Разрешите доступ к хранилищу и повторите</string>
 </resources>

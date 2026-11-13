@@ -109,4 +109,5 @@
     <string name="backup_loaded_downloads">Loaded from Downloads: %1$s</string>
     <string name="backup_save_failed">Could not save %1$s to Downloads</string>
     <string name="backup_no_file">Put %1$s into Downloads and try again</string>
+    <string name="backup_allow_storage">Allow storage access, then try again</string>
 </resources>

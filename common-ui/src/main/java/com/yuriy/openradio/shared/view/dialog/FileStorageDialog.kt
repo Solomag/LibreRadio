@@ -50,9 +50,9 @@ class FileStorageDialog : BaseDialogFragment(), FileStoreManagerDependency {
         super.onCreate(savedInstanceState)
         DependencyRegistryCommonUi.injectFileStoreManager(this)
         // No document picker (Android TV): the backup file lives in Downloads.
-        mFileStoreManager.onFallback = { exported, ok ->
+        mFileStoreManager.onFallback = { message, _ ->
             hideProgress()
-            context?.let { ctx -> SafeToast.showAnyThread(ctx, FileStoreManager.fallbackMessage(ctx, exported, ok)) }
+            context?.let { ctx -> SafeToast.showAnyThread(ctx, message) }
         }
     }
 
