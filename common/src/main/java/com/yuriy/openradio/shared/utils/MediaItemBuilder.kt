@@ -222,10 +222,7 @@ object MediaItemBuilder {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_RADIO_STATIONS)
-                    .setTitle(
-                        LocationService.COUNTRY_CODE_TO_NAME[countryCode.uppercase(Locale.ROOT)]
-                            ?: Locale("", countryCode).getDisplayCountry(Locale.ENGLISH)
-                    )
+                    .setTitle(LocationService.displayCountryName(countryCode))
                     .setExtras(bundle)
                     .setIsBrowsable(true)
                     .setIsPlayable(false)
@@ -246,7 +243,7 @@ object MediaItemBuilder {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_RADIO_STATIONS)
-                    .setTitle(country.name)
+                    .setTitle(LocationService.displayCountryName(country.code))
                     .setSubtitle(country.code)
                     .setExtras(bundle)
                     .setIsBrowsable(true)

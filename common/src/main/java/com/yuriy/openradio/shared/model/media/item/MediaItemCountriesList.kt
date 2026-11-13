@@ -18,6 +18,7 @@ package com.yuriy.openradio.shared.model.media.item
 
 import com.yuriy.openradio.R
 import com.yuriy.openradio.shared.model.media.item.MediaItemCommand.IUpdatePlaybackState
+import com.yuriy.openradio.shared.service.location.Country
 import com.yuriy.openradio.shared.service.location.LocationService
 import com.yuriy.openradio.shared.utils.AppLogger
 import com.yuriy.openradio.shared.utils.MediaItemBuilder
@@ -67,7 +68,10 @@ class MediaItemCountriesList : MediaItemCommand {
             )
             return
         }
-        for (country in set) {
+        // Titles are shown in the system language, so sort by those names.
+        val countries = set.map { Country(LocationService.displayCountryName(it.code), it.code) }.toMutableList()
+        LocationService.sortByName(countries)
+        for (country in countries) {
             if (!LocationService.COUNTRY_CODE_TO_NAME.containsKey(country.code)) {
                 // Add missing country to the Map of the existing ones.
                 AppLogger.w("$CLASS_NAME Missing country:$country")

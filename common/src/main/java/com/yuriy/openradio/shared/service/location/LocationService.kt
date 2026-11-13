@@ -110,13 +110,35 @@ class LocationService : JobIntentService() {
             return list.toTypedArray()
         }
 
+        /**
+         * Country name in the system language (English names come from [COUNTRY_CODE_TO_NAME]).
+         */
+        fun displayCountryName(code: String): String {
+            val upper = code.uppercase(java.util.Locale.ROOT)
+            val english = COUNTRY_CODE_TO_NAME[upper]
+            val language = java.util.Locale.getDefault()
+            if (english != null && language.language == java.util.Locale.ENGLISH.language) {
+                return english
+            }
+            val local = java.util.Locale("", upper).getDisplayCountry(language)
+            return if (local.isNotEmpty() && local != upper) local else english ?: upper
+        }
+
+        /**
+         * Sorts countries by name the way the system language does.
+         */
+        fun sortByName(list: MutableList<Country>) {
+            val collator = java.text.Collator.getInstance()
+            list.sortWith { a, b -> collator.compare(a.name, b.name) }
+        }
+
         fun getCountriesWithLocation(context: Context): Array<Country> {
             val list = ArrayList<Country>()
             val locationStr = context.getString(R.string.default_country_use_location)
-            for ((name, code) in COUNTRY_NAME_TO_CODE) {
-                list.add(Country(name, code))
+            for ((_, code) in COUNTRY_NAME_TO_CODE) {
+                list.add(Country(displayCountryName(code), code))
             }
-            list.sortWith(compareBy({ it.name }, { it.name }))
+            sortByName(list)
             list.add(0, Country(locationStr, locationStr))
             return list.toTypedArray()
         }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="playback_buffer_after_rebuffer_description_automotive">Буфер после остановки, мс</string>
+    <string name="playback_buffer_description_automotive">Буфер для старта, мс</string>
+    <string name="max_buff_description_automotive">Максимальный буфер, мс</string>
+    <string name="min_buff_description_automotive">Минимальный буфер, мс</string>
+    <string name="stream_buffering_descr_automotive">Изменения применятся при следующем запуске станции. Диапазон %1$d–%2$d мс (от %3$d с до %4$d мин)</string>
+    <string name="source_changes_text">Применить смену источника?</string>
+</resources>

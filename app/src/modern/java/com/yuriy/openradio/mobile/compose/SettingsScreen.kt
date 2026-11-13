@@ -463,7 +463,7 @@ private fun CatalogSection(vm: RadioViewModel, host: SettingsHost) {
 }
 
 private fun countryName(code: String): String {
-    return LocationService.COUNTRY_CODE_TO_NAME[code.uppercase()] ?: code
+    return LocationService.displayCountryName(code)
 }
 
 /**

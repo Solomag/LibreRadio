@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="eq_label">Эквалайзер</string>
+    <string name="update_check_menu">Проверить обновления</string>
+    <string name="compose_search_hint">Станции, жанры</string>
+    <string name="compose_empty">Здесь пока пусто</string>
+    <string name="compose_now_playing">Сейчас играет</string>
+    <string name="compose_close_app">Закрыть Libre Radio</string>
+
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_timer">Таймер сна</string>
+    <string name="settings_timer_switch">Остановить воспроизведение</string>
+    <string name="settings_timer_off">Выключен</string>
+    <string name="settings_timer_at">В %1$s</string>
+    <string name="settings_timer_in_min">%1$d мин</string>
+    <string name="settings_timer_in_hours">%1$d ч</string>
+    <string name="settings_timer_pick">Выбрать время</string>
+    <string name="settings_section_playback">Воспроизведение</string>
+    <string name="settings_last_station">Включать последнюю станцию при запуске</string>
+    <string name="settings_bt_resume">Продолжать при переподключении того же Bluetooth-устройства</string>
+    <string name="settings_volume">Громкость плеера</string>
+    <string name="settings_section_eq">Эквалайзер</string>
+    <string name="settings_eq_preset">Пресет</string>
+    <string name="settings_section_network">Сеть</string>
+    <string name="settings_mobile_data">Мобильный интернет</string>
+    <string name="settings_mobile_data_desc">Если выключено, станции играют только по Wi-Fi</string>
+    <string name="settings_section_catalog">Каталог</string>
+    <string name="settings_country">Страна местных станций</string>
+    <string name="settings_country_search">Поиск страны</string>
+    <string name="settings_clear_cache">Очистить кэш каталога</string>
+    <string name="settings_clear_cache_desc">Запросы к каталогу кэшируются на сутки</string>
+    <string name="settings_cache_cleared">Кэш очищен</string>
+    <string name="settings_section_buffering">Буферизация</string>
+    <string name="settings_buffering_desc">В миллисекундах, от %1$d до %2$d. Применяется со следующего запуска станции.</string>
+    <string name="settings_buffer_min">Минимальный буфер</string>
+    <string name="settings_buffer_max">Максимальный буфер</string>
+    <string name="settings_buffer_start">Буфер для старта</string>
+    <string name="settings_buffer_rebuffer">Буфер после остановки</string>
+    <string name="settings_apply">Применить</string>
+    <string name="settings_defaults">По умолчанию</string>
+    <string name="settings_saved">Сохранено</string>
+    <string name="settings_section_backup">Резервная копия избранного</string>
+    <string name="settings_export">Сохранить в файл</string>
+    <string name="settings_export_desc">Избранное и свои станции</string>
+    <string name="settings_import">Загрузить из файла</string>
+    <string name="settings_import_desc">Добавится к текущему списку</string>
+    <string name="settings_section_advanced">Дополнительно</string>
+    <string name="settings_user_agent">Свой User-Agent</string>
+    <string name="settings_section_app">Приложение</string>
+    <string name="settings_cancel">Отмена</string>
+    <string name="settings_ok">ОК</string>
+
+    <string name="about_title">О программе</string>
+    <string name="about_tagline">Свободное интернет-радио без рекламы и слежки</string>
+    <string name="about_version">Версия %1$s</string>
+    <string name="about_section_origin">Происхождение</string>
+    <string name="about_section_project">Проект</string>
+    <string name="about_section_sources">Каталоги станций</string>
+    <string name="about_section_libraries">Библиотеки</string>
+    <string name="about_source_code">Исходный код</string>
+    <string name="about_license">Лицензия Apache 2.0</string>
+
+    <string name="update_checking">Проверяю обновления…</string>
+    <string name="update_check_failed">Не удалось проверить обновления</string>
+    <string name="update_up_to_date">У вас последняя версия</string>
+    <string name="update_available_title">Вышла Libre Radio %1$s</string>
+    <string name="update_download">Скачать и установить</string>
+    <string name="update_later">Позже</string>
+    <string name="update_skip">Пропустить версию</string>
+    <string name="update_downloading">Скачиваю обновление</string>
+    <string name="update_download_failed">Не удалось обновить</string>
+    <string name="update_allow_install">Разрешите Libre Radio устанавливать обновления и вернитесь в приложение</string>
+    <string name="navigation_drawer_open">Открыть меню</string>
+    <string name="navigation_drawer_close">Закрыть меню</string>
+    <string name="media_route_menu_title">Трансляция</string>
+</resources>
