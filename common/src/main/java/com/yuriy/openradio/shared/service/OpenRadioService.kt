@@ -441,6 +441,13 @@ class OpenRadioService : MediaLibraryService() {
             mPlayer.isPlaying -> mPlayer.pause()
             mPlayer.isPlayEnabled -> mPlayer.play()
             mPlayer.isEnded -> mPlayer.seekTo(C.TIME_UNSET)
+            // Stopped by an error: start the current station again.
+            mPlayer.mediaItemCount > 0 -> {
+                mPlayer.prepare()
+                mPlayer.play()
+            }
+            // Nothing loaded (widget / tile / headset right after start): the last station.
+            mPlayer.mediaItemCount == 0 && startLastStation() -> Unit
             else -> {
                 AppLogger.e(
                     "$TAG unhandled toggle case " +
@@ -450,6 +457,23 @@ class OpenRadioService : MediaLibraryService() {
                 )
             }
         }
+    }
+
+    /**
+     * Loads and plays the last played station.
+     *
+     * @return False if there is none.
+     */
+    private fun startLastStation(): Boolean {
+        val rs = if (mActiveRS.isInvalid()) mPresenter.getLastRadioStation() else mActiveRS
+        if (rs.isInvalid()) {
+            return false
+        }
+        setActiveRS(rs)
+        mPlayer.setMediaItem(MediaItemBuilder.buildPlayable(rs, mPresenter.isRadioStationFavorite(rs)))
+        mPlayer.prepare()
+        mPlayer.play()
+        return true
     }
 
     private fun stopSelfResultInt() {
