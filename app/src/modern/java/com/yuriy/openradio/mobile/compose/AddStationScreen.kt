@@ -95,8 +95,9 @@ fun AddStationScreen(onDone: () -> Unit, onBack: () -> Unit) {
         )
         presenter.addRadioStation(
             station,
-            {
-                if (finished.not()) {
+            { msg ->
+                // The first success is "validated"; the station is stored on the "added" one.
+                if (finished.not() && msg.contains("added", ignoreCase = true)) {
                     finished = true
                     saving = false
                     Toast.makeText(context, R.string.add_station_done, Toast.LENGTH_SHORT).show()

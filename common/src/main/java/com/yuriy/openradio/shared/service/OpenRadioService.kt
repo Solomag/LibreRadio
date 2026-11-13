@@ -954,7 +954,13 @@ class OpenRadioService : MediaLibraryService() {
                 }
 
                 CMD_UPDATE_TREE -> {
-                    notifyChildrenChanged(mCurrentParentId)
+                    // Optionally: folders whose cached children are stale (own station added / removed).
+                    val stale = args.getStringArrayList(OpenRadioStore.EXTRA_KEY_STALE_IDS)
+                    if (stale.isNullOrEmpty()) {
+                        notifyChildrenChanged(mCurrentParentId)
+                    } else {
+                        stale.forEach { mBrowseTree.invalidate(it) }
+                    }
                     return mSessionCmdSuccess
                 }
 

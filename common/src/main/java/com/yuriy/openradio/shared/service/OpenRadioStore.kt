@@ -48,6 +48,16 @@ object OpenRadioStore {
      * @return [Bundle].
      */
     const val EXTRA_KEY_ORDER = "EXTRA_KEY_ORDER"
+    const val EXTRA_KEY_STALE_IDS = "EXTRA_KEY_STALE_IDS"
+
+    /**
+     * Arguments of [OpenRadioService.CMD_UPDATE_TREE] that drop the cached children of [ids].
+     */
+    fun makeStaleIdsBundle(ids: List<String>): Bundle {
+        val bundle = Bundle()
+        bundle.putStringArrayList(EXTRA_KEY_STALE_IDS, ArrayList(ids))
+        return bundle
+    }
 
     /**
      * Arguments of [OpenRadioService.CMD_SET_ORDER]: media ids in their new order.

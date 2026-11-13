@@ -29,6 +29,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -79,6 +80,8 @@ import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -226,7 +229,7 @@ fun RadioApp(vm: RadioViewModel, host: SettingsHost, onMenu: (MenuAction) -> Uni
                     Page.ADD_STATION -> AddStationScreen(
                         onDone = {
                             page = Page.NONE
-                            vm.refreshRoot()
+                            vm.stationsChanged()
                         },
                         onBack = { page = Page.NONE }
                     )
@@ -371,6 +374,29 @@ private fun Catalog(vm: RadioViewModel) {
             vm.loadMore()
         }
     }
+    var toDelete by remember { mutableStateOf<MediaItem?>(null) }
+    toDelete?.let { item ->
+        AlertDialog(
+            onDismissRequest = { toDelete = null },
+            text = {
+                Text(
+                    stringResource(
+                        com.yuriy.openradio.shared.R.string.remove_station_dialog_main_text,
+                        item.mediaMetadata.title?.toString() ?: ""
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    vm.deleteStation(item)
+                    toDelete = null
+                }) { Text(stringResource(com.yuriy.openradio.shared.R.string.remove_station_dialog_button_label)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { toDelete = null }) { Text(stringResource(R.string.settings_cancel)) }
+            }
+        )
+    }
     LazyColumn(state = state, contentPadding = PaddingValues(vertical = 8.dp), modifier = Modifier.fillMaxSize()) {
         items(items, key = { it.mediaId }) { item ->
             if (item.mediaMetadata.isBrowsable == true) {
@@ -382,7 +408,8 @@ private fun Catalog(vm: RadioViewModel) {
                     favorite = vm.isFavorite(item),
                     onClick = { vm.open(item) },
                     onFavorite = { vm.toggleFavorite(item) },
-                    onMove = if (vm.reordering) ({ delta -> vm.move(item, delta) }) else null
+                    onMove = if (vm.reordering) ({ delta -> vm.move(item, delta) }) else null,
+                    onLongClick = if (vm.canDelete) ({ toDelete = item }) else null
                 )
             }
         }
@@ -453,7 +480,8 @@ private fun StationRow(
     favorite: Boolean,
     onClick: () -> Unit,
     onFavorite: () -> Unit,
-    onMove: ((Int) -> Unit)? = null
+    onMove: ((Int) -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null
 ) {
     val md = item.mediaMetadata
     val colors = if (playing) {
@@ -515,7 +543,7 @@ private fun StationRow(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 2.dp)
             .clip(RoundedCornerShape(18.dp))
-            .clickable(onClick = onClick)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
     )
 }
 

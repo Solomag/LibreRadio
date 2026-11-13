@@ -225,4 +225,6 @@ object DependencyRegistryCommonUi :
     fun fileStoreManager(): FileStoreManager = sFileStoraManager
 
     fun addEditStationPresenter(): AddEditStationDialogPresenter = sAddEditStationDialogPresenter
+
+    fun removeStationPresenter(): RemoveStationDialogPresenter = sRemoveStationDialogPresenter
 }

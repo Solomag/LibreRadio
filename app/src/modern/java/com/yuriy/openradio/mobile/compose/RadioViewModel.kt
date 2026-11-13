@@ -171,6 +171,41 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         load()
     }
 
+    /**
+     * Own stations can be deleted (long press).
+     */
+    val canDelete: Boolean
+        get() = current.id == MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST
+
+    fun deleteStation(item: MediaItem) {
+        com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi.removeStationPresenter()
+            .removeRadioStation(item.mediaId)
+        items = items.filter { it.mediaId != item.mediaId }
+        stationsChanged()
+    }
+
+    /**
+     * Own stations or Favorites changed outside the catalog: drop the service's cached folders,
+     * then reload the root if it is shown.
+     */
+    fun stationsChanged() {
+        val b = browser ?: return
+        val stale = listOf(
+            MediaId.MEDIA_ID_ROOT,
+            MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST,
+            MediaId.MEDIA_ID_FAVORITES_LIST
+        )
+        viewModelScope.launch {
+            runCatching {
+                b.sendCustomCommand(
+                    SessionCommand(OpenRadioService.CMD_UPDATE_TREE, Bundle()),
+                    OpenRadioStore.makeStaleIdsBundle(stale)
+                ).await()
+            }
+            refreshRoot()
+        }
+    }
+
     val canReorder: Boolean
         get() = current.id == MediaId.MEDIA_ID_FAVORITES_LIST ||
                 current.id == MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST
