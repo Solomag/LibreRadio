@@ -1082,7 +1082,7 @@ class OpenRadioPlayer(
                     }
 
                     is UnknownHostException -> return context.getString(R.string.media_stream_dns)
-                    is SSLException -> return context.getString(R.string.media_stream_tls)
+                    is SSLException -> return tlsReason(context, cause)
                     is SocketTimeoutException, is ConnectException ->
                         return context.getString(R.string.media_stream_no_answer)
                 }
@@ -1104,6 +1104,24 @@ class OpenRadioPlayer(
 
                 else -> context.getString(R.string.media_stream_error)
             }
+        }
+
+        /**
+         * A failed secure connection: the station's certificate (expired, not trusted) or the network
+         * in between (a provider that blocks the station breaks the handshake).
+         */
+        private fun tlsReason(context: Context, exception: Throwable): String {
+            var cause: Throwable? = exception
+            while (cause != null) {
+                if (cause is java.security.cert.CertificateExpiredException) {
+                    return context.getString(R.string.media_stream_cert_expired)
+                }
+                if (cause is java.security.cert.CertificateException) {
+                    return context.getString(R.string.media_stream_cert_untrusted)
+                }
+                cause = cause.cause
+            }
+            return context.getString(R.string.media_stream_tls)
         }
 
         @Suppress("DEPRECATION")

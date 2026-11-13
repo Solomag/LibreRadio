@@ -11,7 +11,7 @@
     <string name="category_empty">Hier ist nichts</string>
     <string name="media_stream_error">Fehler</string>
     <string name="media_stream_http_403">Zugriff verweigert</string>
-    <string name="media_stream_http_404">Nicht gefunden</string>
+    <string name="media_stream_http_404">Die Adresse des Senders funktioniert nicht mehr (404)</string>
     <string name="media_stream_network_failed">Netzwerkfehler</string>
     <string name="no_data_message">Keine Daten erhalten</string>
     <string name="favorite">Favorit</string>
@@ -42,8 +42,10 @@
     <string name="media_stream_no_internet">Keine Internetverbindung</string>
     <string name="media_stream_no_answer">Der Server des Senders antwortet nicht</string>
     <string name="media_stream_dns">Adresse des Senders nicht gefunden</string>
-    <string name="media_stream_tls">Sichere Verbindung zum Sender fehlgeschlagen</string>
+    <string name="media_stream_tls">Sichere Verbindung abgebrochen: Netz oder Provider sperrt den Sender vielleicht</string>
     <string name="media_stream_connection_lost">Verbindung zum Sender abgebrochen</string>
     <string name="media_stream_format">Stream-Format nicht unterstützt</string>
     <string name="media_stream_http_code">Serverfehler des Senders (HTTP %d)</string>
+    <string name="media_stream_cert_expired">Das Sicherheitszertifikat des Senders ist abgelaufen</string>
+    <string name="media_stream_cert_untrusted">Das Telefon vertraut dem Zertifikat des Senders nicht</string>
 </resources>

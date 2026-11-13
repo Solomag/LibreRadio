@@ -28,7 +28,7 @@
     <string name="category_empty">Category is empty</string>
     <string name="media_stream_error">Error</string>
     <string name="media_stream_http_403">Forbidden</string>
-    <string name="media_stream_http_404">Not Found</string>
+    <string name="media_stream_http_404">The station’s address no longer works (404)</string>
     <string name="media_stream_network_failed">Network Failed</string>
     <string name="no_data_message">No data received</string>
     <string name="favorite">Favorite</string>
@@ -68,8 +68,10 @@
     <string name="media_stream_no_internet">No internet connection</string>
     <string name="media_stream_no_answer">The station server does not answer</string>
     <string name="media_stream_dns">Station address not found</string>
-    <string name="media_stream_tls">Secure connection to the station failed</string>
+    <string name="media_stream_tls">Secure connection broken: your network or provider may block this station</string>
     <string name="media_stream_connection_lost">Connection to the station lost</string>
     <string name="media_stream_format">Stream format not supported</string>
     <string name="media_stream_http_code">Station server error (HTTP %d)</string>
+    <string name="media_stream_cert_expired">The station’s security certificate has expired</string>
+    <string name="media_stream_cert_untrusted">The phone does not trust the station’s certificate</string>
 </resources>

@@ -11,7 +11,7 @@
     <string name="category_empty">Здесь пусто</string>
     <string name="media_stream_error">Ошибка</string>
     <string name="media_stream_http_403">Доступ запрещён</string>
-    <string name="media_stream_http_404">Не найдено</string>
+    <string name="media_stream_http_404">Адрес станции больше не работает (404)</string>
     <string name="media_stream_network_failed">Ошибка сети</string>
     <string name="no_data_message">Данные не получены</string>
     <string name="favorite">Избранное</string>
@@ -42,8 +42,10 @@
     <string name="media_stream_no_internet">Нет подключения к интернету</string>
     <string name="media_stream_no_answer">Сервер станции не отвечает</string>
     <string name="media_stream_dns">Адрес станции не найден</string>
-    <string name="media_stream_tls">Не удалось защищённое соединение со станцией</string>
+    <string name="media_stream_tls">Защищённое соединение сорвалось: возможно, станцию блокирует сеть или провайдер</string>
     <string name="media_stream_connection_lost">Связь со станцией прервалась</string>
     <string name="media_stream_format">Формат потока не поддерживается</string>
     <string name="media_stream_http_code">Ошибка сервера станции (HTTP %d)</string>
+    <string name="media_stream_cert_expired">У станции просрочен сертификат безопасности</string>
+    <string name="media_stream_cert_untrusted">Телефон не доверяет сертификату станции</string>
 </resources>

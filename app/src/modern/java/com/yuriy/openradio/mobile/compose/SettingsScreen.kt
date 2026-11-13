@@ -18,6 +18,19 @@
 
 package com.yuriy.openradio.mobile.compose
 
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.Canvas
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.RadioButton
@@ -304,7 +317,8 @@ private fun EqualizerSection() {
 }
 
 /**
- * One slider per band; moving one switches to the custom preset.
+ * Bands side by side as vertical sliders, 0 dB in the middle (like a hardware equalizer);
+ * moving one switches to the custom preset.
  */
 @Composable
 private fun EqualizerBands(state: EqualizerState, onLevel: (Int, Short) -> Unit) {
@@ -316,29 +330,99 @@ private fun EqualizerBands(state: EqualizerState, onLevel: (Int, Short) -> Unit)
     val high = range[1].toFloat()
     val freqs = state.centerFrequencies
     val levels = state.bandLevels
-    Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+    ) {
         for (i in 0 until minOf(freqs.size, levels.size)) {
             val hz = freqs[i] / 1000
             val label = if (hz >= 1000) "${hz / 1000} kHz" else "$hz Hz"
             var value by remember(state, i) { mutableFloatStateOf(levels[i].toFloat()) }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(label, style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(64.dp))
-                Slider(
-                    value = value,
-                    onValueChange = { value = it },
-                    valueRange = low..high,
-                    onValueChangeFinished = { onLevel(i, value.toInt().toShort()) },
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    "%+d dB".format(value.toInt() / 100),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier
-                        .width(56.dp)
-                        .padding(start = 8.dp)
-                )
-            }
+            VerticalBand(
+                label = label,
+                value = value,
+                low = low,
+                high = high,
+                onChange = { value = it },
+                onDone = { onLevel(i, value.toInt().toShort()) }
+            )
         }
+    }
+}
+
+/**
+ * One band: dB on top, a vertical track filled from the middle (0 dB) to the level, frequency below.
+ * Drag or tap to set; levels snap to whole dB.
+ */
+@Composable
+private fun VerticalBand(
+    label: String,
+    value: Float,
+    low: Float,
+    high: Float,
+    onChange: (Float) -> Unit,
+    onDone: () -> Unit
+) {
+    val scheme = MaterialTheme.colorScheme
+    val change by rememberUpdatedState(onChange)
+    val done by rememberUpdatedState(onDone)
+    fun levelAt(y: Float, height: Float): Float {
+        val fraction = 1f - (y / height).coerceIn(0f, 1f)
+        val raw = low + fraction * (high - low)
+        // Whole dB (level is in millibels).
+        return (Math.round(raw / 100f) * 100f).coerceIn(low, high)
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(56.dp)) {
+        Text(
+            "%+d".format(Math.round(value / 100f)),
+            style = MaterialTheme.typography.labelMedium,
+            color = if (Math.round(value / 100f) == 0) scheme.onSurfaceVariant else scheme.primary
+        )
+        Spacer(Modifier.height(6.dp))
+        Canvas(
+            modifier = Modifier
+                .height(180.dp)
+                .width(44.dp)
+                .semantics {
+                    contentDescription = label
+                    stateDescription = "%+d dB".format(Math.round(value / 100f))
+                    progressBarRangeInfo = ProgressBarRangeInfo(value, low..high)
+                    setProgress { target ->
+                        change(target.coerceIn(low, high))
+                        done()
+                        true
+                    }
+                }
+                .pointerInput(low, high) {
+                    detectTapGestures { offset ->
+                        change(levelAt(offset.y, size.height.toFloat()))
+                        done()
+                    }
+                }
+                .pointerInput(low, high) {
+                    detectVerticalDragGestures(
+                        onDragEnd = { done() },
+                        onDragCancel = { done() }
+                    ) { pointer, _ ->
+                        pointer.consume()
+                        change(levelAt(pointer.position.y, size.height.toFloat()))
+                    }
+                }
+        ) {
+            val cx = size.width / 2
+            val track = 6.dp.toPx()
+            val mid = size.height / 2
+            val y = size.height * (1f - (value - low) / (high - low))
+            // Track, 0 dB mark, fill from 0 dB to the level, thumb.
+            drawLine(scheme.surfaceVariant, Offset(cx, 0f), Offset(cx, size.height), track, StrokeCap.Round)
+            drawLine(scheme.outline, Offset(cx - 14.dp.toPx(), mid), Offset(cx + 14.dp.toPx(), mid), 2.dp.toPx())
+            drawLine(scheme.primary, Offset(cx, mid), Offset(cx, y), track, StrokeCap.Round)
+            drawCircle(scheme.primary, 10.dp.toPx(), Offset(cx, y))
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(label, style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
     }
 }
 

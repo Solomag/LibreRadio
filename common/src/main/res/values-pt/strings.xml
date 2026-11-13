@@ -11,7 +11,7 @@
     <string name="category_empty">Nada aqui</string>
     <string name="media_stream_error">Erro</string>
     <string name="media_stream_http_403">Acesso negado</string>
-    <string name="media_stream_http_404">Não encontrado</string>
+    <string name="media_stream_http_404">O endereço da estação já não funciona (404)</string>
     <string name="media_stream_network_failed">Erro de rede</string>
     <string name="no_data_message">Nenhum dado recebido</string>
     <string name="favorite">Favorito</string>
@@ -42,8 +42,10 @@
     <string name="media_stream_no_internet">Sem ligação à Internet</string>
     <string name="media_stream_no_answer">O servidor da estação não responde</string>
     <string name="media_stream_dns">Endereço da estação não encontrado</string>
-    <string name="media_stream_tls">Falhou a ligação segura à estação</string>
+    <string name="media_stream_tls">Ligação segura interrompida: talvez a rede ou o operador bloqueie a estação</string>
     <string name="media_stream_connection_lost">Ligação à estação perdida</string>
     <string name="media_stream_format">Formato da emissão não suportado</string>
     <string name="media_stream_http_code">Erro do servidor da estação (HTTP %d)</string>
+    <string name="media_stream_cert_expired">O certificado de segurança da estação expirou</string>
+    <string name="media_stream_cert_untrusted">O telefone não confia no certificado da estação</string>
 </resources>

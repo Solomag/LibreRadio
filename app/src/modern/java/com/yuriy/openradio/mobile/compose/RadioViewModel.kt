@@ -136,6 +136,8 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         app.getString(com.yuriy.openradio.R.string.media_stream_no_answer),
         app.getString(com.yuriy.openradio.R.string.media_stream_dns),
         app.getString(com.yuriy.openradio.R.string.media_stream_tls),
+        app.getString(com.yuriy.openradio.R.string.media_stream_cert_expired),
+        app.getString(com.yuriy.openradio.R.string.media_stream_cert_untrusted),
         app.getString(com.yuriy.openradio.R.string.media_stream_connection_lost),
         app.getString(com.yuriy.openradio.R.string.media_stream_format),
     )

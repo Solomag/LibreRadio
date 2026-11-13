@@ -11,7 +11,7 @@
     <string name="category_empty">Rien ici</string>
     <string name="media_stream_error">Erreur</string>
     <string name="media_stream_http_403">Accès refusé</string>
-    <string name="media_stream_http_404">Introuvable</string>
+    <string name="media_stream_http_404">L’adresse de la station ne fonctionne plus (404)</string>
     <string name="media_stream_network_failed">Erreur réseau</string>
     <string name="no_data_message">Aucune donnée reçue</string>
     <string name="favorite">Favori</string>
@@ -42,8 +42,10 @@
     <string name="media_stream_no_internet">Pas de connexion Internet</string>
     <string name="media_stream_no_answer">Le serveur de la station ne répond pas</string>
     <string name="media_stream_dns">Adresse de la station introuvable</string>
-    <string name="media_stream_tls">Échec de la connexion sécurisée à la station</string>
+    <string name="media_stream_tls">Connexion sécurisée rompue : votre réseau ou fournisseur bloque peut-être la station</string>
     <string name="media_stream_connection_lost">Connexion à la station perdue</string>
     <string name="media_stream_format">Format du flux non pris en charge</string>
     <string name="media_stream_http_code">Erreur du serveur de la station (HTTP %d)</string>
+    <string name="media_stream_cert_expired">Le certificat de sécurité de la station a expiré</string>
+    <string name="media_stream_cert_untrusted">Le téléphone ne fait pas confiance au certificat de la station</string>
 </resources>

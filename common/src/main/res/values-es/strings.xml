@@ -11,7 +11,7 @@
     <string name="category_empty">Aquí no hay nada</string>
     <string name="media_stream_error">Error</string>
     <string name="media_stream_http_403">Acceso denegado</string>
-    <string name="media_stream_http_404">No encontrado</string>
+    <string name="media_stream_http_404">La dirección de la emisora ya no funciona (404)</string>
     <string name="media_stream_network_failed">Error de red</string>
     <string name="no_data_message">No se recibieron datos</string>
     <string name="favorite">Favorito</string>
@@ -42,8 +42,10 @@
     <string name="media_stream_no_internet">Sin conexión a Internet</string>
     <string name="media_stream_no_answer">El servidor de la emisora no responde</string>
     <string name="media_stream_dns">No se encuentra la dirección de la emisora</string>
-    <string name="media_stream_tls">Falló la conexión segura con la emisora</string>
+    <string name="media_stream_tls">Conexión segura interrumpida: quizá tu red o proveedor bloquea la emisora</string>
     <string name="media_stream_connection_lost">Se perdió la conexión con la emisora</string>
     <string name="media_stream_format">Formato de la emisión no compatible</string>
     <string name="media_stream_http_code">Error del servidor de la emisora (HTTP %d)</string>
+    <string name="media_stream_cert_expired">El certificado de seguridad de la emisora ha caducado</string>
+    <string name="media_stream_cert_untrusted">El teléfono no confía en el certificado de la emisora</string>
 </resources>
