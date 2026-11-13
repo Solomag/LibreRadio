@@ -62,13 +62,6 @@ class ModelLayerImpl(
     }
 
     /**
-     * Featured stations were served from the original author's Firebase project, which is no longer available.
-     */
-    override fun getFeatured(): Set<RadioStation> {
-        return emptySet()
-    }
-
-    /**
      * Download data as [String].
      *
      * @param uri Uri to download from.

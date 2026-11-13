@@ -38,18 +38,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.yuriy.openradio.automotive.R
 import com.yuriy.openradio.automotive.dependencies.DependencyRegistryAutomotive
-import com.yuriy.openradio.shared.dependencies.CloudStoreManagerDependency
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommon
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
 import com.yuriy.openradio.shared.dependencies.FileStoreManagerDependency
-import com.yuriy.openradio.shared.dependencies.LoggingLayerDependency
 import com.yuriy.openradio.shared.dependencies.MediaPresenterDependency
 import com.yuriy.openradio.shared.dependencies.SourcesLayerDependency
-import com.yuriy.openradio.shared.model.logging.LoggingLayer
 import com.yuriy.openradio.shared.model.source.Source
 import com.yuriy.openradio.shared.model.source.SourcesLayer
 import com.yuriy.openradio.shared.model.storage.AppPreferencesManager
-import com.yuriy.openradio.shared.model.storage.CloudStoreManager
 import com.yuriy.openradio.shared.model.storage.FileStoreManager
 import com.yuriy.openradio.shared.presenter.MediaPresenter
 import com.yuriy.openradio.shared.service.OpenRadioService
@@ -68,8 +64,6 @@ import com.yuriy.openradio.shared.utils.findTextView
 import com.yuriy.openradio.shared.utils.findToolbar
 import com.yuriy.openradio.shared.utils.gone
 import com.yuriy.openradio.shared.utils.visible
-import com.yuriy.openradio.shared.view.dialog.AccountDialog
-import com.yuriy.openradio.shared.view.dialog.CloudStorageDialog
 import com.yuriy.openradio.shared.view.dialog.FileStorageDialog
 import com.yuriy.openradio.shared.view.dialog.StreamBufferingDialog
 import com.yuriy.openradio.shared.view.list.CountriesArrayAdapter
@@ -78,7 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency, SourcesLayerDependency,
-    LoggingLayerDependency, CloudStoreManagerDependency, FileStoreManagerDependency {
+    FileStoreManagerDependency {
 
     private lateinit var mMinBuffer: EditText
     private lateinit var mMaxBuffer: EditText
@@ -87,23 +81,10 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
     private lateinit var mProgress: ProgressBar
     private lateinit var mMediaPresenter: MediaPresenter
     private lateinit var mPresenter: AutomotiveSettingsActivityPresenter
-    private lateinit var mCloudStoreManager: CloudStoreManager
     private lateinit var mFileStoreManager: FileStoreManager
     private lateinit var mSourcesLayer: SourcesLayer
-    private lateinit var mLoggingLayer: LoggingLayer
-    private lateinit var mAccView: LinearLayout
-    private lateinit var mAccEmailView: TextView
     private var mInitSrc: Source? = null
     private var mNewSrc: Source? = null
-    private val mAccountDialogDismissedListener = AccountDialogDismissedListenerImpl()
-
-    override fun configureWith(cloudStoreManager: CloudStoreManager) {
-        mCloudStoreManager = cloudStoreManager
-    }
-
-    override fun configureWith(loggingLayer: LoggingLayer) {
-        mLoggingLayer = loggingLayer
-    }
 
     override fun configureWith(mediaPresenter: MediaPresenter) {
         mMediaPresenter = mediaPresenter
@@ -126,9 +107,7 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
         setContentView(R.layout.automotive_activity_settings)
 
         DependencyRegistryCommon.injectSourcesLayer(this)
-        DependencyRegistryCommonUi.injectLoggingLayer(this)
         DependencyRegistryCommonUi.inject(this)
-        DependencyRegistryCommonUi.injectCloudStoreManager(this)
         DependencyRegistryCommonUi.injectFileStoreManager(this)
         DependencyRegistryAutomotive.inject(this)
 
@@ -270,65 +249,16 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
 
         val fileUploadBtn = findImageButton(R.id.automotive_file_storage_upload_btn)
         val fileDownloadBtn = findImageButton(R.id.automotive_file_storage_download_btn)
-        val downloadFromCloud = findImageButton(R.id.automotive_cloud_storage_download_btn)
-        val accSignOut = findImageButton(R.id.automotive_account_sign_out_btn)
-        val accDel = findImageButton(R.id.automotive_account_del_btn)
-        mProgress = findProgressBar(R.id.automotive_cloud_storage_progress_view)
-        mAccView = findLinearLayout(R.id.automotive_account_layout)
-        mAccEmailView = findTextView(R.id.automotive_account_email_text_view)
+        mProgress = findProgressBar(R.id.automotive_file_storage_progress_view)
 
         fileUploadBtn.setOnClickListener { uploadRadioStationsFile() }
         fileDownloadBtn.setOnClickListener { downloadRadioStationsFile() }
-        downloadFromCloud.setOnClickListener { downloadRadioStationsCloud() }
-        accSignOut.setOnClickListener { signOut() }
-        accDel.setOnClickListener { deleteAccount() }
 
         hideProgress()
-
-        val sendLogsProgress = findViewById<ProgressBar>(R.id.automotive_logs_progress)
-        val sendLogs = findViewById<Button>(R.id.automotive_logs_btn)
-        sendLogs.setOnClickListener {
-            sendLogsProgress.visible()
-            mLoggingLayer.collectAdbLogs(
-                {
-                    mLoggingLayer.sendLogsViaEmail(
-                        it,
-                        {
-                            runOnUiThread {
-                                sendLogsProgress.gone()
-                                SafeToast.showAnyThread(
-                                    applicationContext,
-                                    getString(com.yuriy.openradio.shared.R.string.success)
-                                )
-                            }
-                        },
-                        {
-                            runOnUiThread { sendLogsProgress.gone() }
-                            SafeToast.showAnyThread(
-                                applicationContext,
-                                getString(com.yuriy.openradio.shared.R.string.failure)
-                            )
-                        }
-                    )
-                },
-                {
-                    runOnUiThread { sendLogsProgress.gone() }
-                    SafeToast.showAnyThread(applicationContext, getString(com.yuriy.openradio.shared.R.string.failure))
-                }
-            )
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (mCloudStoreManager.isUserExist()) {
-            showAccLayout()
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        AccountDialog.dismiss(supportFragmentManager)
         hideProgress()
         // In case a user selected a new source but did not restart.
         if (mInitSrc != null && mInitSrc != mNewSrc) {
@@ -374,72 +304,12 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
         )
     }
 
-    private fun downloadRadioStationsCloud() {
-        if (mCloudStoreManager.isUserExist().not()) {
-            AccountDialog.show(supportFragmentManager, mAccountDialogDismissedListener)
-        } else {
-            showAccLayout()
-            handleCloudCommand(CloudStorageDialog.Command.DOWNLOAD)
-        }
-    }
-
     private fun downloadRadioStationsFile() {
         handleFileCommand(FileStorageDialog.Command.DOWNLOAD)
     }
 
     private fun uploadRadioStationsFile() {
         handleFileCommand(FileStorageDialog.Command.UPLOAD)
-    }
-
-    private fun signOut() {
-        if (mCloudStoreManager.isUserExist()) {
-            mCloudStoreManager.signOut()
-            hideAccLayout()
-        }
-    }
-
-    private fun deleteAccount() {
-        if (mCloudStoreManager.isUserExist()) {
-            mCloudStoreManager.deleteAccount(
-                {
-                    hideAccLayout()
-                    AccountDialog.show(supportFragmentManager, mAccountDialogDismissedListener)
-                    showAccDelResultDialog("Your account was deleted.")
-                },
-                {
-                    showAccDelResultDialog("Sorry, your request to delete your account was not successful. Please try again. If the problem persists, please contact me at chernyshov.yuriy@gmail.com.")
-                },
-                {
-                    showAccDelResultDialog("Sorry, your request to delete your account was not successful due to application internal error. Please re-start the application. If the problem persists, please contact me at chernyshov.yuriy@gmail.com.")
-                },
-                {
-                    showAccDelResultDialog("Your session has expired. For your security, please re-enter your sign-in credentials. Thank you for your understanding.")
-                }
-            )
-        }
-    }
-
-    private fun showAccDelResultDialog(message: String) {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage(message)
-        Handler(Looper.getMainLooper()).postDelayed(
-            {
-                builder.show()
-            }, 500
-        )
-    }
-
-    private fun showAccLayout() {
-        runOnUiThread {
-            mAccView.visible()
-            mAccEmailView.text = mCloudStoreManager.getUserEmail()
-        }
-    }
-
-    private fun hideAccLayout() {
-        runOnUiThread {
-            mAccView.gone()
-        }
     }
 
     private fun showProgress() {
@@ -472,41 +342,6 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
         }
     }
 
-    private fun handleCloudCommand(command: CloudStorageDialog.Command) {
-        showProgress()
-        mCloudStoreManager.getToken(
-            {
-                when (command) {
-                    CloudStorageDialog.Command.DOWNLOAD -> {
-                        mCloudStoreManager.download(
-                            it,
-                            {
-                                hideProgress()
-                                SafeToast.showAnyThread(
-                                    applicationContext, getString(com.yuriy.openradio.shared.R.string.success)
-                                )
-                            },
-                            {
-                                hideProgress()
-                                SafeToast.showAnyThread(
-                                    applicationContext, getString(com.yuriy.openradio.shared.R.string.failure)
-                                )
-                            }
-                        )
-                    }
-
-                    else -> {
-                        // Ignore
-                    }
-                }
-            },
-            {
-                hideProgress()
-                SafeToast.showAnyThread(applicationContext, "Can't get Token")
-            }
-        )
-    }
-
     @SuppressLint("InflateParams")
     private fun handleRadioBtns(
         context: Context,
@@ -533,13 +368,6 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
                 }
             }
             view.addView(child)
-        }
-    }
-
-    private class AccountDialogDismissedListenerImpl : AccountDialog.DialogDismissedListener {
-
-        override fun onDialogDismissed() {
-            // Do nothing.
         }
     }
 }

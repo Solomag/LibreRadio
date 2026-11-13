@@ -15,7 +15,6 @@ import com.yuriy.openradio.shared.model.media.item.MediaItemCommand
 import com.yuriy.openradio.shared.model.media.item.MediaItemCountriesList
 import com.yuriy.openradio.shared.model.media.item.MediaItemCountryStations
 import com.yuriy.openradio.shared.model.media.item.MediaItemFavoritesList
-import com.yuriy.openradio.shared.model.media.item.MediaItemFeatured
 import com.yuriy.openradio.shared.model.media.item.MediaItemLocalsList
 import com.yuriy.openradio.shared.model.media.item.MediaItemNewStations
 import com.yuriy.openradio.shared.model.media.item.MediaItemPopularStations
@@ -91,7 +90,6 @@ class OpenRadioServicePresenterImpl(
         mMediaItemCommands[MediaId.MEDIA_ID_SEARCH_FROM_SERVICE] = MediaItemSearchFromService()
         mMediaItemCommands[MediaId.MEDIA_ID_POPULAR_STATIONS] = MediaItemPopularStations()
         mMediaItemCommands[MediaId.MEDIA_ID_NEW_STATIONS] = MediaItemNewStations()
-        mMediaItemCommands[MediaId.MEDIA_ID_FEATURED_LIST] = MediaItemFeatured()
     }
 
     override fun getMediaItemCommand(commandId: String): MediaItemCommand? {
@@ -199,10 +197,6 @@ class OpenRadioServicePresenterImpl(
             it.countryCode.equals(country, ignoreCase = true) ||
                     (countryName != null && it.country.equals(countryName, ignoreCase = true))
         }
-    }
-
-    override fun getFeatured(): Set<RadioStation> {
-        return mModelLayer.getFeatured()
     }
 
     override fun getAllCategories(): Set<Category> {

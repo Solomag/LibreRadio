@@ -54,5 +54,4 @@ interface ModelLayer {
      */
     fun getStations(uri: Uri, mediaIdBuilder: MediaIdBuilder): Set<RadioStation>
 
-    fun getFeatured(): Set<RadioStation>
 }

@@ -19,7 +19,6 @@ and can be installed alongside Open Radio.
 * Removed Firebase entirely: Analytics, Crashlytics, Auth and Firestore. No data is sent to Google by the app itself.
 * Removed the "Featured" list and Cloud Storage, which depended on the original author's Firebase project (shut down).
   Use **File Storage** (export / import of Favorites) instead.
-* Sending logs by email is disabled unless SMTP credentials are supplied at build time.
 * Builds without `sign.properties` (debug key for debug builds, unsigned release).
 
 ### Which APK to install ###

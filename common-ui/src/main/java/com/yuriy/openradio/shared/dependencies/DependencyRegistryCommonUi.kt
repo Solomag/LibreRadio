@@ -19,12 +19,9 @@ package com.yuriy.openradio.shared.dependencies
 import android.content.Context
 import com.yuriy.openradio.shared.model.cast.CastLayer
 import com.yuriy.openradio.shared.model.eq.EqualizerLayer
-import com.yuriy.openradio.shared.model.logging.LoggingLayer
-import com.yuriy.openradio.shared.model.logging.LoggingLayerImpl
 import com.yuriy.openradio.shared.model.media.RadioStationManagerLayer
 import com.yuriy.openradio.shared.model.net.NetworkLayer
 import com.yuriy.openradio.shared.model.source.SourcesLayer
-import com.yuriy.openradio.shared.model.storage.CloudStoreManager
 import com.yuriy.openradio.shared.model.storage.DeviceLocalsStorage
 import com.yuriy.openradio.shared.model.storage.FavoritesStorage
 import com.yuriy.openradio.shared.model.storage.FileStoreManager
@@ -71,8 +68,6 @@ object DependencyRegistryCommonUi :
     private lateinit var sSleepTimerModel: SleepTimerModel
     private lateinit var sSourcesLayer: SourcesLayer
     private lateinit var sCastLayer: CastLayer
-    private lateinit var sLoggingLayer: LoggingLayer
-    private lateinit var sCloudStoreManager: CloudStoreManager
     private lateinit var sFileStoraManager: FileStoreManager
 
     @Volatile
@@ -95,7 +90,6 @@ object DependencyRegistryCommonUi :
         DependencyRegistryCommon.injectSleepTimerModel(this)
         DependencyRegistryCommon.injectSourcesLayer(this)
         DependencyRegistryCommon.injectCastLayer(this)
-        sLoggingLayer = LoggingLayerImpl(context)
         sMediaPresenter = MediaPresenterImpl(
             context,
             sNetworkLayer,
@@ -122,7 +116,6 @@ object DependencyRegistryCommonUi :
             context,
             sRadioStationManagerLayer
         )
-        sCloudStoreManager = CloudStoreManager()
         sFileStoraManager = FileStoreManager()
 
         sInit.set(true)
@@ -176,10 +169,6 @@ object DependencyRegistryCommonUi :
         dependency.configureWith(sStorageManagerLayer)
     }
 
-    fun injectCloudStoreManager(dependency: CloudStoreManagerDependency) {
-        dependency.configureWith(sCloudStoreManager)
-    }
-
     fun injectFileStoreManager(dependency: FileStoreManagerDependency) {
         dependency.configureWith(sFileStoraManager)
     }
@@ -208,9 +197,6 @@ object DependencyRegistryCommonUi :
         dependency.configureWith(sMediaPresenter.getServiceCommander())
     }
 
-    fun injectLoggingLayer(dependency: LoggingLayerDependency) {
-        dependency.configureWith(sLoggingLayer)
-    }
 
     // Direct access for the Compose settings screen of the modern edition.
 
@@ -219,8 +205,6 @@ object DependencyRegistryCommonUi :
     fun networkSettingsStorage(): NetworkSettingsStorage = sNetworkSettingsStorage
 
     fun sleepTimerModel(): SleepTimerModel = sSleepTimerModel
-
-    fun loggingLayer(): LoggingLayer = sLoggingLayer
 
     fun fileStoreManager(): FileStoreManager = sFileStoraManager
 

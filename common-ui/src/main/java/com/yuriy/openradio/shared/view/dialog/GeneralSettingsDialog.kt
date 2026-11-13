@@ -27,9 +27,7 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import com.yuriy.openradio.shared.R
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
-import com.yuriy.openradio.shared.dependencies.LoggingLayerDependency
 import com.yuriy.openradio.shared.dependencies.MediaPresenterDependency
-import com.yuriy.openradio.shared.model.logging.LoggingLayer
 import com.yuriy.openradio.shared.model.storage.AppPreferencesManager
 import com.yuriy.openradio.shared.permission.PermissionChecker
 import com.yuriy.openradio.shared.presenter.MediaPresenter
@@ -57,22 +55,16 @@ import kotlinx.coroutines.launch
  * On 12/20/14
  * E-Mail: chernyshov.yuriy@gmail.com
  */
-class GeneralSettingsDialog : BaseDialogFragment(), MediaPresenterDependency, LoggingLayerDependency {
+class GeneralSettingsDialog : BaseDialogFragment(), MediaPresenterDependency {
 
     private lateinit var mUserAgentEditView: EditText
     private lateinit var mMediaPresenter: MediaPresenter
-    private lateinit var mLoggingLayer: LoggingLayer
 
     override fun configureWith(mediaPresenter: MediaPresenter) {
         mMediaPresenter = mediaPresenter
     }
 
-    override fun configureWith(loggingLayer: LoggingLayer) {
-        mLoggingLayer = loggingLayer
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        DependencyRegistryCommonUi.injectLoggingLayer(this)
         DependencyRegistryCommonUi.inject(this)
         val activity = requireActivity()
         val context = requireContext()
@@ -172,33 +164,6 @@ class GeneralSettingsDialog : BaseDialogFragment(), MediaPresenterDependency, Lo
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Not used.
             }
-        }
-
-        val sendLogsProgress = view.findViewById<ProgressBar>(R.id.send_logs_progress_view)
-        val sendLogs = view.findButton(R.id.send_logs_btn)
-        sendLogs.setOnClickListener {
-            sendLogsProgress.visible()
-            mLoggingLayer.collectAdbLogs(
-                {
-                    mLoggingLayer.sendLogsViaEmail(
-                        it,
-                        {
-                            activity.runOnUiThread {
-                                sendLogsProgress.gone()
-                                SafeToast.showAnyThread(context, context.getString(R.string.success))
-                            }
-                        },
-                        {
-                            activity.runOnUiThread { sendLogsProgress.gone() }
-                            SafeToast.showAnyThread(context, context.getString(R.string.failure))
-                        }
-                    )
-                },
-                {
-                    activity.runOnUiThread { sendLogsProgress.gone() }
-                    SafeToast.showAnyThread(context, context.getString(R.string.failure))
-                }
-            )
         }
 
         return createAlertDialog(view)

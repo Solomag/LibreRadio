@@ -41,14 +41,12 @@ import com.yuriy.openradio.shared.view.dialog.BatteryOptimizationDialog
 import com.yuriy.openradio.shared.view.dialog.EditStationDialog
 import com.yuriy.openradio.shared.view.dialog.EqualizerDialog
 import com.yuriy.openradio.shared.view.dialog.GeneralSettingsDialog
-import com.yuriy.openradio.shared.view.dialog.CloudStorageDialog
 import com.yuriy.openradio.shared.view.dialog.FileStorageDialog
 import com.yuriy.openradio.shared.view.dialog.NetworkDialog
 import com.yuriy.openradio.shared.view.dialog.RSSettingsDialog
 import com.yuriy.openradio.shared.view.dialog.RemoveStationDialog
 import com.yuriy.openradio.shared.view.dialog.SearchDialog
 import com.yuriy.openradio.shared.view.dialog.SleepTimerDialog
-import com.yuriy.openradio.shared.view.dialog.SourceDialog
 import com.yuriy.openradio.shared.view.dialog.StreamBufferingDialog
 
 fun Activity.findTextView(id: Int): TextView {
@@ -185,7 +183,6 @@ object UiUtils {
         removeFragment(transaction, manager.findFragmentByTag(EditStationDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(EqualizerDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(GeneralSettingsDialog.DIALOG_TAG))
-        removeFragment(transaction, manager.findFragmentByTag(CloudStorageDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(FileStorageDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(NetworkDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(RemoveStationDialog.DIALOG_TAG))
@@ -193,7 +190,6 @@ object UiUtils {
         removeFragment(transaction, manager.findFragmentByTag(SearchDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(SleepTimerDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(StreamBufferingDialog.DIALOG_TAG))
-        removeFragment(transaction, manager.findFragmentByTag(SourceDialog.DIALOG_TAG))
         removeFragment(transaction, manager.findFragmentByTag(BatteryOptimizationDialog.DIALOG_TAG))
         try {
             transaction.commitNow()

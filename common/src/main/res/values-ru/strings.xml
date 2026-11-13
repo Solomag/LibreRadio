@@ -16,7 +16,6 @@
     <string name="no_data_message">Данные не получены</string>
     <string name="favorite">Избранное</string>
     <string name="favorites_list_title">Избранное</string>
-    <string name="featured_list_title">Рекомендуемые</string>
     <string name="new_stations_title">Новые</string>
     <string name="browse_title">Обзор</string>
     <string name="popular_stations_title">Популярные</string>

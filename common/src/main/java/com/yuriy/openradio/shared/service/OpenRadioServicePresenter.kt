@@ -59,7 +59,6 @@ interface OpenRadioServicePresenter {
 
     fun getAllDeviceLocal(): Set<RadioStation>
 
-    fun getFeatured(): Set<RadioStation>
 
     fun getLastRadioStation(): RadioStation
 

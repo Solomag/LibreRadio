@@ -63,14 +63,12 @@ import com.yuriy.openradio.shared.view.dialog.AboutDialog
 import com.yuriy.openradio.shared.view.dialog.AddStationDialog
 import com.yuriy.openradio.shared.view.dialog.BaseDialogFragment
 import com.yuriy.openradio.shared.view.dialog.BatteryOptimizationDialog
-import com.yuriy.openradio.shared.view.dialog.CloudStorageDialog
 import com.yuriy.openradio.shared.view.dialog.EqualizerDialog
 import com.yuriy.openradio.shared.view.dialog.FileStorageDialog
 import com.yuriy.openradio.shared.view.dialog.GeneralSettingsDialog
 import com.yuriy.openradio.shared.view.dialog.NetworkDialog
 import com.yuriy.openradio.shared.view.dialog.SearchDialog
 import com.yuriy.openradio.shared.view.dialog.SleepTimerDialog
-import com.yuriy.openradio.shared.view.dialog.SourceDialog
 import com.yuriy.openradio.shared.view.dialog.StreamBufferingDialog
 import com.yuriy.openradio.shared.view.list.MediaItemsAdapter
 import java.lang.ref.WeakReference
@@ -293,12 +291,6 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
                     dialog.show(transaction, SleepTimerDialog.DIALOG_TAG)
                 }
 
-                R.id.nav_cloud_storage -> {
-                    // Show Cloud Storage Dialog
-                    val dialog = BaseDialogFragment.newInstance(CloudStorageDialog::class.java.name)
-                    dialog.show(transaction, CloudStorageDialog.DIALOG_TAG)
-                }
-
                 R.id.nav_file_storage -> {
                     // Show File Storage Dialog
                     val dialog = BaseDialogFragment.newInstance(FileStorageDialog::class.java.name)
@@ -321,22 +313,12 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
                     dialog.show(transaction, NetworkDialog.DIALOG_TAG)
                 }
 
-                R.id.nav_source -> {
-                    // Show Source Dialog
-                    val dialog = BaseDialogFragment.newInstance(SourceDialog::class.java.name)
-                    dialog.show(transaction, SourceDialog.DIALOG_TAG)
-                }
-
                 else -> {
                     // No dialog found.
                 }
             }
             drawer.closeDrawer(GravityCompat.START)
             true
-        }
-
-        if (DependencyRegistryCommon.isGoogleApiAvailable.not()) {
-            navigationView.menu.removeItem(R.id.nav_cloud_storage)
         }
 
         // Handle Add Radio Station button.

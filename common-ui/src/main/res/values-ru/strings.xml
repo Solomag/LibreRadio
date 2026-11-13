@@ -24,10 +24,7 @@
     <string name="playback_buffer_description">Сколько нужно набрать в буфер, чтобы начать воспроизведение, в миллисекундах</string>
     <string name="playback_buffer_after_rebuffer_description">Сколько нужно набрать в буфер, чтобы продолжить после остановки, в миллисекундах</string>
     <string name="restore_default">По умолчанию</string>
-    <string name="cloud_storage">Облако</string>
     <string name="file_storage">Резервная копия</string>
-    <string name="cloud_storage_deprecated">Больше не поддерживается\nУдалите аккаунт</string>
-    <string name="account">Аккаунт</string>
     <string name="can_not_play_station">Не удаётся включить станцию</string>
     <string name="error_loading_media">Ошибка загрузки</string>
     <string name="app_settings_title">Настройки</string>
@@ -57,7 +54,6 @@
     <string name="equalizer_presets_label">Пресеты системы:</string>
     <string name="eq_not_available">Эквалайзер появится после первого запуска станции</string>
     <string name="main_menu_general">Общие</string>
-    <string name="main_menu_cloud_storage">Облако</string>
     <string name="main_menu_file_storage">Резервная копия</string>
     <string name="main_menu_about">О программе</string>
     <string name="main_menu_sleep_timer">Таймер сна</string>
@@ -72,11 +68,6 @@
     <string name="time_lbl">Время</string>
     <string name="use_mobile_network">Использовать мобильную сеть</string>
     <string name="empty_search_msg">Пустой запрос</string>
-    <string name="send_logs_lbl">Отправить логи</string>
-    <string name="e_mail_txt">Эл. почта</string>
-    <string name="password_txt">Пароль</string>
-    <string name="sign_in">Войти</string>
-    <string name="reset_password">Сбросить пароль</string>
     <string name="success">Готово</string>
     <string name="failure">Не получилось</string>
     <string name="backup_saved_downloads">Сохранено в «Загрузки»: %1$s</string>

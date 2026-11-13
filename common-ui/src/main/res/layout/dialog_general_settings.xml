@@ -168,17 +168,6 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <ProgressBar
-                android:id="@+id/send_logs_progress_view"
-                android:layout_width="25dp"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
-
-            <Button
-                android:id="@+id/send_logs_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/send_logs_lbl" />
 
         </LinearLayout>
 
