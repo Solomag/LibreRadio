@@ -51,7 +51,7 @@ android {
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach {
             def type = variant.buildType.name == "release" ? "" : "-${variant.buildType.name}"
-            outputFileName = "LibreRadio-${project.ext.versionName}-tv${type}.apk"
+            outputFileName = "LibreRadioTV-${project.ext.versionName}${type}.apk"
         }
     }
     packagingOptions {

@@ -30,8 +30,8 @@ All builds share the application ID, so only one of them can be installed on a d
 |---|---|---|---|
 | `LibreRadio-<version>.apk` | Phones, tablets, Android car head units on Android 7+ | 7.0+ (API 24) | Jetpack Compose, Material 3 |
 | `LibreRadio-<version>-legacy.apk` | Old phones and **old Android car head units** (the common Chinese ones on Android 4.4–6) | 4.2+ (API 17) | Classic |
-| `LibreRadio-<version>-tv.apk` | Android TV boxes and TVs | 5.0+ (API 21) | TV |
-| `LibreRadio-<version>-automotive.apk` | Cars with Android Automotive OS built in (not head units) | 9+ (API 28) | Car |
+| `LibreRadioTV-<version>.apk` | Android TV boxes and TVs | 5.0+ (API 21) | TV |
+| `LibreRadioAutomotive-<version>.apk` | Cars with Android Automotive OS built in (not head units) | 9+ (API 28) | Car |
 
 * **Android Auto** (a phone projected to the car screen) needs no separate APK: the phone app supports it.
 * Aftermarket Android head units are ordinary Android tablets: use the phone APK that fits their

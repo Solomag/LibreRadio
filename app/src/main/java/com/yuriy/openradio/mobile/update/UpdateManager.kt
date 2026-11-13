@@ -58,6 +58,7 @@ object UpdateManager {
     private const val AUTO_INTERVAL_MS = 24L * 60 * 60 * 1000
     private const val TIMEOUT_MS = 15_000
     private const val LEGACY_SUFFIX = "-legacy"
+    private const val PHONE_PREFIX = "LibreRadio-"
 
     private val mBusy = AtomicBoolean(false)
     private val mMain = Handler(Looper.getMainLooper())
@@ -160,11 +161,11 @@ object UpdateManager {
         for (i in 0 until assets.length()) {
             val asset = assets.getJSONObject(i)
             val name = asset.getString("name")
-            if (!name.endsWith(".apk")) {
+            // Phone builds only: "LibreRadio-15.4.0.apk" (modern) and "LibreRadio-15.4.0-legacy.apk";
+            // "LibreRadioTV-…" and "LibreRadioAutomotive-…" are for other devices.
+            if (!name.endsWith(".apk") || !name.startsWith(PHONE_PREFIX)) {
                 continue
             }
-            // "LibreRadio-15.4.0.apk" is the modern phone build, "-legacy" the legacy one;
-            // "-tv" and "-automotive" builds are for other devices.
             val edition = name.removeSuffix(".apk").substringAfterLast('-')
             val matches = if (legacy) "-$edition" == LEGACY_SUFFIX else edition.firstOrNull()?.isDigit() == true
             if (!matches) {
