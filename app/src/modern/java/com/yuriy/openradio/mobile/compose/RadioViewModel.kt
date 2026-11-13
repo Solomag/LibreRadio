@@ -166,6 +166,15 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         load()
     }
 
+    /**
+     * Reloads the root (local country, favorites) if it is the current folder.
+     */
+    fun refreshRoot() {
+        if (isRoot) {
+            load()
+        }
+    }
+
     private fun load() {
         val b = browser ?: return
         val folder = current
@@ -287,11 +296,18 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
      * Stops playback and the service (the app's "close").
      */
     fun stopService() {
+        sendCommand(OpenRadioService.CMD_STOP_SERVICE)
+    }
+
+    /**
+     * Sends a custom command of [OpenRadioService] (settings changes, cache, stop).
+     */
+    fun sendCommand(command: String, args: Bundle = Bundle()) {
         val b = browser ?: return
         viewModelScope.launch {
             runCatching {
-                b.sendCustomCommand(SessionCommand(OpenRadioService.CMD_STOP_SERVICE, Bundle()), Bundle()).await()
-            }
+                b.sendCustomCommand(SessionCommand(command, Bundle()), args).await()
+            }.onFailure { AppLogger.e("RVM command $command", it) }
         }
     }
 

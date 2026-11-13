@@ -16,42 +16,58 @@
 
 package com.yuriy.openradio.mobile.compose
 
-import android.os.Build
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
 /**
- * Fallback palette for Android < 12 (no wallpaper colors): a calm teal on near-black.
+ * Libre Radio palette: a warm "tube amp" coral on warm near-black, with a teal accent.
+ * The same on every device (no wallpaper colors), so the app keeps its own look.
  */
-private val FallbackDark = darkColorScheme(
-    primary = Color(0xFF7FD3C4),
-    onPrimary = Color(0xFF00382F),
-    primaryContainer = Color(0xFF005045),
-    onPrimaryContainer = Color(0xFF9CF0E0),
-    secondary = Color(0xFFB1CCC5),
-    secondaryContainer = Color(0xFF334B46),
-    onSecondaryContainer = Color(0xFFCCE8E1),
-    tertiary = Color(0xFFADCAE6),
-    background = Color(0xFF0F1513),
-    surface = Color(0xFF0F1513),
-    surfaceContainer = Color(0xFF1B2120),
-    surfaceContainerHigh = Color(0xFF252B2A),
-    surfaceContainerHighest = Color(0xFF303635),
+private val LibreRadioDark = darkColorScheme(
+    primary = Color(0xFFFFB59D),
+    onPrimary = Color(0xFF5C1A04),
+    primaryContainer = Color(0xFF7E2D12),
+    onPrimaryContainer = Color(0xFFFFDBD0),
+    inversePrimary = Color(0xFFA43F1E),
+    secondary = Color(0xFFE7BDB1),
+    onSecondary = Color(0xFF442A22),
+    secondaryContainer = Color(0xFF5D4037),
+    onSecondaryContainer = Color(0xFFFFDBD0),
+    tertiary = Color(0xFF8DD3C7),
+    onTertiary = Color(0xFF00382F),
+    tertiaryContainer = Color(0xFF005047),
+    onTertiaryContainer = Color(0xFFA9F0E3),
+    background = Color(0xFF161210),
+    onBackground = Color(0xFFEDE0DC),
+    surface = Color(0xFF161210),
+    onSurface = Color(0xFFEDE0DC),
+    surfaceVariant = Color(0xFF53433F),
+    onSurfaceVariant = Color(0xFFD8C2BC),
+    surfaceTint = Color(0xFFFFB59D),
+    inverseSurface = Color(0xFFEDE0DC),
+    inverseOnSurface = Color(0xFF362F2C),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
+    outline = Color(0xFFA08C87),
+    outlineVariant = Color(0xFF53433F),
+    scrim = Color(0xFF000000),
+    surfaceBright = Color(0xFF3D3735),
+    surfaceDim = Color(0xFF161210),
+    surfaceContainerLowest = Color(0xFF100D0B),
+    surfaceContainerLow = Color(0xFF1E1A18),
+    surfaceContainer = Color(0xFF231E1C),
+    surfaceContainerHigh = Color(0xFF2D2826),
+    surfaceContainerHighest = Color(0xFF383330),
 )
 
 /**
- * Dark Material 3 theme; on Android 12+ colors follow the wallpaper (Material You).
+ * Dark Material 3 theme with the Libre Radio palette.
  */
 @Composable
 fun LibreRadioTheme(content: @Composable () -> Unit) {
-    val colors = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        dynamicDarkColorScheme(LocalContext.current)
-    } else {
-        FallbackDark
-    }
-    MaterialTheme(colorScheme = colors, content = content)
+    MaterialTheme(colorScheme = LibreRadioDark, content = content)
 }

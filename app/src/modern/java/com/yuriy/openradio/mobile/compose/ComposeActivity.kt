@@ -30,21 +30,16 @@ import androidx.appcompat.app.AppCompatActivity
 import com.yuriy.openradio.mobile.update.UpdateManager
 import com.yuriy.openradio.shared.model.storage.LocationStorage
 import com.yuriy.openradio.shared.service.location.LocationService
-import com.yuriy.openradio.shared.view.dialog.AboutDialog
-import com.yuriy.openradio.shared.view.dialog.BaseDialogFragment
-import com.yuriy.openradio.shared.view.dialog.EqualizerDialog
-import com.yuriy.openradio.shared.view.dialog.FileStorageDialog
-import com.yuriy.openradio.shared.view.dialog.GeneralSettingsDialog
-import com.yuriy.openradio.shared.view.dialog.NetworkDialog
-import com.yuriy.openradio.shared.view.dialog.SleepTimerDialog
-import com.yuriy.openradio.shared.view.dialog.StreamBufferingDialog
+import android.content.Intent
+import android.widget.Toast
+import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
 import java.lang.ref.WeakReference
 
 /**
  * Main screen of the modern edition, written in Jetpack Compose.
- * Settings still use the shared dialogs of the classic UI.
+ * Settings and "About" are Compose pages too (see [SettingsScreen], [AboutScreen]).
  */
-class ComposeActivity : AppCompatActivity() {
+class ComposeActivity : AppCompatActivity(), SettingsHost {
 
     private val mViewModel: RadioViewModel by viewModels()
 
@@ -72,6 +67,7 @@ class ComposeActivity : AppCompatActivity() {
             LibreRadioTheme {
                 RadioApp(
                     vm = mViewModel,
+                    host = this,
                     onMenu = ::onMenuAction,
                     // Back at the root only leaves the screen; playback goes on in the background.
                     onExit = ::finish
@@ -107,26 +103,55 @@ class ComposeActivity : AppCompatActivity() {
 
     private fun onMenuAction(action: MenuAction) {
         when (action) {
-            MenuAction.GENERAL -> showDialog(GeneralSettingsDialog::class.java.name, GeneralSettingsDialog.DIALOG_TAG)
-            MenuAction.NETWORK -> showDialog(NetworkDialog::class.java.name, NetworkDialog.DIALOG_TAG)
-            MenuAction.BUFFERING -> showDialog(StreamBufferingDialog::class.java.name, StreamBufferingDialog.DIALOG_TAG)
-            MenuAction.SLEEP_TIMER -> showDialog(SleepTimerDialog::class.java.name, SleepTimerDialog.DIALOG_TAG)
-            MenuAction.FILE_STORAGE -> showDialog(FileStorageDialog::class.java.name, FileStorageDialog.DIALOG_TAG)
-            MenuAction.EQUALIZER -> showDialog(EqualizerDialog::class.java.name, EqualizerDialog.DIALOG_TAG)
-            MenuAction.ABOUT -> showDialog(AboutDialog::class.java.name, AboutDialog.DIALOG_TAG)
             MenuAction.UPDATES -> UpdateManager.check(this, manual = true)
             MenuAction.CLOSE -> closeApp()
+            // Settings and About are pages of RadioApp.
+            else -> Unit
         }
     }
 
-    private fun showDialog(className: String, tag: String) {
-        if (supportFragmentManager.isStateSaved) {
-            return
+    override fun exportFavorites() {
+        DependencyRegistryCommonUi.fileStoreManager().upload(this) { toast(com.yuriy.openradio.shared.R.string.failure) }
+    }
+
+    override fun importFavorites() {
+        DependencyRegistryCommonUi.fileStoreManager().download(this) { toast(com.yuriy.openradio.shared.R.string.failure) }
+    }
+
+    override fun checkUpdates() {
+        UpdateManager.check(this, manual = true)
+    }
+
+    override fun countryCode(): String = mLocationStorage.getCountryCode()
+
+    override fun setCountryCode(code: String?) {
+        if (code == null) {
+            // "Use location": the fallback country now, the GPS one when it arrives.
+            LocationService.checkCountry(this, window.decorView, mLocationMessenger, true)
+            mLocationStorage.setCountryCode(LocationService.fallbackCountryCode(this))
+        } else {
+            mLocationStorage.setCountryCode(code)
         }
-        supportFragmentManager.findFragmentByTag(tag)?.let {
-            supportFragmentManager.beginTransaction().remove(it).commitNow()
-        }
-        BaseDialogFragment.newInstance(className).show(supportFragmentManager, tag)
+        mViewModel.refreshRoot()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        DependencyRegistryCommonUi.fileStoreManager().onActivityResult(
+            applicationContext, requestCode, resultCode, data,
+            {
+                runOnUiThread {
+                    toast(com.yuriy.openradio.shared.R.string.success)
+                    mViewModel.refreshRoot()
+                }
+            },
+            { runOnUiThread { toast(com.yuriy.openradio.shared.R.string.failure) } }
+        )
+    }
+
+    private fun toast(resId: Int) {
+        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
     }
 
     /**

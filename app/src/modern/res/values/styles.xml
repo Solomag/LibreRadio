@@ -1,11 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Modern flavor: Material 3 theme. On Android 12+ colors follow the wallpaper (dynamic color),
-  on older versions the Material 3 baseline dark palette is used.
+  Modern flavor: Material 3 dark theme with the Libre Radio palette
+  (the same colors as LibreRadioTheme in Compose; used by the remaining View dialogs).
 -->
 <resources>
 
-    <style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark">
+    <style name="AppTheme" parent="Theme.Material3.Dark">
+        <item name="colorPrimary">#FFFFB59D</item>
+        <item name="colorOnPrimary">#FF5C1A04</item>
+        <item name="colorPrimaryContainer">#FF7E2D12</item>
+        <item name="colorOnPrimaryContainer">#FFFFDBD0</item>
+        <item name="colorSecondary">#FFE7BDB1</item>
+        <item name="colorOnSecondary">#FF442A22</item>
+        <item name="colorSecondaryContainer">#FF5D4037</item>
+        <item name="colorOnSecondaryContainer">#FFFFDBD0</item>
+        <item name="colorTertiary">#FF8DD3C7</item>
+        <item name="colorOnTertiary">#FF00382F</item>
+        <item name="android:colorBackground">#FF161210</item>
+        <item name="colorOnBackground">#FFEDE0DC</item>
+        <item name="colorSurface">#FF161210</item>
+        <item name="colorOnSurface">#FFEDE0DC</item>
+        <item name="colorSurfaceVariant">#FF53433F</item>
+        <item name="colorOnSurfaceVariant">#FFD8C2BC</item>
+        <item name="colorOutline">#FFA08C87</item>
+        <item name="colorSurfaceContainerLow">#FF1E1A18</item>
+        <item name="colorSurfaceContainer">#FF231E1C</item>
+        <item name="colorSurfaceContainerHigh">#FF2D2826</item>
+        <item name="colorSurfaceContainerHighest">#FF383330</item>
+        <item name="android:windowBackground">#FF161210</item>
         <item name="lr_toolbarBackground">?attr/colorSurfaceContainer</item>
         <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
         <!-- DrawerLayout paints the status bar area with colorPrimaryDark. -->

@@ -20,7 +20,9 @@ package com.yuriy.openradio.mobile.compose
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -57,14 +59,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.NetworkCheck
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.PowerSettingsNew
@@ -73,10 +73,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
-import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material.icons.rounded.SystemUpdate
-import androidx.compose.material.icons.rounded.Timer
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
@@ -133,20 +130,27 @@ import com.yuriy.openradio.shared.utils.MediaItemHelper
 import kotlinx.coroutines.launch
 
 /**
- * Entries of the side menu; the activity maps them to the existing settings dialogs.
+ * Entries of the side menu.
  */
-enum class MenuAction { GENERAL, NETWORK, BUFFERING, SLEEP_TIMER, FILE_STORAGE, EQUALIZER, UPDATES, ABOUT, CLOSE }
+enum class MenuAction { SETTINGS, UPDATES, ABOUT, CLOSE }
+
+/**
+ * Full-screen pages shown over the catalog.
+ */
+private enum class Page { NONE, SETTINGS, ABOUT }
 
 @Composable
-fun RadioApp(vm: RadioViewModel, onMenu: (MenuAction) -> Unit, onExit: () -> Unit) {
+fun RadioApp(vm: RadioViewModel, host: SettingsHost, onMenu: (MenuAction) -> Unit, onExit: () -> Unit) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var searching by rememberSaveable { mutableStateOf(false) }
     var playerOpen by rememberSaveable { mutableStateOf(false) }
+    var page by rememberSaveable { mutableStateOf(Page.NONE) }
 
-    // Back: close player / drawer / search, then go up one level; at the root leave the screen.
+    // Back: close a page / player / drawer / search, then go up one level; at the root leave the screen.
     BackHandler {
         when {
+            page != Page.NONE -> page = Page.NONE
             playerOpen -> playerOpen = false
             drawerState.isOpen -> scope.launch { drawerState.close() }
             searching -> searching = false
@@ -159,7 +163,11 @@ fun RadioApp(vm: RadioViewModel, onMenu: (MenuAction) -> Unit, onExit: () -> Uni
         drawerContent = {
             DrawerContent { action ->
                 scope.launch { drawerState.close() }
-                onMenu(action)
+                when (action) {
+                    MenuAction.SETTINGS -> page = Page.SETTINGS
+                    MenuAction.ABOUT -> page = Page.ABOUT
+                    else -> onMenu(action)
+                }
             }
         }
     ) {
@@ -196,6 +204,21 @@ fun RadioApp(vm: RadioViewModel, onMenu: (MenuAction) -> Unit, onExit: () -> Uni
                 exit = slideOutVertically { it }
             ) {
                 FullPlayer(vm) { playerOpen = false }
+            }
+            AnimatedVisibility(
+                visible = page != Page.NONE,
+                enter = slideInHorizontally { it },
+                exit = slideOutHorizontally { it }
+            ) {
+                // Keep the last page while the exit animation runs.
+                var shown by remember { mutableStateOf(page) }
+                if (page != Page.NONE) {
+                    shown = page
+                }
+                when (shown) {
+                    Page.ABOUT -> AboutScreen { page = Page.NONE }
+                    else -> SettingsScreen(vm, host) { page = Page.NONE }
+                }
             }
         }
     }
@@ -672,14 +695,9 @@ private fun DrawerContent(onAction: (MenuAction) -> Unit) {
         }
         HorizontalDivider(Modifier.padding(horizontal = 28.dp))
         Spacer(Modifier.height(8.dp))
-        DrawerItem(Icons.Rounded.Settings, stringResource(com.yuriy.openradio.shared.R.string.main_menu_general)) { onAction(MenuAction.GENERAL) }
-        DrawerItem(Icons.Rounded.NetworkCheck, stringResource(com.yuriy.openradio.shared.R.string.main_menu_network)) { onAction(MenuAction.NETWORK) }
-        DrawerItem(Icons.Rounded.Tune, stringResource(com.yuriy.openradio.shared.R.string.main_menu_buffering)) { onAction(MenuAction.BUFFERING) }
-        DrawerItem(Icons.Rounded.Timer, stringResource(com.yuriy.openradio.shared.R.string.main_menu_sleep_timer)) { onAction(MenuAction.SLEEP_TIMER) }
-        DrawerItem(Icons.Rounded.Equalizer, stringResource(R.string.eq_label)) { onAction(MenuAction.EQUALIZER) }
-        DrawerItem(Icons.Rounded.SwapVert, stringResource(com.yuriy.openradio.shared.R.string.main_menu_file_storage)) { onAction(MenuAction.FILE_STORAGE) }
+        DrawerItem(Icons.Rounded.Settings, stringResource(R.string.settings_title)) { onAction(MenuAction.SETTINGS) }
         DrawerItem(Icons.Rounded.SystemUpdate, stringResource(R.string.update_check_menu)) { onAction(MenuAction.UPDATES) }
-        DrawerItem(Icons.Rounded.Info, stringResource(com.yuriy.openradio.shared.R.string.main_menu_about)) { onAction(MenuAction.ABOUT) }
+        DrawerItem(Icons.Rounded.Info, stringResource(R.string.about_title)) { onAction(MenuAction.ABOUT) }
         Spacer(Modifier.weight(1f))
         DrawerItem(Icons.Rounded.Close, stringResource(R.string.compose_close_app)) { onAction(MenuAction.CLOSE) }
         Spacer(Modifier.height(16.dp))

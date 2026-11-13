@@ -211,4 +211,16 @@ object DependencyRegistryCommonUi :
     fun injectLoggingLayer(dependency: LoggingLayerDependency) {
         dependency.configureWith(sLoggingLayer)
     }
+
+    // Direct access for the Compose settings screen of the modern edition.
+
+    fun equalizerPresenter(): EqualizerPresenter = sEqualizerPresenter
+
+    fun networkSettingsStorage(): NetworkSettingsStorage = sNetworkSettingsStorage
+
+    fun sleepTimerModel(): SleepTimerModel = sSleepTimerModel
+
+    fun loggingLayer(): LoggingLayer = sLoggingLayer
+
+    fun fileStoreManager(): FileStoreManager = sFileStoraManager
 }
