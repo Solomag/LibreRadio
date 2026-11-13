@@ -37,7 +37,7 @@
     <string name="settings_clear_cache_desc">Zapytania do katalogu są przechowywane przez dobę</string>
     <string name="settings_cache_cleared">Wyczyszczono</string>
     <string name="settings_section_buffering">Buforowanie</string>
-    <string name="settings_buffering_desc">W milisekundach, od %1$d do %2$d. Działa od następnego uruchomienia stacji.</string>
+    <string name="settings_buffering_desc">Milisekundy, od %1$d do %2$d. Działa po zamknięciu aplikacji przyciskiem wyłączania i ponownym otwarciu.</string>
     <string name="settings_buffer_min">Bufor minimalny</string>
     <string name="settings_buffer_max">Bufor maksymalny</string>
     <string name="settings_buffer_start">Bufor startowy</string>
@@ -87,4 +87,27 @@
     <string name="song_copied">Skopiowano</string>
     <string name="player_timer_active">Wyłączy się o %1$s</string>
     <string name="compose_drag">Przeciągnij, aby zmienić kolejność</string>
+    <string name="catalog_loading">Ładowanie katalogu stacji… %d s</string>
+    <string name="catalog_loading_slow">Katalog odpowiada powoli… %d s</string>
+    <string name="catalog_slow_hint">Stacje pochodzą z radio-browser.info. Wolne łącze, VPN lub ograniczenia operatora spowalniają.</string>
+    <string name="catalog_error">Katalog stacji nie odpowiedział</string>
+    <string name="catalog_error_hint">To nie wina stacji: nie udało się pobrać listy z radio-browser.info. Sprawdź połączenie lub spróbuj VPN. Ulubione i własne stacje działają bez katalogu.</string>
+    <string name="catalog_retry">Ponów</string>
+    <string name="genres_sort">Sortuj</string>
+    <string name="genres_sort_by_count">Najwięcej stacji najpierw</string>
+    <string name="genres_sort_by_name">Alfabetycznie</string>
+    <string name="player_connecting">Łączenie ze stacją… %d s</string>
+    <string name="player_rebuffering">Dźwięk przerwany, doładowuję… %d s</string>
+    <string name="player_buffering_explained">Buforowanie: kilka sekund dźwięku ładuje się z wyprzedzeniem, by się nie urywał. Długo — znaczy wolne połączenie ze stacją.</string>
+    <string name="settings_eq_desc">Zmienia barwę: więcej basu, wyraźniejsza mowa itd. Działa tylko w Libre Radio.</string>
+    <string name="settings_eq_waiting">Włącz stację: korektor pojawi się, gdy zagra dźwięk. Jeśli nie — urządzenie go nie udostępnia.</string>
+    <string name="settings_buffering_explained">Bufor to dźwięk pobrany z wyprzedzeniem. Większy: stacja startuje chwilę później, ale rzadziej się urywa na słabym łączu.</string>
+    <string name="settings_buffer_fast">Szybki start</string>
+    <string name="settings_buffer_fast_desc">Dźwięk po ok. 1 s. Dla dobrego Wi-Fi.</string>
+    <string name="settings_buffer_normal">Zwykły</string>
+    <string name="settings_buffer_normal_desc">Dźwięk po ok. 2–3 s. Pasuje prawie zawsze.</string>
+    <string name="settings_buffer_reliable">Niezawodny</string>
+    <string name="settings_buffer_reliable_desc">Dźwięk po ok. 5 s, mniej przerw. Dla sieci komórkowej, w drodze i na słabym łączu.</string>
+    <string name="settings_buffer_custom">Własne wartości</string>
+    <string name="about_developer">Twórca Libre Radio</string>
 </resources>

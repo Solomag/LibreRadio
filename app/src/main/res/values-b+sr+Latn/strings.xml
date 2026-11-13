@@ -37,7 +37,7 @@
     <string name="settings_clear_cache_desc">Upiti katalogu se čuvaju jedan dan</string>
     <string name="settings_cache_cleared">Keš obrisan</string>
     <string name="settings_section_buffering">Baferovanje</string>
-    <string name="settings_buffering_desc">U milisekundama, od %1$d do %2$d. Važi od sledećeg pokretanja stanice.</string>
+    <string name="settings_buffering_desc">Milisekunde, od %1$d do %2$d. Važi kad se aplikacija zatvori dugmetom za isključivanje i ponovo otvori.</string>
     <string name="settings_buffer_min">Minimalni bafer</string>
     <string name="settings_buffer_max">Maksimalni bafer</string>
     <string name="settings_buffer_start">Bafer za početak</string>
@@ -87,4 +87,27 @@
     <string name="song_copied">Kopirano</string>
     <string name="player_timer_active">Isključuje se u %1$s</string>
     <string name="compose_drag">Prevuci da promeniš redosled</string>
+    <string name="catalog_loading">Učitavanje kataloga stanica… %d s</string>
+    <string name="catalog_loading_slow">Katalog sporo odgovara… %d s</string>
+    <string name="catalog_slow_hint">Stanice dolaze sa radio-browser.info. Spora veza, VPN ili ograničenja provajdera usporavaju.</string>
+    <string name="catalog_error">Katalog stanica nije odgovorio</string>
+    <string name="catalog_error_hint">Nije do stanica: lista nije učitana sa radio-browser.info. Proverite vezu ili probajte VPN. Omiljene i vaše stanice rade i bez kataloga.</string>
+    <string name="catalog_retry">Pokušaj ponovo</string>
+    <string name="genres_sort">Sortiranje</string>
+    <string name="genres_sort_by_count">Najviše stanica prvo</string>
+    <string name="genres_sort_by_name">Po abecedi</string>
+    <string name="player_connecting">Povezivanje sa stanicom… %d s</string>
+    <string name="player_rebuffering">Zvuk prekinut, dopunjavam… %d s</string>
+    <string name="player_buffering_explained">Baferovanje: nekoliko sekundi zvuka učitava se unapred da se ne bi prekidao. Dugo — znači spora veza sa stanicom.</string>
+    <string name="settings_eq_desc">Menja boju zvuka: više basa, jasniji govor i sl. Važi samo za Libre Radio.</string>
+    <string name="settings_eq_waiting">Pustite stanicu: ekvilajzer se pojavljuje kad krene zvuk. Ako ne — uređaj ga ne nudi.</string>
+    <string name="settings_buffering_explained">Bafer je unapred učitan zvuk. Veći: stanica kreće malo kasnije, ali se ređe prekida na lošoj vezi.</string>
+    <string name="settings_buffer_fast">Brz početak</string>
+    <string name="settings_buffer_fast_desc">Zvuk za oko 1 s. Za dobar Wi-Fi.</string>
+    <string name="settings_buffer_normal">Uobičajeno</string>
+    <string name="settings_buffer_normal_desc">Zvuk za oko 2–3 s. Odgovara skoro uvek.</string>
+    <string name="settings_buffer_reliable">Pouzdano</string>
+    <string name="settings_buffer_reliable_desc">Zvuk za oko 5 s, manje prekida. Za mobilnu mrežu, put i lošu vezu.</string>
+    <string name="settings_buffer_custom">Svoje vrednosti</string>
+    <string name="about_developer">Programer aplikacije Libre Radio</string>
 </resources>

@@ -37,7 +37,7 @@
     <string name="settings_clear_cache_desc">Las consultas al catálogo se guardan un día</string>
     <string name="settings_cache_cleared">Caché borrada</string>
     <string name="settings_section_buffering">Búfer</string>
-    <string name="settings_buffering_desc">Milisegundos, de %1$d a %2$d. Se aplica al iniciar la siguiente emisora.</string>
+    <string name="settings_buffering_desc">Milisegundos, de %1$d a %2$d. Se aplica tras cerrar la app con el botón de apagado y abrirla de nuevo.</string>
     <string name="settings_buffer_min">Búfer mínimo</string>
     <string name="settings_buffer_max">Búfer máximo</string>
     <string name="settings_buffer_start">Búfer para empezar</string>
@@ -87,4 +87,27 @@
     <string name="song_copied">Copiado</string>
     <string name="player_timer_active">Se detiene a las %1$s</string>
     <string name="compose_drag">Arrastra para ordenar</string>
+    <string name="catalog_loading">Cargando el catálogo… %d s</string>
+    <string name="catalog_loading_slow">El catálogo responde despacio… %d s</string>
+    <string name="catalog_slow_hint">Las emisoras vienen de radio-browser.info. Una conexión lenta, VPN o límites del proveedor lo frenan.</string>
+    <string name="catalog_error">El catálogo de emisoras no respondió</string>
+    <string name="catalog_error_hint">No son las emisoras: la lista no se pudo cargar de radio-browser.info. Revisa la conexión o prueba una VPN. Favoritos y tus emisoras funcionan sin ella.</string>
+    <string name="catalog_retry">Reintentar</string>
+    <string name="genres_sort">Ordenar</string>
+    <string name="genres_sort_by_count">Más emisoras primero</string>
+    <string name="genres_sort_by_name">Por nombre (A–Z)</string>
+    <string name="player_connecting">Conectando con la emisora… %d s</string>
+    <string name="player_rebuffering">Sonido cortado, recargando… %d s</string>
+    <string name="player_buffering_explained">Búfer: se cargan unos segundos de sonido por adelantado para que no se corte. Si tarda, la conexión con la emisora es lenta.</string>
+    <string name="settings_eq_desc">Cambia el tono: más graves, voz más clara, etc. Solo afecta a Libre Radio.</string>
+    <string name="settings_eq_waiting">Pon una emisora: el ecualizador aparece cuando suena. Si no, este dispositivo no lo ofrece.</string>
+    <string name="settings_buffering_explained">El búfer es sonido cargado por adelantado. Más grande: la emisora tarda algo más en empezar, pero se corta menos con mala conexión.</string>
+    <string name="settings_buffer_fast">Inicio rápido</string>
+    <string name="settings_buffer_fast_desc">Sonido en ~1 s. Para buen Wi-Fi.</string>
+    <string name="settings_buffer_normal">Normal</string>
+    <string name="settings_buffer_normal_desc">Sonido en ~2–3 s. Sirve casi siempre.</string>
+    <string name="settings_buffer_reliable">Fiable</string>
+    <string name="settings_buffer_reliable_desc">Sonido en ~5 s, menos cortes. Para datos móviles, viajes y mala conexión.</string>
+    <string name="settings_buffer_custom">Valores propios</string>
+    <string name="about_developer">Desarrollador de Libre Radio</string>
 </resources>

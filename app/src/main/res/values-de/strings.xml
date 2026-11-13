@@ -37,7 +37,7 @@
     <string name="settings_clear_cache_desc">Katalog-Anfragen werden einen Tag lang zwischengespeichert</string>
     <string name="settings_cache_cleared">Cache geleert</string>
     <string name="settings_section_buffering">Pufferung</string>
-    <string name="settings_buffering_desc">Millisekunden, %1$d bis %2$d. Gilt ab dem nächsten Senderstart.</string>
+    <string name="settings_buffering_desc">Millisekunden, %1$d bis %2$d. Wirkt, nachdem die App mit der Aus-Taste beendet und neu geöffnet wurde.</string>
     <string name="settings_buffer_min">Minimaler Puffer</string>
     <string name="settings_buffer_max">Maximaler Puffer</string>
     <string name="settings_buffer_start">Puffer zum Starten</string>
@@ -87,4 +87,27 @@
     <string name="song_copied">Kopiert</string>
     <string name="player_timer_active">Stopp um %1$s</string>
     <string name="compose_drag">Zum Sortieren ziehen</string>
+    <string name="catalog_loading">Senderkatalog wird geladen… %d s</string>
+    <string name="catalog_loading_slow">Der Katalog antwortet langsam… %d s</string>
+    <string name="catalog_slow_hint">Die Sender kommen von radio-browser.info. Langsame Verbindung, VPN oder Providersperren bremsen.</string>
+    <string name="catalog_error">Der Senderkatalog hat nicht geantwortet</string>
+    <string name="catalog_error_hint">Es liegt nicht an den Sendern: Die Liste konnte nicht von radio-browser.info geladen werden. Verbindung prüfen oder VPN versuchen. Favoriten und eigene Sender gehen auch ohne.</string>
+    <string name="catalog_retry">Erneut versuchen</string>
+    <string name="genres_sort">Sortieren</string>
+    <string name="genres_sort_by_count">Meiste Sender zuerst</string>
+    <string name="genres_sort_by_name">Nach Name (A–Z)</string>
+    <string name="player_connecting">Verbindung zum Sender… %d s</string>
+    <string name="player_rebuffering">Ton unterbrochen, lade nach… %d s</string>
+    <string name="player_buffering_explained">Puffern: Einige Sekunden Ton werden vorab geladen, damit nichts abreißt. Dauert es lange, ist die Verbindung zum Sender langsam.</string>
+    <string name="settings_eq_desc">Ändert den Klang: mehr Bass, klarere Sprache usw. Gilt nur für Libre Radio.</string>
+    <string name="settings_eq_waiting">Sender starten: Der Equalizer erscheint, sobald Ton läuft. Wenn nicht, bietet das Gerät keinen an.</string>
+    <string name="settings_buffering_explained">Der Puffer ist vorab geladener Ton. Größer heißt: Sender starten etwas später, brechen bei schlechter Verbindung aber seltener ab.</string>
+    <string name="settings_buffer_fast">Schneller Start</string>
+    <string name="settings_buffer_fast_desc">Ton nach etwa 1 s. Für gutes WLAN.</string>
+    <string name="settings_buffer_normal">Normal</string>
+    <string name="settings_buffer_normal_desc">Ton nach etwa 2–3 s. Passt meistens.</string>
+    <string name="settings_buffer_reliable">Zuverlässig</string>
+    <string name="settings_buffer_reliable_desc">Ton nach etwa 5 s, weniger Abbrüche. Für Mobilfunk, unterwegs und schlechte Verbindung.</string>
+    <string name="settings_buffer_custom">Eigene Werte</string>
+    <string name="about_developer">Entwickler von Libre Radio</string>
 </resources>

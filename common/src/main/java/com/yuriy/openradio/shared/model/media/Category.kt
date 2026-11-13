@@ -42,7 +42,13 @@ class Category(
         return desc
     }
 
+    val stationsCount: Int get() = mStationsCount
+
+    /**
+     * Most stations first; genres with the same count by name (a set must not merge them).
+     */
     override fun compareTo(other: Category): Int {
-        return other.mStationsCount.compareTo(mStationsCount)
+        val byCount = other.mStationsCount.compareTo(mStationsCount)
+        return if (byCount != 0) byCount else id.compareTo(other.id)
     }
 }

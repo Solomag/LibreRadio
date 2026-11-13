@@ -37,7 +37,7 @@
     <string name="settings_clear_cache_desc">Les requêtes au catalogue sont gardées un jour</string>
     <string name="settings_cache_cleared">Cache vidé</string>
     <string name="settings_section_buffering">Mise en mémoire tampon</string>
-    <string name="settings_buffering_desc">Millisecondes, de %1$d à %2$d. Appliqué au prochain démarrage d’une station.</string>
+    <string name="settings_buffering_desc">Millisecondes, de %1$d à %2$d. S’applique après avoir fermé l’appli avec le bouton d’arrêt puis l’avoir rouverte.</string>
     <string name="settings_buffer_min">Tampon minimal</string>
     <string name="settings_buffer_max">Tampon maximal</string>
     <string name="settings_buffer_start">Tampon pour démarrer</string>
@@ -87,4 +87,27 @@
     <string name="song_copied">Copié</string>
     <string name="player_timer_active">Arrêt à %1$s</string>
     <string name="compose_drag">Faites glisser pour réorganiser</string>
+    <string name="catalog_loading">Chargement du catalogue… %d s</string>
+    <string name="catalog_loading_slow">Le catalogue répond lentement… %d s</string>
+    <string name="catalog_slow_hint">Les stations viennent de radio-browser.info. Une connexion lente, un VPN ou le fournisseur ralentissent.</string>
+    <string name="catalog_error">Le catalogue des stations n’a pas répondu</string>
+    <string name="catalog_error_hint">Ce ne sont pas les stations : la liste n’a pas pu être chargée depuis radio-browser.info. Vérifiez la connexion ou essayez un VPN. Les favoris et vos stations marchent sans.</string>
+    <string name="catalog_retry">Réessayer</string>
+    <string name="genres_sort">Trier</string>
+    <string name="genres_sort_by_count">Plus de stations d’abord</string>
+    <string name="genres_sort_by_name">Par nom (A–Z)</string>
+    <string name="player_connecting">Connexion à la station… %d s</string>
+    <string name="player_rebuffering">Son interrompu, rechargement… %d s</string>
+    <string name="player_buffering_explained">Mise en mémoire tampon : quelques secondes de son sont chargées d’avance pour éviter les coupures. Si c’est long, le lien avec la station est lent.</string>
+    <string name="settings_eq_desc">Change le timbre : plus de basses, voix plus claire, etc. Ne concerne que Libre Radio.</string>
+    <string name="settings_eq_waiting">Lancez une station : l’égaliseur apparaît dès que le son joue. Sinon, l’appareil n’en fournit pas.</string>
+    <string name="settings_buffering_explained">Le tampon est du son chargé d’avance. Plus grand, la station démarre un peu plus tard mais coupe moins sur une mauvaise connexion.</string>
+    <string name="settings_buffer_fast">Démarrage rapide</string>
+    <string name="settings_buffer_fast_desc">Son en 1 s environ. Pour un bon Wi-Fi.</string>
+    <string name="settings_buffer_normal">Normal</string>
+    <string name="settings_buffer_normal_desc">Son en 2–3 s environ. Convient presque toujours.</string>
+    <string name="settings_buffer_reliable">Fiable</string>
+    <string name="settings_buffer_reliable_desc">Son en 5 s environ, moins de coupures. Pour les données mobiles, les trajets et une mauvaise connexion.</string>
+    <string name="settings_buffer_custom">Valeurs personnalisées</string>
+    <string name="about_developer">Développeur de Libre Radio</string>
 </resources>

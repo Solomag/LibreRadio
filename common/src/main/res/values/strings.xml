@@ -65,4 +65,11 @@
     <string name="notification_channel">Now Playing</string>
     <string name="notification_channel_description">Shows what music is currently playing on Libre Radio</string>
     <string name="recent_list_title">Recent</string>
+    <string name="media_stream_no_internet">No internet connection</string>
+    <string name="media_stream_no_answer">The station server does not answer</string>
+    <string name="media_stream_dns">Station address not found</string>
+    <string name="media_stream_tls">Secure connection to the station failed</string>
+    <string name="media_stream_connection_lost">Connection to the station lost</string>
+    <string name="media_stream_format">Stream format not supported</string>
+    <string name="media_stream_http_code">Station server error (HTTP %d)</string>
 </resources>

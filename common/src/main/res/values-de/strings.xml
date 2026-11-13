@@ -39,4 +39,11 @@
     <string name="notification_channel">Läuft gerade</string>
     <string name="notification_channel_description">Zeigt, was gerade in Libre Radio läuft</string>
     <string name="recent_list_title">Zuletzt gehört</string>
+    <string name="media_stream_no_internet">Keine Internetverbindung</string>
+    <string name="media_stream_no_answer">Der Server des Senders antwortet nicht</string>
+    <string name="media_stream_dns">Adresse des Senders nicht gefunden</string>
+    <string name="media_stream_tls">Sichere Verbindung zum Sender fehlgeschlagen</string>
+    <string name="media_stream_connection_lost">Verbindung zum Sender abgebrochen</string>
+    <string name="media_stream_format">Stream-Format nicht unterstützt</string>
+    <string name="media_stream_http_code">Serverfehler des Senders (HTTP %d)</string>
 </resources>

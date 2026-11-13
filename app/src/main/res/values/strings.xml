@@ -54,7 +54,7 @@
     <string name="settings_clear_cache_desc">Catalog requests are cached for one day</string>
     <string name="settings_cache_cleared">Cache cleared</string>
     <string name="settings_section_buffering">Buffering</string>
-    <string name="settings_buffering_desc">Milliseconds, %1$d to %2$d. Applied from the next station start.</string>
+    <string name="settings_buffering_desc">Milliseconds, %1$d to %2$d. Takes effect after the app is closed with the power button and opened again.</string>
     <string name="settings_buffer_min">Minimum buffer</string>
     <string name="settings_buffer_max">Maximum buffer</string>
     <string name="settings_buffer_start">Buffer to start playback</string>
@@ -107,4 +107,27 @@
     <string name="song_copied">Copied</string>
     <string name="player_timer_active">Sleep at %1$s</string>
     <string name="compose_drag">Drag to reorder</string>
+    <string name="catalog_loading">Loading the station catalog… %d s</string>
+    <string name="catalog_loading_slow">The catalog is slow to answer… %d s</string>
+    <string name="catalog_slow_hint">Stations come from radio-browser.info. A slow connection, VPN or provider limits slow it down.</string>
+    <string name="catalog_error">The station catalog did not answer</string>
+    <string name="catalog_error_hint">This is not about the stations: the list could not be loaded from radio-browser.info. Check the connection or try a VPN. Favorites and your own stations work without it.</string>
+    <string name="catalog_retry">Retry</string>
+    <string name="genres_sort">Sort</string>
+    <string name="genres_sort_by_count">Most stations first</string>
+    <string name="genres_sort_by_name">By name (A–Z)</string>
+    <string name="player_connecting">Connecting to the station… %d s</string>
+    <string name="player_rebuffering">Sound stalled, reloading… %d s</string>
+    <string name="player_buffering_explained">Buffering: a few seconds of sound are loaded ahead, so it does not cut out. A long wait means a slow link to the station.</string>
+    <string name="settings_eq_desc">Changes the tone: more bass, clearer speech and so on. Applies to Libre Radio only.</string>
+    <string name="settings_eq_waiting">Start a station: the equalizer appears once sound is playing. If it does not, this device does not provide one.</string>
+    <string name="settings_buffering_explained">The buffer is sound loaded ahead. A bigger one starts a station a little later but cuts out less on a poor connection.</string>
+    <string name="settings_buffer_fast">Quick start</string>
+    <string name="settings_buffer_fast_desc">Sound in about 1 s. For good Wi-Fi.</string>
+    <string name="settings_buffer_normal">Normal</string>
+    <string name="settings_buffer_normal_desc">Sound in about 2–3 s. Suits most cases.</string>
+    <string name="settings_buffer_reliable">Reliable</string>
+    <string name="settings_buffer_reliable_desc">Sound in about 5 s, fewer cut-outs. For mobile data, travel and poor connection.</string>
+    <string name="settings_buffer_custom">Custom values</string>
+    <string name="about_developer">Libre Radio developer</string>
 </resources>

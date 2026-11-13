@@ -16,6 +16,7 @@
 
 package com.yuriy.openradio.shared.service
 
+import com.yuriy.openradio.shared.model.net.CatalogStatus
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -750,11 +751,16 @@ class OpenRadioService : MediaLibraryService() {
         ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
             AppLogger.d("$TAG [$browser] GetChildren for $parentId page $page pageSize $pageSize")
             mBrowser = browser
+            val requestedAt = CatalogStatus.now()
             return callWhenSourceReady(parentId, page, pageSize) {
                 val list = mBrowseTree[parentId] ?: ImmutableList.of()
                 // Media3 rejects results larger than the requested page size (crash), so never exceed it.
                 val sublist = pageOf(list, it, pageSize)
                 AppLogger.d("$TAG GetChildren for $parentId page $page return ${sublist.size}|${list.size} from pos:$it")
+                // Nothing because the catalog did not answer: tell the UI, so it does not show an empty folder.
+                if (sublist.isEmpty() && CatalogStatus.failedSince(requestedAt)) {
+                    return@callWhenSourceReady LibraryResult.ofError(LibraryResult.RESULT_ERROR_IO)
+                }
                 LibraryResult.ofItemList(
                     sublist,
                     LibraryParams.Builder().build()
@@ -816,11 +822,14 @@ class OpenRadioService : MediaLibraryService() {
             // This happens when Search involved from non Automotive UI (onSearch is skipped currently).
             // Maybe need to redesign?
             if (list.isEmpty()) {
+                val requestedAt = CatalogStatus.now()
                 return callWhenSearchReady(queryStr) {
-                    LibraryResult.ofItemList(
-                        pageOf(mBrowseTree[queryStr] ?: mutableListOf(), page * pageSize, pageSize),
-                        LibraryParams.Builder().build()
-                    )
+                    val found = pageOf(mBrowseTree[queryStr] ?: mutableListOf(), page * pageSize, pageSize)
+                    if (found.isEmpty() && CatalogStatus.failedSince(requestedAt)) {
+                        LibraryResult.ofError(LibraryResult.RESULT_ERROR_IO)
+                    } else {
+                        LibraryResult.ofItemList(found, LibraryParams.Builder().build())
+                    }
                 }
             }
             return Futures.immediateFuture(

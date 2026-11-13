@@ -56,7 +56,7 @@ object AppUtils {
     /**
      * Time out for the stream to decide whether there is response or not, ms.
      */
-    const val TIME_OUT = 2000
+    const val TIME_OUT = 8000
     const val UTF8 = "UTF-8"
     const val EMPTY_STRING = ""
 

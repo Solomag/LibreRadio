@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.core.util.Pair
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommon
 import com.yuriy.openradio.shared.utils.AppLogger
-import com.yuriy.openradio.shared.utils.AppUtils
 import com.yuriy.openradio.shared.utils.NetUtils
 import java.net.InetAddress
 import java.net.MalformedURLException
@@ -14,74 +13,120 @@ import java.util.Random
 
 class UrlLayerRadioBrowserImpl : UrlLayer {
 
+    private val mLock = Any()
     private val mRandom = Random()
-    private var mUrlsSet = Array(0) { AppUtils.EMPTY_STRING }
 
     /**
-     * Do DNS look up in order to get available url for service connection.
-     * Addresses, if found, are cached and next time is used from the cache.
-     *
-     * @param uri        Initial (with dummy and predefined prefix) url to perform look up on.
-     * @param parameters Parameters associated with request.
-     * @return URL object to do connection with.
+     * Known API servers ("https://host"): from the DNS look up plus [RESERVED_URLS].
+     */
+    private val mServers = LinkedHashSet<String>()
+
+    /**
+     * Servers that failed lately, with the time until which they are skipped.
+     */
+    private val mBadUntil = HashMap<String, Long>()
+
+    /**
+     * Server in use: one server for all requests keeps paging consistent; changed only when it fails.
+     */
+    private var mCurrent: String? = null
+    private var mLookupAt = 0L
+
+    /**
+     * Picks an API server for requests that use the look up prefix; other URLs are returned as they are.
      */
     override fun getConnectionUrl(
         uri: Uri,
         parameters: List<Pair<String, String>>
     ): URL? {
-        // If there is no predefined prefix - return original URL.
         val uriStr = uri.toString()
         if (!uriStr.startsWith(BASE_URL_PREFIX)) {
             return getUrl(uriStr, parameters)
         }
+        return getUrlModified(uriStr, pickServer(), parameters)
+    }
 
-        // Return cached URL if available.
-        synchronized(mRandom) {
-            if (mUrlsSet.isNotEmpty()) {
-                val i = mRandom.nextInt(mUrlsSet.size)
-                return getUrlModified(uriStr, mUrlsSet[i], parameters)
+    override fun reportResult(url: URL, success: Boolean) {
+        val server = "https://" + url.host
+        synchronized(mLock) {
+            if (mServers.contains(server).not()) {
+                return
             }
-        }
-
-        // Perform look up and cache results.
-        try {
-            val list = InetAddress.getAllByName(LOOK_UP_DNS)
-            synchronized(mRandom) {
-                mUrlsSet = Array(list.size) { AppUtils.EMPTY_STRING }
-                var i = 0
-                for (item in list) {
-                    mUrlsSet[i++] = "https://" + item.canonicalHostName
-                    AppLogger.i("$TAG look up host:" + mUrlsSet[i - 1])
+            if (success) {
+                mBadUntil.remove(server)
+            } else {
+                AppLogger.w("$TAG server failed: $server")
+                mBadUntil[server] = CatalogStatus.now() + BAD_SERVER_MS
+                if (mCurrent == server) {
+                    mCurrent = null
                 }
             }
-        } catch (exception: UnknownHostException) {
-            AppLogger.e(
-                "$TAG do lookup ${NetUtils.createExceptionMessage(uri, parameters)}",
-                exception
-            )
+            Unit
         }
+        if (success) {
+            CatalogStatus.onSuccess()
+        } else {
+            CatalogStatus.onFailure()
+        }
+    }
 
-        // Do random selection from available addresses.
-        var url: URL? = null
-        synchronized(mRandom) {
-            if (mUrlsSet.isNotEmpty()) {
-                val i = mRandom.nextInt(mUrlsSet.size)
-                url = getUrlModified(uriStr, mUrlsSet[i], parameters)
+    private fun pickServer(): String {
+        lookUpServers()
+        synchronized(mLock) {
+            val now = CatalogStatus.now()
+            mCurrent?.let {
+                if ((mBadUntil[it] ?: 0L) <= now) {
+                    return it
+                }
+            }
+            val healthy = mServers.filter { (mBadUntil[it] ?: 0L) <= now }
+            // All failed lately: try the one that failed longest ago.
+            val pick = if (healthy.isNotEmpty()) {
+                healthy[mRandom.nextInt(healthy.size)]
+            } else {
+                mServers.minByOrNull { mBadUntil[it] ?: 0L } ?: RESERVED_URLS[0]
+            }
+            mCurrent = pick
+            return pick
+        }
+    }
+
+    /**
+     * Finds the API servers by DNS (at most once per [LOOK_UP_INTERVAL_MS]; once is enough after a success).
+     */
+    private fun lookUpServers() {
+        synchronized(mLock) {
+            val now = CatalogStatus.now()
+            if (mLookupAt != 0L && (mServers.size > RESERVED_URLS.size || now - mLookupAt < LOOK_UP_INTERVAL_MS)) {
+                return
+            }
+            mLookupAt = now
+            if (mServers.isEmpty()) {
+                mServers.addAll(RESERVED_URLS)
             }
         }
-
-        // Uri to URL parse might fail.
-        if (url != null) {
-            return url
+        val found = try {
+            InetAddress.getAllByName(LOOK_UP_DNS).map { "https://" + it.canonicalHostName }
+        } catch (exception: UnknownHostException) {
+            AppLogger.e("$TAG look up $LOOK_UP_DNS", exception)
+            emptyList()
         }
-
-        // Use predefined addresses, these are needs to be verified time after time in order to be up to date.
-        val i = mRandom.nextInt(RESERVED_URLS.size)
-        return getUrlModified(uriStr, RESERVED_URLS[i], parameters)
+        synchronized(mLock) {
+            for (server in found) {
+                // A host without a reverse DNS name comes back as a bare IP: TLS would fail on it.
+                val host = server.removePrefix("https://")
+                if (host.contains(':') || host.none { it.isLetter() }) {
+                    continue
+                }
+                if (mServers.add(server)) {
+                    AppLogger.i("$TAG look up host:$server")
+                }
+            }
+        }
     }
 
     override fun getAllCategoriesUrl(): Uri {
-        return Uri.parse(BASE_URL + "tags?reverse=true&hidebroken=true")
+        return Uri.parse(BASE_URL + "tags?order=stationcount&reverse=true&hidebroken=true&limit=" + CATEGORIES_LIMIT)
     }
 
     override fun getStationsInCategory(categoryId: String, pageNumber: Int): Uri {
@@ -182,10 +227,25 @@ class UrlLayerRadioBrowserImpl : UrlLayer {
          * Base URL for the API requests.
          */
         private const val BASE_URL = "${BASE_URL_PREFIX}/json/"
+        /**
+         * Servers known to work; the catalog lists its servers at all.api.radio-browser.info/json/servers.
+         */
         private val RESERVED_URLS = arrayOf(
             "https://de1.api.radio-browser.info",
-            "https://fr1.api.radio-browser.info",
-            "https://nl1.api.radio-browser.info"
+            "https://de2.api.radio-browser.info",
+            "https://all.api.radio-browser.info"
         )
+
+        /**
+         * A server that failed is not used for this long, ms.
+         */
+        private const val BAD_SERVER_MS = 2 * 60 * 1000L
+
+        private const val LOOK_UP_INTERVAL_MS = 60 * 1000L
+
+        /**
+         * Genres: the ones with most stations (the catalog has thousands of tags, most with a station or two).
+         */
+        private const val CATEGORIES_LIMIT = 300
     }
 }

@@ -25,7 +25,7 @@ package com.yuriy.openradio.shared.model.media.item
 fun interface MediaItemCommand {
 
     companion object {
-        const val CMD_TIMEOUT_MS = 5000L
+        const val CMD_TIMEOUT_MS = 45000L
     }
 
     /**

@@ -101,17 +101,18 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
             var response = ByteArray(0)
 
             var responseObj = getConnectionUrl()
-            var attempt = 5
+            // A failed server is reported, so the next attempt goes to another catalog server.
+            var attempt = MAX_RETRIES
             while (true) {
-                if (attempt < 0) {
-                    AppLogger.e("$CLASS_NAME can not get connection for $responseObj")
-                    break
-                }
                 val responseCode = responseObj.responseCode
                 if (responseCode < HttpURLConnection.HTTP_OK || responseCode > HttpURLConnection.HTTP_MULT_CHOICE - 1) {
+                    responseObj.url?.let { mUrlLayer.reportResult(it, false) }
                     NetUtils.closeHttpURLConnection(responseObj.connection)
+                    if (attempt-- <= 0) {
+                        AppLogger.e("$CLASS_NAME can not get connection for $responseObj")
+                        return response
+                    }
                     responseObj = getConnectionUrl()
-                    attempt--
                     continue
                 }
                 break
@@ -126,9 +127,11 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
                 return response
             }
 
+            var success = false
             try {
                 val inputStream = BufferedInputStream(connection.inputStream)
                 response = toByteArray(inputStream)
+                success = true
             } catch (exception: IOException) {
                 AppLogger.e(
                     "$CLASS_NAME getStream ${
@@ -141,6 +144,7 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
             } finally {
                 NetUtils.closeHttpURLConnection(responseObj.connection)
             }
+            responseObj.url?.let { mUrlLayer.reportResult(it, success) }
             AppLogger.d("$CLASS_NAME return ${response.size} bytes for ${responseObj.url}")
             return response
         }
@@ -151,6 +155,11 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
          * Tag to use in logging message.
          */
         private const val CLASS_NAME = "HTTPDI"
+
+        /**
+         * Retries of a failed request (each one may go to another catalog server).
+         */
+        private const val MAX_RETRIES = 2
 
         /**
          * The default buffer size ({@value}) to use for

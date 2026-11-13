@@ -39,4 +39,11 @@
     <string name="notification_channel">Teraz gra</string>
     <string name="notification_channel_description">Pokazuje, co gra w Libre Radio</string>
     <string name="recent_list_title">Ostatnie</string>
+    <string name="media_stream_no_internet">Brak połączenia z internetem</string>
+    <string name="media_stream_no_answer">Serwer stacji nie odpowiada</string>
+    <string name="media_stream_dns">Nie znaleziono adresu stacji</string>
+    <string name="media_stream_tls">Nie udało się bezpieczne połączenie ze stacją</string>
+    <string name="media_stream_connection_lost">Utracono połączenie ze stacją</string>
+    <string name="media_stream_format">Format strumienia nieobsługiwany</string>
+    <string name="media_stream_http_code">Błąd serwera stacji (HTTP %d)</string>
 </resources>

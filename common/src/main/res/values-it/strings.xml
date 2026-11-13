@@ -39,4 +39,11 @@
     <string name="notification_channel">In riproduzione</string>
     <string name="notification_channel_description">Mostra cosa suona in Libre Radio</string>
     <string name="recent_list_title">Recenti</string>
+    <string name="media_stream_no_internet">Nessuna connessione a Internet</string>
+    <string name="media_stream_no_answer">Il server della stazione non risponde</string>
+    <string name="media_stream_dns">Indirizzo della stazione non trovato</string>
+    <string name="media_stream_tls">Connessione sicura alla stazione non riuscita</string>
+    <string name="media_stream_connection_lost">Connessione alla stazione persa</string>
+    <string name="media_stream_format">Formato dello stream non supportato</string>
+    <string name="media_stream_http_code">Errore del server della stazione (HTTP %d)</string>
 </resources>

@@ -18,6 +18,18 @@
 
 package com.yuriy.openradio.mobile.compose
 
+import android.os.SystemClock
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.automirrored.rounded.VolumeDown
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Slider
+import androidx.compose.ui.text.style.TextAlign
+import kotlinx.coroutines.delay
 import androidx.activity.compose.BackHandler
 import java.util.Date
 import androidx.compose.ui.platform.LocalContext
@@ -216,6 +228,9 @@ fun RadioApp(vm: RadioViewModel, host: SettingsHost, onMenu: (MenuAction) -> Uni
                     Catalog(vm)
                     if (vm.loading) {
                         LinearProgressIndicator(Modifier.fillMaxWidth())
+                        if (vm.items.isEmpty()) {
+                            CatalogLoading(vm)
+                        }
                     }
                 }
             }
@@ -330,6 +345,9 @@ private fun RadioTopBar(
             }
         },
         actions = {
+            if (vm.isGenres && vm.items.size > 1) {
+                GenreSortMenu(vm)
+            }
             if (vm.canReorder && vm.items.size > 1) {
                 IconButton(onClick = { vm.reordering = vm.reordering.not() }) {
                     Icon(
@@ -350,7 +368,9 @@ private fun RadioTopBar(
 private fun Catalog(vm: RadioViewModel) {
     val items = vm.items
     if (items.isEmpty()) {
-        if (!vm.loading) {
+        if (!vm.loading && vm.loadFailed) {
+            CatalogError(vm)
+        } else if (!vm.loading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     stringResource(R.string.compose_empty),
@@ -630,11 +650,15 @@ private fun MiniPlayer(vm: RadioViewModel, onExpand: () -> Unit) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    trackText(md)?.let {
+                    playerStatus(vm, md)?.let {
                         Text(
                             it,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (vm.isErrorText(it)) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                             maxLines = 1,
                             modifier = Modifier.basicMarquee()
                         )
@@ -691,6 +715,8 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
                             PlayerTexts(vm, md)
                             Spacer(Modifier.height(24.dp))
                             PlayerControls(vm)
+                            Spacer(Modifier.height(8.dp))
+                            VolumeRow(vm)
                         }
                     }
                 } else {
@@ -713,7 +739,9 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
                         PlayerTexts(vm, md)
                         Spacer(Modifier.weight(0.4f))
                         PlayerControls(vm)
-                        Spacer(Modifier.height(40.dp))
+                        Spacer(Modifier.height(16.dp))
+                        VolumeRow(vm)
+                        Spacer(Modifier.height(24.dp))
                     }
                 }
             }
@@ -777,13 +805,23 @@ private fun PlayerTexts(vm: RadioViewModel, md: MediaMetadata) {
             overflow = TextOverflow.Ellipsis
         )
         Spacer(Modifier.height(8.dp))
+        val status = playerStatus(vm, md)
         Text(
-            trackText(md) ?: " ",
+            status ?: " ",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (vm.isErrorText(status)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             modifier = Modifier.basicMarquee()
         )
+        if (vm.isBuffering) {
+            // What buffering is, so a long one is not a mystery.
+            Text(
+                stringResource(R.string.player_buffering_explained),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
         val track = vm.trackOf(md)
         var menu by remember { mutableStateOf(false) }
         Box(Modifier.height(48.dp)) {
@@ -965,4 +1003,167 @@ private fun trackText(md: MediaMetadata): String? {
         return null
     }
     return text
+}
+
+/**
+ * What the player line shows: while buffering what is going on and for how long, otherwise the track or an error.
+ */
+@Composable
+private fun playerStatus(vm: RadioViewModel, md: MediaMetadata): String? {
+    val seconds = rememberElapsedSeconds(vm.isBuffering, vm.currentMediaId)
+    if (vm.isBuffering) {
+        return if (vm.hasPlayedCurrent) {
+            stringResource(R.string.player_rebuffering, seconds)
+        } else {
+            stringResource(R.string.player_connecting, seconds)
+        }
+    }
+    return trackText(md)
+}
+
+/**
+ * Seconds since [active] became true (0 while false); restarts when [key] changes.
+ */
+@Composable
+private fun rememberElapsedSeconds(active: Boolean, key: Any?): Int {
+    var seconds by remember(key) { mutableIntStateOf(0) }
+    LaunchedEffect(active, key) {
+        seconds = 0
+        while (active) {
+            delay(1000)
+            seconds++
+        }
+    }
+    return seconds
+}
+
+/**
+ * Shown while a catalog folder loads: what is loading and how long it takes already.
+ */
+@Composable
+private fun CatalogLoading(vm: RadioViewModel) {
+    var seconds by remember(vm.loadingSince) { mutableIntStateOf(0) }
+    LaunchedEffect(vm.loadingSince) {
+        while (true) {
+            seconds = ((SystemClock.elapsedRealtime() - vm.loadingSince) / 1000).toInt()
+            delay(1000)
+        }
+    }
+    if (seconds < 2) {
+        return
+    }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 48.dp, start = 32.dp, end = 32.dp)
+    ) {
+        Text(
+            stringResource(if (seconds < SLOW_CATALOG_S) R.string.catalog_loading else R.string.catalog_loading_slow, seconds),
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
+        if (seconds >= SLOW_CATALOG_S) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(R.string.catalog_slow_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+private const val SLOW_CATALOG_S = 8
+
+/**
+ * The catalog (radio-browser.info) did not answer: say so, and offer to retry.
+ */
+@Composable
+private fun CatalogError(vm: RadioViewModel) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp)
+    ) {
+        Icon(
+            Icons.Rounded.CloudOff,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(48.dp)
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            stringResource(R.string.catalog_error),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.catalog_error_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(16.dp))
+        FilledTonalButton(onClick = { vm.refresh() }) {
+            Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.catalog_retry))
+        }
+    }
+}
+
+/**
+ * Genres: most stations first or by name.
+ */
+@Composable
+private fun GenreSortMenu(vm: RadioViewModel) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }) {
+            Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = stringResource(R.string.genres_sort))
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.genres_sort_by_count)) },
+                leadingIcon = { if (!vm.genresByName) Icon(Icons.Rounded.Check, contentDescription = null) },
+                onClick = {
+                    open = false
+                    vm.setGenresSortByName(false)
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.genres_sort_by_name)) },
+                leadingIcon = { if (vm.genresByName) Icon(Icons.Rounded.Check, contentDescription = null) },
+                onClick = {
+                    open = false
+                    vm.setGenresSortByName(true)
+                }
+            )
+        }
+    }
+}
+
+/**
+ * The phone's media volume.
+ */
+@Composable
+private fun VolumeRow(vm: RadioViewModel) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        IconButton(onClick = { vm.changeVolume(vm.volume - 0.1f) }) {
+            Icon(Icons.AutoMirrored.Rounded.VolumeDown, contentDescription = null)
+        }
+        Slider(
+            value = vm.volume,
+            onValueChange = { vm.changeVolume(it) },
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(onClick = { vm.changeVolume(vm.volume + 0.1f) }) {
+            Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null)
+        }
+    }
 }

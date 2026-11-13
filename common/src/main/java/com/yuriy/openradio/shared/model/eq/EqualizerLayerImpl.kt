@@ -36,6 +36,7 @@ class EqualizerLayerImpl(
             return
         }
         try {
+            AppLogger.i("$CLASS_NAME init for audio session $audioSessionId")
             mEqualizer = Equalizer(10, audioSessionId)
         } catch (e: Exception) {
             AppLogger.e("$CLASS_NAME exception while init:${e.message}")

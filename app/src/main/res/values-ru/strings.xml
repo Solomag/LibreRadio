@@ -38,7 +38,7 @@
     <string name="settings_clear_cache_desc">Запросы к каталогу кэшируются на сутки</string>
     <string name="settings_cache_cleared">Кэш очищен</string>
     <string name="settings_section_buffering">Буферизация</string>
-    <string name="settings_buffering_desc">В миллисекундах, от %1$d до %2$d. Применяется со следующего запуска станции.</string>
+    <string name="settings_buffering_desc">Миллисекунды, от %1$d до %2$d. Вступает в силу, когда приложение закрыто кнопкой выключения и открыто снова.</string>
     <string name="settings_buffer_min">Минимальный буфер</string>
     <string name="settings_buffer_max">Максимальный буфер</string>
     <string name="settings_buffer_start">Буфер для старта</string>
@@ -90,4 +90,27 @@
     <string name="song_copied">Скопировано</string>
     <string name="player_timer_active">Выключится в %1$s</string>
     <string name="compose_drag">Перетащите, чтобы изменить порядок</string>
+    <string name="catalog_loading">Загрузка каталога станций… %d с</string>
+    <string name="catalog_loading_slow">Каталог отвечает медленно… %d с</string>
+    <string name="catalog_slow_hint">Станции берутся с radio-browser.info. Медленная связь, VPN или ограничения провайдера тормозят загрузку.</string>
+    <string name="catalog_error">Каталог станций не ответил</string>
+    <string name="catalog_error_hint">Дело не в станциях: список не удалось загрузить с radio-browser.info. Проверьте интернет или попробуйте VPN. Избранное и свои станции работают и без каталога.</string>
+    <string name="catalog_retry">Повторить</string>
+    <string name="genres_sort">Сортировка</string>
+    <string name="genres_sort_by_count">Сначала крупные (по числу станций)</string>
+    <string name="genres_sort_by_name">По алфавиту</string>
+    <string name="player_connecting">Подключение к станции… %d с</string>
+    <string name="player_rebuffering">Звук прервался, подгружаю… %d с</string>
+    <string name="player_buffering_explained">Буферизация: приложение заранее загружает несколько секунд звука, чтобы он не прерывался. Долго — значит связь со станцией медленная.</string>
+    <string name="settings_eq_desc">Меняет тембр звука: добавить басов, сделать речь разборчивее и т. п. Действует только на Libre Radio.</string>
+    <string name="settings_eq_waiting">Включите станцию: эквалайзер появится, когда заиграет звук. Если не появился — устройство его не даёт.</string>
+    <string name="settings_buffering_explained">Буфер — запас звука, загруженный заранее. Чем он больше, тем чуть дольше старт станции, но тем реже обрывы на плохой связи.</string>
+    <string name="settings_buffer_fast">Быстрый старт</string>
+    <string name="settings_buffer_fast_desc">Звук примерно через 1 с. Для хорошего Wi-Fi.</string>
+    <string name="settings_buffer_normal">Обычный</string>
+    <string name="settings_buffer_normal_desc">Звук примерно через 2–3 с. Подходит почти всегда.</string>
+    <string name="settings_buffer_reliable">Надёжный</string>
+    <string name="settings_buffer_reliable_desc">Звук примерно через 5 с, обрывов меньше. Для мобильной сети, дороги и плохой связи.</string>
+    <string name="settings_buffer_custom">Свои значения</string>
+    <string name="about_developer">Разработчик Libre Radio</string>
 </resources>

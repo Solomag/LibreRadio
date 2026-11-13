@@ -17,6 +17,11 @@ interface UrlLayer {
     fun getConnectionUrl(uri: Uri, parameters: List<Pair<String, String>>): URL?
 
     /**
+     * Outcome of a request to [url] got from [getConnectionUrl]: lets the layer avoid a server that fails.
+     */
+    fun reportResult(url: URL, success: Boolean) {}
+
+    /**
      * Get Uri for the All Categories list.
      *
      * @return [Uri]

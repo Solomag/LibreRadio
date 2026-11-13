@@ -39,4 +39,11 @@
     <string name="notification_channel">Sada svira</string>
     <string name="notification_channel_description">Prikazuje šta sada svira u aplikaciji Libre Radio</string>
     <string name="recent_list_title">Nedavno</string>
+    <string name="media_stream_no_internet">Nema internet veze</string>
+    <string name="media_stream_no_answer">Server stanice ne odgovara</string>
+    <string name="media_stream_dns">Adresa stanice nije pronađena</string>
+    <string name="media_stream_tls">Bezbedna veza sa stanicom nije uspela</string>
+    <string name="media_stream_connection_lost">Veza sa stanicom je prekinuta</string>
+    <string name="media_stream_format">Format strima nije podržan</string>
+    <string name="media_stream_http_code">Greška servera stanice (HTTP %d)</string>
 </resources>

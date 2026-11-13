@@ -39,4 +39,11 @@
     <string name="notification_channel">Зараз грає</string>
     <string name="notification_channel_description">Показує, що зараз грає в Libre Radio</string>
     <string name="recent_list_title">Нещодавні</string>
+    <string name="media_stream_no_internet">Немає підключення до інтернету</string>
+    <string name="media_stream_no_answer">Сервер станції не відповідає</string>
+    <string name="media_stream_dns">Адресу станції не знайдено</string>
+    <string name="media_stream_tls">Не вдалося захищене з’єднання зі станцією</string>
+    <string name="media_stream_connection_lost">Зв’язок зі станцією перервався</string>
+    <string name="media_stream_format">Формат потоку не підтримується</string>
+    <string name="media_stream_http_code">Помилка сервера станції (HTTP %d)</string>
 </resources>

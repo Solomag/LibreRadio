@@ -18,6 +18,9 @@
 
 package com.yuriy.openradio.mobile.compose
 
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.RadioButton
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -230,41 +233,28 @@ private fun PlaybackSection(vm: RadioViewModel) {
             AppPreferencesManager.setBtAutoPlay(context, on)
         }
     }
-
-    var volume by remember {
-        mutableFloatStateOf(
-            AppPreferencesManager.getMasterVolume(context, OpenRadioService.MASTER_VOLUME_DEFAULT).toFloat()
-        )
-    }
-    ListItem(
-        headlineContent = { Text(stringResource(R.string.settings_volume)) },
-        supportingContent = {
-            Slider(
-                value = volume,
-                onValueChange = { volume = it },
-                valueRange = 0f..100f,
-                onValueChangeFinished = {
-                    val v = volume.toInt()
-                    AppPreferencesManager.setMasterVolume(context, v)
-                    vm.sendCommand(
-                        OpenRadioService.CMD_MASTER_VOLUME_CHANGED,
-                        OpenRadioStore.makeMasterVolumeChangedBundle(v)
-                    )
-                }
-            )
-        },
-        trailingContent = { Text("${volume.toInt()}%") },
-        colors = rowColors()
-    )
 }
 
 @Composable
 private fun EqualizerSection() {
     val presenter = remember { DependencyRegistryCommonUi.equalizerPresenter() }
     Header(stringResource(R.string.settings_section_eq))
-    if (presenter.hasEqualizerState().not()) {
+    Text(
+        stringResource(R.string.settings_eq_desc),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+    )
+    var available by remember { mutableStateOf(presenter.hasEqualizerState()) }
+    LaunchedEffect(available) {
+        while (available.not()) {
+            delay(1000)
+            available = presenter.hasEqualizerState()
+        }
+    }
+    if (available.not()) {
         Text(
-            stringResource(com.yuriy.openradio.shared.R.string.eq_not_available),
+            stringResource(R.string.settings_eq_waiting),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -469,6 +459,18 @@ private const val DEFAULT_MAX_BUFFER = 50_000
 private const val DEFAULT_PLAY_BUFFER = 2_500
 private const val DEFAULT_REBUFFER = 5_000
 
+/**
+ * Buffer presets: (minimum, maximum, to start, to resume after a stall), ms.
+ */
+private enum class BufferPreset(val title: Int, val desc: Int, val values: List<Int>) {
+    FAST(R.string.settings_buffer_fast, R.string.settings_buffer_fast_desc, listOf(15_000, 30_000, 1_000, 2_500)),
+    NORMAL(
+        R.string.settings_buffer_normal, R.string.settings_buffer_normal_desc,
+        listOf(DEFAULT_MIN_BUFFER, DEFAULT_MAX_BUFFER, DEFAULT_PLAY_BUFFER, DEFAULT_REBUFFER)
+    ),
+    RELIABLE(R.string.settings_buffer_reliable, R.string.settings_buffer_reliable_desc, listOf(60_000, 120_000, 5_000, 10_000))
+}
+
 @Composable
 private fun BufferingSection() {
     val context = LocalContext.current
@@ -478,14 +480,44 @@ private fun BufferingSection() {
     var maxBuf by remember { mutableStateOf(AppPreferencesManager.getMaxBuffer(context).toString()) }
     var playBuf by remember { mutableStateOf(AppPreferencesManager.getPlayBuffer(context).toString()) }
     var reBuf by remember { mutableStateOf(AppPreferencesManager.getPlayBufferRebuffer(context).toString()) }
+    val current = listOf(minBuf, maxBuf, playBuf, reBuf).map { it.toIntOrNull() }
+    var custom by remember { mutableStateOf(BufferPreset.entries.none { it.values == current }) }
 
     Header(stringResource(R.string.settings_section_buffering))
     Text(
-        stringResource(R.string.settings_buffering_desc, minVal, maxVal),
+        stringResource(R.string.settings_buffering_explained),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
     )
+    for (preset in BufferPreset.entries) {
+        val selected = custom.not() && preset.values == current
+        ListItem(
+            headlineContent = { Text(stringResource(preset.title)) },
+            supportingContent = { Text(stringResource(preset.desc)) },
+            leadingContent = { RadioButton(selected = selected, onClick = null) },
+            colors = rowColors(),
+            modifier = Modifier.clickable {
+                custom = false
+                val (a, b, c, d) = preset.values.map { it.toString() }
+                minBuf = a
+                maxBuf = b
+                playBuf = c
+                reBuf = d
+                saveBuffers(context, a, b, c, d, minVal, maxVal)
+            }
+        )
+    }
+    ListItem(
+        headlineContent = { Text(stringResource(R.string.settings_buffer_custom)) },
+        supportingContent = { Text(stringResource(R.string.settings_buffering_desc, minVal, maxVal)) },
+        leadingContent = { RadioButton(selected = custom, onClick = null) },
+        colors = rowColors(),
+        modifier = Modifier.clickable { custom = true }
+    )
+    if (custom.not()) {
+        return
+    }
     BufferField(stringResource(R.string.settings_buffer_min), minBuf) { minBuf = it }
     BufferField(stringResource(R.string.settings_buffer_max), maxBuf) { maxBuf = it }
     BufferField(stringResource(R.string.settings_buffer_start), playBuf) { playBuf = it }
@@ -497,13 +529,6 @@ private fun BufferingSection() {
         FilledTonalButton(onClick = {
             saveBuffers(context, minBuf, maxBuf, playBuf, reBuf, minVal, maxVal)
         }) { Text(stringResource(R.string.settings_apply)) }
-        OutlinedButton(onClick = {
-            minBuf = DEFAULT_MIN_BUFFER.toString()
-            maxBuf = DEFAULT_MAX_BUFFER.toString()
-            playBuf = DEFAULT_PLAY_BUFFER.toString()
-            reBuf = DEFAULT_REBUFFER.toString()
-            saveBuffers(context, minBuf, maxBuf, playBuf, reBuf, minVal, maxVal)
-        }) { Text(stringResource(R.string.settings_defaults)) }
     }
 }
 

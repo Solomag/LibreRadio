@@ -37,6 +37,7 @@ import com.yuriy.openradio.R
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommon
 import com.yuriy.openradio.shared.model.media.MediaId
 import com.yuriy.openradio.shared.model.net.SearchQuery
+import com.yuriy.openradio.shared.model.storage.AppPreferencesManager
 import com.yuriy.openradio.shared.model.storage.LocationStorage
 import com.yuriy.openradio.shared.service.OpenRadioService
 import com.yuriy.openradio.shared.service.OpenRadioStore
@@ -61,6 +62,36 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     var items by mutableStateOf<List<MediaItem>>(emptyList())
         private set
     var loading by mutableStateOf(true)
+        private set
+
+    /**
+     * When the current load started ([android.os.SystemClock.elapsedRealtime]), to show how long it takes.
+     */
+    var loadingSince by mutableStateOf(0L)
+        private set
+
+    /**
+     * The catalog did not answer for the current folder (shown with a Retry button instead of "empty").
+     */
+    var loadFailed by mutableStateOf(false)
+        private set
+
+    /**
+     * Genres sorted by name instead of by number of stations.
+     */
+    var genresByName by mutableStateOf(false)
+        private set
+
+    /**
+     * The current station has played since it was started: later buffering is a reload, not connecting.
+     */
+    var hasPlayedCurrent by mutableStateOf(false)
+        private set
+
+    /**
+     * Media volume of the phone, 0..1.
+     */
+    var volume by mutableStateOf(0f)
         private set
     var connected by mutableStateOf(false)
         private set
@@ -96,14 +127,51 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     /**
      * Texts the service puts in place of a track: "Live stream", "Buffering…", errors.
      */
-    private val notTracks: Set<String> = setOf(
-        app.getString(com.yuriy.openradio.R.string.media_description_default),
-        app.getString(com.yuriy.openradio.R.string.buffering_infinite),
+    private val errorTexts: Set<String> = setOf(
         app.getString(com.yuriy.openradio.R.string.media_stream_error),
         app.getString(com.yuriy.openradio.R.string.media_stream_network_failed),
         app.getString(com.yuriy.openradio.R.string.media_stream_http_403),
         app.getString(com.yuriy.openradio.R.string.media_stream_http_404),
+        app.getString(com.yuriy.openradio.R.string.media_stream_no_internet),
+        app.getString(com.yuriy.openradio.R.string.media_stream_no_answer),
+        app.getString(com.yuriy.openradio.R.string.media_stream_dns),
+        app.getString(com.yuriy.openradio.R.string.media_stream_tls),
+        app.getString(com.yuriy.openradio.R.string.media_stream_connection_lost),
+        app.getString(com.yuriy.openradio.R.string.media_stream_format),
     )
+
+    private val notTracks: Set<String> = setOf(
+        app.getString(com.yuriy.openradio.R.string.media_description_default),
+        app.getString(com.yuriy.openradio.R.string.buffering_infinite),
+    ) + errorTexts
+
+    /**
+     * "Station server error (HTTP %d)" up to the number, to recognise it whatever the code.
+     */
+    private val httpErrorPrefix =
+        app.getString(com.yuriy.openradio.R.string.media_stream_http_code, 0).substringBefore("0")
+
+    private val uiPrefs = app.getSharedPreferences("compose_ui", android.content.Context.MODE_PRIVATE)
+
+    private val audioManager =
+        app.getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager
+
+    /**
+     * Follows volume changes made with the phone's buttons.
+     */
+    private val volumeReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+            readVolume()
+        }
+    }
+
+    /**
+     * An error the player shows in place of a track (why the station does not play).
+     */
+    fun isErrorText(text: String?): Boolean {
+        text ?: return false
+        return text in errorTexts || (httpErrorPrefix.isNotEmpty() && text.startsWith(httpErrorPrefix))
+    }
 
     /**
      * Favorite state changed in this session, by media id (the catalog is not re-fetched on every toggle).
@@ -122,6 +190,12 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         loadHistory()
+        genresByName = uiPrefs.getBoolean(KEY_GENRES_BY_NAME, false)
+        readVolume()
+        androidx.core.content.ContextCompat.registerReceiver(
+            app, volumeReceiver, android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION"),
+            androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+        )
         val title = app.getString(R.string.app_name)
         folders.add(Folder(MediaId.MEDIA_ID_ROOT, title))
         viewModelScope.launch {
@@ -133,6 +207,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
                 syncPlayer(b)
                 b.getLibraryRoot(null).await()
                 connected = true
+                resetPlayerVolume()
                 load()
             } catch (e: Exception) {
                 AppLogger.e("RVM connect", e)
@@ -322,17 +397,19 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         val b = browser ?: return
         val folder = current
         loading = true
+        loadFailed = false
+        loadingSince = android.os.SystemClock.elapsedRealtime()
         reordering = false
         page = 0
         endReached = folder.query != null || folder.id == MediaId.MEDIA_ID_ROOT ||
-                folder.id == MediaId.MEDIA_ID_FAVORITES_LIST
+                folder.id == MediaId.MEDIA_ID_FAVORITES_LIST || folder.id == MediaId.MEDIA_ID_ALL_CATEGORIES
         viewModelScope.launch {
             val result = try {
                 if (folder.query != null) {
                     val query = SearchQuery(folder.query, folder.country).encode()
-                    b.getSearchResult(query, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null).await().value
+                    b.getSearchResult(query, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null).await()
                 } else {
-                    b.getChildren(folder.id, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null).await().value
+                    b.getChildren(folder.id, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null).await()
                 }
             } catch (e: Exception) {
                 AppLogger.e("RVM load ${folder.id}", e)
@@ -340,7 +417,11 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
             }
             // Ignore late results of a folder the user already left.
             if (current == folder) {
-                items = result?.toList() ?: emptyList()
+                val list = result?.value?.toList() ?: emptyList()
+                genresInCountOrder = if (folder.id == MediaId.MEDIA_ID_ALL_CATEGORIES) list else emptyList()
+                items = if (genresInCountOrder.isNotEmpty() && genresByName) sortByName(list) else list
+                loadFailed = list.isEmpty() &&
+                        (result == null || result.resultCode != androidx.media3.session.LibraryResult.RESULT_SUCCESS)
                 loading = false
             }
         }
@@ -375,6 +456,63 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
                 loading = false
             }
         }
+    }
+
+    /**
+     * Genres as the catalog gave them (most stations first), to switch back from sorting by name.
+     */
+    private var genresInCountOrder: List<MediaItem> = emptyList()
+
+    val isGenres: Boolean
+        get() = current.id == MediaId.MEDIA_ID_ALL_CATEGORIES && current.query == null
+
+    fun setGenresSortByName(byName: Boolean) {
+        genresByName = byName
+        uiPrefs.edit().putBoolean(KEY_GENRES_BY_NAME, byName).apply()
+        if (isGenres && genresInCountOrder.isNotEmpty()) {
+            items = if (byName) sortByName(genresInCountOrder) else genresInCountOrder
+        }
+    }
+
+    private fun sortByName(list: List<MediaItem>): List<MediaItem> {
+        val collator = java.text.Collator.getInstance()
+        return list.sortedWith { a, b ->
+            collator.compare(a.mediaMetadata.title?.toString() ?: "", b.mediaMetadata.title?.toString() ?: "")
+        }
+    }
+
+    private fun readVolume() {
+        val max = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
+        volume = if (max <= 0) {
+            0f
+        } else {
+            audioManager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC).toFloat() / max
+        }
+    }
+
+    /**
+     * Sets the phone's media volume (the same one as its volume buttons).
+     */
+    fun changeVolume(value: Float) {
+        val v = value.coerceIn(0f, 1f)
+        val max = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
+        runCatching {
+            audioManager.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, Math.round(v * max), 0)
+        }
+        volume = v
+    }
+
+    /**
+     * The app's own player volume used to be a setting; it is gone, so a lowered one is put back to full.
+     */
+    private fun resetPlayerVolume() {
+        val app = getApplication<Application>()
+        val full = OpenRadioService.MASTER_VOLUME_DEFAULT
+        if (AppPreferencesManager.getMasterVolume(app, full) >= full) {
+            return
+        }
+        AppPreferencesManager.setMasterVolume(app, full)
+        sendCommand(OpenRadioService.CMD_MASTER_VOLUME_CHANGED, OpenRadioStore.makeMasterVolumeChangedBundle(full))
     }
 
     fun play(item: MediaItem) {
@@ -462,6 +600,10 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         // later writes the track into the item's subtitle, so remember it only when the station changes.
         if (player.currentMediaItem?.mediaId != previousId) {
             stationSubtitle = player.currentMediaItem?.mediaMetadata?.subtitle?.toString()?.trim()
+            hasPlayedCurrent = false
+        }
+        if (player.isPlaying) {
+            hasPlayedCurrent = true
         }
         nowPlaying = if (player.currentMediaItem != null) player.mediaMetadata else null
         currentMediaId = player.currentMediaItem?.mediaId
@@ -480,7 +622,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     fun trackOf(md: MediaMetadata?): String? {
         md ?: return null
         val text = (md.subtitle ?: md.artist)?.toString()?.trim()
-        if (text.isNullOrEmpty() || text == md.title?.toString()?.trim() || text in notTracks ||
+        if (text.isNullOrEmpty() || text == md.title?.toString()?.trim() || text in notTracks || isErrorText(text) ||
             text == stationSubtitle
         ) {
             return null
@@ -525,6 +667,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     override fun onCleared() {
+        runCatching { getApplication<Application>().unregisterReceiver(volumeReceiver) }
         browser?.let {
             it.removeListener(playerListener)
             it.release()
@@ -536,5 +679,6 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         private const val MAX_HISTORY = 100
         private const val KEY_HISTORY = "history"
+        private const val KEY_GENRES_BY_NAME = "genres_by_name"
     }
 }

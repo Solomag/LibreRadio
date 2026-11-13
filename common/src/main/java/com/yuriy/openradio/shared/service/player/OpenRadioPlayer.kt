@@ -17,6 +17,7 @@
 package com.yuriy.openradio.shared.service.player
 
 import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Looper
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -61,7 +62,11 @@ import com.yuriy.openradio.shared.utils.PlayerUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.ConnectException
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import javax.net.ssl.SSLException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.min
 
@@ -185,6 +190,13 @@ class OpenRadioPlayer(
             .build()
         builder.setAudioAttributes(audioAttributes, true)
         val player = builder.build()
+        // The equalizer is attached to the player's audio session; newer Media3 only creates one when
+        // audio starts, so give the player its own session up front (API 21+).
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP &&
+            player.audioSessionId == C.AUDIO_SESSION_ID_UNSET
+        ) {
+            player.audioSessionId = androidx.media3.common.util.Util.generateAudioSessionIdV21(mContext)
+        }
         player.addListener(mComponentListener)
         player.playWhenReady = true
         // A radio stream never really ends: when the server closes it (restart, relay switch),
@@ -990,7 +1002,9 @@ class OpenRadioPlayer(
 
         override fun onPlayerError(exception: PlaybackException) {
             AppLogger.e("$TAG onPlayerError [${mNumOfExceptions.get()}]", exception)
-            if (exception.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED) {
+            if (exception.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
+                exception.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
+            ) {
                 mStoppedByNetworkAt = System.currentTimeMillis()
                 updateStreamMetadata(toDisplayString(mContext, exception))
                 return
@@ -1051,24 +1065,52 @@ class OpenRadioPlayer(
             }
         }
 
+        /**
+         * Why the station does not play, as plain words: no internet, the station's server, its address, format...
+         */
         private fun toDisplayString(context: Context, exception: PlaybackException): String {
-            if (exception.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED) {
-                return context.getString(R.string.media_stream_network_failed)
+            if (isOnline(context).not()) {
+                return context.getString(R.string.media_stream_no_internet)
             }
-            var msg = context.getString(R.string.media_stream_error)
-            val cause = exception.cause
-            if (cause is HttpDataSource.InvalidResponseCodeException) {
-                when (cause.responseCode) {
-                    HttpURLConnection.HTTP_FORBIDDEN -> {
-                        msg = context.getString(R.string.media_stream_http_403)
+            var cause: Throwable? = exception.cause
+            while (cause != null) {
+                when (cause) {
+                    is HttpDataSource.InvalidResponseCodeException -> return when (cause.responseCode) {
+                        HttpURLConnection.HTTP_FORBIDDEN -> context.getString(R.string.media_stream_http_403)
+                        HttpURLConnection.HTTP_NOT_FOUND, HTTP_GONE -> context.getString(R.string.media_stream_http_404)
+                        else -> context.getString(R.string.media_stream_http_code, cause.responseCode)
                     }
 
-                    HttpURLConnection.HTTP_NOT_FOUND -> {
-                        msg = context.getString(R.string.media_stream_http_404)
-                    }
+                    is UnknownHostException -> return context.getString(R.string.media_stream_dns)
+                    is SSLException -> return context.getString(R.string.media_stream_tls)
+                    is SocketTimeoutException, is ConnectException ->
+                        return context.getString(R.string.media_stream_no_answer)
                 }
+                cause = cause.cause
             }
-            return msg
+            return when (exception.errorCode) {
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT ->
+                    context.getString(R.string.media_stream_no_answer)
+
+                PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ->
+                    context.getString(R.string.media_stream_connection_lost)
+
+                PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE,
+                PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED,
+                PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED,
+                PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED,
+                PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES ->
+                    context.getString(R.string.media_stream_format)
+
+                else -> context.getString(R.string.media_stream_error)
+            }
+        }
+
+        @Suppress("DEPRECATION")
+        private fun isOnline(context: Context): Boolean {
+            val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                ?: return true
+            return manager.activeNetworkInfo?.isConnected ?: false
         }
     }
 
@@ -1111,5 +1153,7 @@ class OpenRadioPlayer(
          *
          */
         private const val MAX_EXCEPTIONS_COUNT = 5
+
+        private const val HTTP_GONE = 410
     }
 }

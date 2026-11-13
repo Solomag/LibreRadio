@@ -68,6 +68,7 @@ private const val ORIGINAL_PROJECT_URL =
 private const val AUTHOR_PROFILE_URL = "https://www.linkedin.com/in/yurii-chernyshov"
 private const val SUPPORT_URL = "https://ko-fi.com/I2I1LGFPH"
 private const val PROJECT_URL = "https://github.com/Solomag/LibreRadio"
+private const val DEVELOPER_URL = "https://github.com/Solomag"
 private const val ISSUES_URL = "https://github.com/Solomag/LibreRadio/issues"
 private const val LICENSE_URL = "https://www.apache.org/licenses/LICENSE-2.0"
 private const val RADIO_BROWSER_URL = "https://www.radio-browser.info"
@@ -179,6 +180,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 }
 
                 AboutHeader(stringResource(R.string.about_section_project))
+                LinkRow(stringResource(R.string.about_developer), "Solomag") { open(DEVELOPER_URL) }
                 LinkRow(stringResource(R.string.about_source_code), "github.com/Solomag/LibreRadio") { open(PROJECT_URL) }
                 LinkRow(stringResource(com.yuriy.openradio.shared.R.string.about_report_issue), null) { open(ISSUES_URL) }
                 LinkRow(stringResource(R.string.about_license), null) { open(LICENSE_URL) }

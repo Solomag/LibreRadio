@@ -39,4 +39,11 @@
     <string name="notification_channel">Sonando ahora</string>
     <string name="notification_channel_description">Muestra lo que suena en Libre Radio</string>
     <string name="recent_list_title">Recientes</string>
+    <string name="media_stream_no_internet">Sin conexión a Internet</string>
+    <string name="media_stream_no_answer">El servidor de la emisora no responde</string>
+    <string name="media_stream_dns">No se encuentra la dirección de la emisora</string>
+    <string name="media_stream_tls">Falló la conexión segura con la emisora</string>
+    <string name="media_stream_connection_lost">Se perdió la conexión con la emisora</string>
+    <string name="media_stream_format">Formato de la emisión no compatible</string>
+    <string name="media_stream_http_code">Error del servidor de la emisora (HTTP %d)</string>
 </resources>
