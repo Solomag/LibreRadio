@@ -29,6 +29,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.google.android.gms.cast.framework.CastButtonFactory
@@ -152,6 +153,7 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
 
         initUi()
         hideProgressBar()
+        onBackPressedDispatcher.addCallback(this, mBackCallback)
 
         DependencyRegistryCommonUi.inject(this)
 
@@ -226,15 +228,23 @@ class MainActivity : AppCompatActivity(), MediaPresenterDependency {
         super.onSaveInstanceState(outState)
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        hideNoDataMessage()
-        hideProgressBar()
-        if (mMediaPresenter.handleBackPressed()) {
-            // Perform Android's framework lifecycle.
-            super.onBackPressed()
-            // Indicate that the activity is finished.
-            finish()
+    /**
+     * Back navigation. With target SDK 36 Android 16+ no longer calls onBackPressed(), so back is
+     * handled through the dispatcher: close the drawer, go up one level, or at the root stop
+     * playback and close the app.
+     */
+    private val mBackCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+            if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START)
+                return
+            }
+            hideNoDataMessage()
+            hideProgressBar()
+            if (mMediaPresenter.handleBackPressed()) {
+                finish()
+            }
         }
     }
 

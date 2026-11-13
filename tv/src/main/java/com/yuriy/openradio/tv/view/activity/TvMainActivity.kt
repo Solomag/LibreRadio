@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.MainThread
 import androidx.fragment.app.FragmentActivity
 import androidx.media3.common.MediaItem
@@ -97,6 +98,7 @@ class TvMainActivity : FragmentActivity(), MediaPresenterDependency {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, mBackCallback)
 
         if (savedInstanceState != null) {
             mSavedInstanceState = Bundle(savedInstanceState)
@@ -178,13 +180,15 @@ class TvMainActivity : FragmentActivity(), MediaPresenterDependency {
         }
     }
 
-    override fun onBackPressed() {
-        hideProgressBar()
-        if (mMediaPresenter.handleBackPressed()) {
-            // Perform Android's framework lifecycle.
-            super.onBackPressed()
-            // Indicate that the activity is finished.
-            finish()
+    /**
+     * Back navigation through the dispatcher (onBackPressed() is not called on Android 16+ with target SDK 36).
+     */
+    private val mBackCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            hideProgressBar()
+            if (mMediaPresenter.handleBackPressed()) {
+                finish()
+            }
         }
     }
 
