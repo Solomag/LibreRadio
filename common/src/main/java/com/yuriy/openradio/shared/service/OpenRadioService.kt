@@ -185,6 +185,12 @@ class OpenRadioService : MediaLibraryService() {
             setActiveRS(mPresenter.getLastRadioStation())
         }
         registerReceivers()
+        // Home screen widget and quick settings tile follow the player.
+        mPlayer.addListener(object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                publishNowPlaying()
+            }
+        })
         mSession = with(
             MediaLibrarySession.Builder(
                 this, mPlayer, ServiceCallback()
@@ -232,6 +238,8 @@ class OpenRadioService : MediaLibraryService() {
     override fun onDestroy() {
         super.onDestroy()
         AppLogger.i("$TAG on destroy")
+        val state = com.yuriy.openradio.shared.widget.NowPlaying.load(applicationContext)
+        com.yuriy.openradio.shared.widget.NowPlaying.publish(applicationContext, state.station, state.track, false)
         mUiScope.cancel("Cancel on destroy")
         mScope.cancel("Cancel on destroy")
         unregisterReceivers()
@@ -252,6 +260,24 @@ class OpenRadioService : MediaLibraryService() {
             mediaId = MediaId.MEDIA_ID_FAVORITES_LIST
         }
         notifyChildrenChanged(mediaId)
+    }
+
+    /**
+     * Station, track and play state for the widget and the tile.
+     */
+    private fun publishNowPlaying() {
+        val item = mPlayer.currentMediaItem
+        val station = item?.mediaMetadata?.title?.toString()?.trim()?.ifEmpty { null } ?: mActiveRS.name.trim()
+        val md = mPlayer.mediaMetadata
+        val text = (md.subtitle ?: md.artist)?.toString()?.trim() ?: ""
+        val ignored = setOf(
+            item?.mediaMetadata?.subtitle?.toString()?.trim(),
+            station,
+            getString(R.string.media_description_default),
+            getString(R.string.buffering_infinite)
+        )
+        val track = if (text in ignored) "" else text
+        com.yuriy.openradio.shared.widget.NowPlaying.publish(applicationContext, station, track, mPlayer.isPlaying)
     }
 
     private fun registerReceivers() {
