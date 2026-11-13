@@ -22,17 +22,22 @@ and can be installed alongside Open Radio.
 * Sending logs by email is disabled unless SMTP credentials are supplied at build time.
 * Builds without `sign.properties` (debug key for debug builds, unsigned release).
 
-### Two editions ###
+### Which APK to install ###
 
-Both are built from the same code as Gradle product flavors and share the application ID,
-so only one can be installed at a time.
+All builds share the application ID, so only one of them can be installed on a device.
 
-| Edition | APK | Android | UI | Notes |
-|---|---|---|---|---|
-| **Libre Radio** (`modern`) | `LibreRadio-<version>.apk` | 7.0+ (API 24) | Material 3, dynamic color on Android 12+ | Current libraries (e.g. OkHttp 4) |
-| **Libre Radio Legacy** (`legacy`) | `LibreRadio-<version>-legacy.apk` | 4.2+ (API 17) | Classic | Libraries pinned to the last versions that support API 17 |
+| APK | For | Android | UI |
+|---|---|---|---|
+| `LibreRadio-<version>.apk` | Phones, tablets, Android car head units on Android 7+ | 7.0+ (API 24) | Jetpack Compose, Material 3 |
+| `LibreRadio-<version>-legacy.apk` | Old phones and **old Android car head units** (the common Chinese ones on Android 4.4–6) | 4.2+ (API 17) | Classic |
+| `LibreRadio-<version>-tv.apk` | Android TV boxes and TVs | 5.0+ (API 21) | TV |
+| `LibreRadio-<version>-automotive.apk` | Cars with Android Automotive OS built in (not head units) | 9+ (API 28) | Car |
 
-The TV app is built on `legacy` (API 21+), the Automotive app on `modern`.
+* **Android Auto** (a phone projected to the car screen) needs no separate APK: the phone app supports it.
+* Aftermarket Android head units are ordinary Android tablets: use the phone APK that fits their
+  Android version. The Automotive APK does not install on them.
+* `modern` and `legacy` are Gradle product flavors of the same code; the legacy one keeps libraries
+  at the last versions that support API 17. The TV app is built on `legacy`, the Automotive app on `modern`.
 
 ### Build ###
 
