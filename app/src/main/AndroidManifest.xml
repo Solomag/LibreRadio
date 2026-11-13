@@ -40,21 +40,7 @@
         android:theme="@style/AppTheme.NoActionBar"
         android:name=".MainApp">
 
-        <activity
-            android:name=".view.activity.MainActivity"
-            android:launchMode="singleInstance"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        <!-- The launcher activity is declared per edition: src/legacy and src/modern. -->
 
         <!-- Points to searchable activity so the whole app can invoke search. -->
         <meta-data

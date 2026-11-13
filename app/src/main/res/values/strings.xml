@@ -17,6 +17,10 @@
 <resources>
     <string name="eq_label">Equalizer</string>
     <string name="update_check_menu">Check for updates</string>
+    <string name="compose_search_hint">Search stations, genres</string>
+    <string name="compose_empty">Nothing here yet</string>
+    <string name="compose_now_playing">Now playing</string>
+    <string name="compose_close_app">Close Libre Radio</string>
     <string name="update_checking">Checking for updates…</string>
     <string name="update_check_failed">Could not check for updates</string>
     <string name="update_up_to_date">You have the latest version</string>

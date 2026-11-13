@@ -27,6 +27,15 @@ project.ext {
     kotlinJvmTarget = "1.8"
 
     /**
+     * Jetpack Compose (modern edition UI). Compiler 1.5.14 matches Kotlin 1.9.24.
+     */
+    composeCompilerVersion = "1.5.14"
+    composeBomVersion = "2024.09.03"
+    activityComposeVersion = "1.9.2"
+    lifecycleComposeVersion = "2.8.6"
+    coilVersion = "2.7.0"
+
+    /**
      * Libraries versions
      */
     gradleVersion = "8.9.1"

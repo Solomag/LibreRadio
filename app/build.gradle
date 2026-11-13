@@ -74,11 +74,36 @@ android {
     lint {
         abortOnError false
     }
+
+    // Jetpack Compose UI of the modern edition (app/src/modern). The legacy edition keeps the View UI.
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion project.ext.composeCompilerVersion
+    }
 }
 
 dependencies {
     implementation project(':common')
     implementation project(':common-ui')
+
+    def composeBom = platform("androidx.compose:compose-bom:$composeBomVersion")
+    modernImplementation composeBom
+    modernImplementation "androidx.compose.ui:ui"
+    modernImplementation "androidx.compose.material3:material3"
+    modernImplementation "androidx.compose.material:material-icons-extended"
+    modernImplementation "androidx.compose.ui:ui-tooling-preview"
+    modernImplementation "androidx.activity:activity-compose:$activityComposeVersion"
+    modernImplementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleComposeVersion"
+    modernImplementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycleComposeVersion"
+    modernImplementation "io.coil-kt:coil-compose:$coilVersion"
+    modernImplementation "androidx.media3:media3-session:$media3Version"
+    modernImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:$kotlinxCoroutinesAndroid"
+    // The Compose compiler plugin needs the runtime on the classpath for every variant;
+    // legacy has no composables, so it is compile-only there (not packaged).
+    legacyCompileOnly composeBom
+    legacyCompileOnly "androidx.compose.runtime:runtime"
 
     androidTestImplementation(
             "androidx.test.espresso:espresso-core:$espressoVersion",
