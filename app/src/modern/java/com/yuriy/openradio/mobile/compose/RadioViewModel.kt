@@ -180,6 +180,10 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     fun deleteStation(item: MediaItem) {
         com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi.removeStationPresenter()
             .removeRadioStation(item.mediaId)
+        // A deleted own station should not stay behind in Favorites.
+        if (isFavorite(item)) {
+            setFavorite(item.mediaId, false)
+        }
         items = items.filter { it.mediaId != item.mediaId }
         stationsChanged()
     }

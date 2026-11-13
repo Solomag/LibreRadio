@@ -456,6 +456,12 @@ class OpenRadioService : MediaLibraryService() {
         }
         // One attempt per network error.
         mPlayer.clearStoppedByNetwork()
+        // Never start over another app that is playing now (e.g. an audiobook).
+        val audio = getSystemService(AUDIO_SERVICE) as? android.media.AudioManager
+        if (audio?.isMusicActive == true) {
+            AppLogger.i("$TAG network back, but other audio is playing: no resume")
+            return
+        }
         handlePlayRequest()
     }
 

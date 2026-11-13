@@ -21,6 +21,8 @@ android {
     }
 
     compileOptions {
+        // Needed by the FFmpeg decoder library.
+        coreLibraryDesugaringEnabled true
         sourceCompatibility project.ext.javaVersion
         targetCompatibility project.ext.javaVersion
     }
@@ -85,6 +87,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.4"
     implementation project(':common')
     implementation project(':common-ui')
 

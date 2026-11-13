@@ -158,7 +158,10 @@ class OpenRadioPlayer(
             mContext, ExoPlayerUtils.buildRenderersFactory(mContext)
         )
         builder.setTrackSelector(trackSelector)
-        builder.setMediaSourceFactory(DefaultMediaSourceFactory(ExoPlayerUtils.getDataSourceFactory(mContext)!!))
+        builder.setMediaSourceFactory(
+            DefaultMediaSourceFactory(ExoPlayerUtils.getDataSourceFactory(mContext)!!)
+                .setLoadErrorHandlingPolicy(StreamLoadErrorPolicy())
+        )
         builder.setLoadControl(
             DefaultLoadControl.Builder()
                 .setBufferDurationsMs(
@@ -182,6 +185,9 @@ class OpenRadioPlayer(
         val player = builder.build()
         player.addListener(mComponentListener)
         player.playWhenReady = true
+        // A radio stream never really ends: when the server closes it (restart, relay switch),
+        // reconnect to the same station instead of stopping or skipping to the next one.
+        player.repeatMode = Player.REPEAT_MODE_ONE
         player
     }
 
@@ -387,7 +393,8 @@ class OpenRadioPlayer(
     }
 
     override fun setRepeatMode(repeatMode: Int) {
-        mPlayer.repeatMode = repeatMode
+        // Kept at REPEAT_MODE_ONE: that is how a closed live stream reconnects (see mExoPlayer).
+        AppLogger.d("$TAG ignore repeat mode $repeatMode")
     }
 
     override fun getRepeatMode(): Int {
@@ -915,6 +922,30 @@ class OpenRadioPlayer(
             updateStreamMetadata(title)
         }
 
+        /**
+         * Reconnects of a stream that the server closed, to stop a loop on a broken station.
+         */
+        private val mReconnects = ArrayDeque<Long>()
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            if (reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT) {
+                mReconnects.clear()
+                return
+            }
+            val now = System.currentTimeMillis()
+            mReconnects.addLast(now)
+            while (mReconnects.isNotEmpty() && now - mReconnects.first() > RECONNECT_WINDOW_MS) {
+                mReconnects.removeFirst()
+            }
+            AppLogger.i("$TAG stream closed by the server, reconnect #${mReconnects.size}")
+            if (mReconnects.size > MAX_RECONNECTS) {
+                mReconnects.clear()
+                AppLogger.e("$TAG stream keeps closing, pause")
+                mPlayer.pause()
+                updateStreamMetadata(mContext.getString(R.string.media_stream_error))
+            }
+        }
+
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             if (isPlaying) {
                 clearStoppedByNetwork()
@@ -1078,6 +1109,12 @@ class OpenRadioPlayer(
          * After a network error, playback resumes on reconnect only within this time.
          */
         private const val NETWORK_RESUME_WINDOW_MS = 5 * 60 * 1000L
+
+        /**
+         * More than this many reconnects of a closed stream within [RECONNECT_WINDOW_MS] pause playback.
+         */
+        private const val MAX_RECONNECTS = 5
+        private const val RECONNECT_WINDOW_MS = 60 * 1000L
         /**
          * String tag to use in logs.
          */

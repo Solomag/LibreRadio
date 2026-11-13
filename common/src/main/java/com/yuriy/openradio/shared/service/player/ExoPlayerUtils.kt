@@ -44,6 +44,8 @@ object ExoPlayerUtils {
     const val METADATA_ID_TIT2 = "TIT2"
 
     private const val DOWNLOAD_CONTENT_DIRECTORY = "downloads"
+    private const val CONNECT_TIMEOUT_MS = 15_000
+    private const val READ_TIMEOUT_MS = 20_000
     private var sDataSourceFactory: DataSource.Factory? = null
     private var sHttpDataSourceFactory: HttpDataSource.Factory? = null
     private var sDownloadCache: Cache? = null
@@ -54,7 +56,14 @@ object ExoPlayerUtils {
     @UnstableApi
     fun buildRenderersFactory(context: Context): RenderersFactory {
         return DefaultRenderersFactory(context.applicationContext)
-            .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF)
+            // FFmpeg audio decoder (FLAC etc.) only where the system has no decoder, e.g. FLAC before Android 8.1.
+            .setExtensionRendererMode(
+                if (android.os.Build.VERSION.SDK_INT >= 21) {
+                    DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+                } else {
+                    DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
+                }
+            )
     }
 
     /**
@@ -87,6 +96,9 @@ object ExoPlayerUtils {
             CookieHandler.setDefault(cookieManager)
             sHttpDataSourceFactory =
                 DefaultHttpDataSource.Factory().setUserAgent(userAgent).setAllowCrossProtocolRedirects(true)
+                    // Live streams pause now and then; the default 8 s ends playback too early.
+                    .setConnectTimeoutMs(CONNECT_TIMEOUT_MS)
+                    .setReadTimeoutMs(READ_TIMEOUT_MS)
         }
         return sHttpDataSourceFactory
     }

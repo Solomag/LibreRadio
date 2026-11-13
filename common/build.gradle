@@ -71,6 +71,9 @@ dependencies {
     implementation "androidx.media3:media3-exoplayer-dash:$media3Version"
     api "androidx.media3:media3-cast:$media3Version"
     implementation "androidx.media3:media3-session:$media3Version"
+    // FFmpeg audio decoders for Media3 (Jellyfin build): FLAC on Android < 8.1 and other codecs
+    // the device lacks. Used only when no system decoder fits.
+    implementation "org.jellyfin.media3:media3-ffmpeg-decoder:$media3Version+1"
     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
     legacyImplementation "com.squareup.okhttp3:okhttp:$okhttp3Version"
     modernImplementation "com.squareup.okhttp3:okhttp:$okhttp3VersionModern"
