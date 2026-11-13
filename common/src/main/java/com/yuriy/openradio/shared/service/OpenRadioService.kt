@@ -595,7 +595,19 @@ class OpenRadioService : MediaLibraryService() {
 
         override fun onPlaybackStateChanged(mediaItem: MediaItem) {
             mScope.launch {
-                mBrowseTree.getRadioStationByMediaId(mediaItem.mediaId).let {
+                // A station started without browsing (the last one on start, widget, tile) is not in the
+                // browse tree; it is the active station then.
+                val fromTree = mBrowseTree.getRadioStationByMediaId(mediaItem.mediaId)
+                val active = mActiveRS
+                val station = if (fromTree == RadioStation.INVALID_INSTANCE &&
+                    active.isInvalid().not() &&
+                    MediaId.normalizeFromSearchId(active.id) == MediaId.normalizeFromSearchId(mediaItem.mediaId)
+                ) {
+                    active
+                } else {
+                    fromTree
+                }
+                station.let {
                     if (mediaItem.mediaMetadata.isPlayable == false) {
                         return@let
                     }
