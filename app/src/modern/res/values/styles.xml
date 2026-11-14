@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Modern flavor: Material 3 dark theme with the Libre Radio palette
+  Modern flavor: Material 3 dark theme with the Libre Radio (amber) palette
   (the same colors as LibreRadioTheme in Compose; used by the remaining View dialogs).
 -->
 <resources>
 
     <style name="AppTheme" parent="Theme.Material3.Dark">
-        <item name="colorPrimary">#FFFFB59D</item>
-        <item name="colorOnPrimary">#FF5C1A04</item>
-        <item name="colorPrimaryContainer">#FF7E2D12</item>
-        <item name="colorOnPrimaryContainer">#FFFFDBD0</item>
-        <item name="colorSecondary">#FFE7BDB1</item>
-        <item name="colorOnSecondary">#FF442A22</item>
-        <item name="colorSecondaryContainer">#FF5D4037</item>
-        <item name="colorOnSecondaryContainer">#FFFFDBD0</item>
-        <item name="colorTertiary">#FF8DD3C7</item>
-        <item name="colorOnTertiary">#FF00382F</item>
-        <item name="android:colorBackground">#FF161210</item>
-        <item name="colorOnBackground">#FFEDE0DC</item>
-        <item name="colorSurface">#FF161210</item>
-        <item name="colorOnSurface">#FFEDE0DC</item>
-        <item name="colorSurfaceVariant">#FF53433F</item>
-        <item name="colorOnSurfaceVariant">#FFD8C2BC</item>
-        <item name="colorOutline">#FFA08C87</item>
-        <item name="colorSurfaceContainerLow">#FF1E1A18</item>
-        <item name="colorSurfaceContainer">#FF231E1C</item>
-        <item name="colorSurfaceContainerHigh">#FF2D2826</item>
-        <item name="colorSurfaceContainerHighest">#FF383330</item>
-        <item name="android:windowBackground">#FF161210</item>
+        <item name="colorPrimary">#FFF0A848</item>
+        <item name="colorOnPrimary">#FF000000</item>
+        <item name="colorPrimaryContainer">#FF653E00</item>
+        <item name="colorOnPrimaryContainer">#FFFFDDB8</item>
+        <item name="colorSecondary">#FFDFC2A2</item>
+        <item name="colorOnSecondary">#FF3F2D17</item>
+        <item name="colorSecondaryContainer">#FF57432B</item>
+        <item name="colorOnSecondaryContainer">#FFFCDDBD</item>
+        <item name="colorTertiary">#FFBBCD9E</item>
+        <item name="colorOnTertiary">#FF273513</item>
+        <item name="android:colorBackground">#FF0E0D0B</item>
+        <item name="colorOnBackground">#FFEEE0D4</item>
+        <item name="colorSurface">#FF15130F</item>
+        <item name="colorOnSurface">#FFEEE0D4</item>
+        <item name="colorSurfaceVariant">#FF504539</item>
+        <item name="colorOnSurfaceVariant">#FFD4C4B5</item>
+        <item name="colorOutline">#FF9C8E80</item>
+        <item name="colorSurfaceContainerLow">#FF211A13</item>
+        <item name="colorSurfaceContainer">#FF251E17</item>
+        <item name="colorSurfaceContainerHigh">#FF302921</item>
+        <item name="colorSurfaceContainerHighest">#FF3B332B</item>
+        <item name="android:windowBackground">#FF0E0D0B</item>
         <item name="lr_toolbarBackground">?attr/colorSurfaceContainer</item>
         <item name="android:statusBarColor">?attr/colorSurfaceContainer</item>
         <!-- DrawerLayout paints the status bar area with colorPrimaryDark. -->

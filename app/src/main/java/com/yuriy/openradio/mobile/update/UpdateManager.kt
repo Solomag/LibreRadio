@@ -60,6 +60,11 @@ object UpdateManager {
     private const val LEGACY_SUFFIX = "-legacy"
     private const val PHONE_PREFIX = "LibreRadio-"
 
+    /**
+     * Languages that read the Russian part of the release notes.
+     */
+    private val SLAVIC_RU = setOf("ru", "uk", "be", "kk", "sr")
+
     private val mBusy = AtomicBoolean(false)
     private val mMain = Handler(Looper.getMainLooper())
 
@@ -67,6 +72,31 @@ object UpdateManager {
      * Downloaded APK waiting for the "install unknown apps" permission (Android 8+).
      */
     private var mPendingApk: File? = null
+
+    /**
+     * An update offered to the user.
+     */
+    class Offer(val version: String, val notes: String, val download: () -> Unit, val skip: () -> Unit)
+
+    /**
+     * A screen that draws the update windows itself (the new UI); without one, system dialogs are used.
+     */
+    interface Presenter {
+        fun showOffer(offer: Offer)
+
+        /**
+         * Download progress in percent (null: unknown); [cancel] stops it.
+         */
+        fun showProgress(percent: Int?, cancel: () -> Unit)
+
+        fun hideProgress()
+    }
+
+    private var mPresenter: java.lang.ref.WeakReference<Presenter>? = null
+
+    fun setPresenter(presenter: Presenter?) {
+        mPresenter = presenter?.let { java.lang.ref.WeakReference(it) }
+    }
 
     private class Release(
         val tag: String,
@@ -188,6 +218,17 @@ object UpdateManager {
 
     private fun showUpdateDialog(activity: Activity, release: Release) {
         val notes = changesFromNotes(release.notes)
+        mPresenter?.get()?.let { presenter ->
+            presenter.showOffer(
+                Offer(
+                    version = release.tag.removePrefix("v"),
+                    notes = notes,
+                    download = { download(activity, release) },
+                    skip = { prefs(activity).edit().putString(KEY_SKIPPED, release.tag).apply() }
+                )
+            )
+            return
+        }
         AlertDialog.Builder(activity)
             .setTitle(activity.getString(R.string.update_available_title, release.tag.removePrefix("v")))
             .setMessage(notes.ifEmpty { release.apkName })
@@ -204,7 +245,15 @@ object UpdateManager {
      */
     private fun changesFromNotes(markdown: String): String {
         val lines = markdown.replace("\r", "").lines()
-        val start = lines.indexOfFirst { it.trim().startsWith("#") && it.contains("Changes", ignoreCase = true) }
+        val language = java.util.Locale.getDefault().language
+        val own = if (language in SLAVIC_RU) {
+            lines.indexOfFirst { it.trim().startsWith("#") && it.contains("Изменения", ignoreCase = true) }
+        } else {
+            -1
+        }
+        val start = if (own >= 0) own else lines.indexOfFirst {
+            it.trim().startsWith("#") && it.contains("Changes", ignoreCase = true)
+        }
         val section = if (start >= 0) {
             lines.drop(start + 1).takeWhile { !it.trim().startsWith("#") }
         } else {
@@ -226,6 +275,11 @@ object UpdateManager {
     }
 
     private fun download(activity: Activity, release: Release) {
+        val presenter = mPresenter?.get()
+        if (presenter != null) {
+            downloadWithPresenter(activity, release, presenter)
+            return
+        }
         val progress = ProgressBar(activity, null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 100
             isIndeterminate = release.size <= 0
@@ -256,6 +310,34 @@ object UpdateManager {
                 if (dialog.isShowing) {
                     dialog.dismiss()
                 }
+                if (cancelled.get()) {
+                    target.delete()
+                    return@post
+                }
+                result.onFailure {
+                    AppLogger.e("$TAG download failed", it)
+                    target.delete()
+                    toast(activity, activity.getString(R.string.update_download_failed))
+                }.onSuccess {
+                    install(activity, target)
+                }
+            }
+        }.start()
+    }
+
+    private fun downloadWithPresenter(activity: Activity, release: Release, presenter: Presenter) {
+        val cancelled = AtomicBoolean(false)
+        val cancel = { cancelled.set(true) }
+        presenter.showProgress(if (release.size > 0) 0 else null, cancel)
+        val target = apkFile(activity, release.apkName)
+        Thread {
+            val result = runCatching {
+                downloadTo(release, target, cancelled) { percent ->
+                    mMain.post { if (cancelled.get().not()) presenter.showProgress(percent, cancel) }
+                }
+            }
+            mMain.post {
+                presenter.hideProgress()
                 if (cancelled.get()) {
                     target.delete()
                     return@post

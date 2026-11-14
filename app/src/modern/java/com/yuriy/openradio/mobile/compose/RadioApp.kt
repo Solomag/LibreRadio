@@ -18,6 +18,8 @@
 
 package com.yuriy.openradio.mobile.compose
 
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Card
 import android.os.SystemClock
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.automirrored.rounded.VolumeDown
@@ -332,7 +334,7 @@ private fun RadioTopBar(
                 } ?: vm.current.title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
         },
         navigationIcon = {
@@ -360,7 +362,7 @@ private fun RadioTopBar(
                 Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.compose_search_hint))
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )
 }
 
@@ -508,9 +510,10 @@ private fun Catalog(vm: RadioViewModel) {
 @Composable
 private fun FolderCard(item: MediaItem, onClick: () -> Unit) {
     val md = item.mediaMetadata
-    ElevatedCard(
+    Card(
         onClick = onClick,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp)
@@ -518,14 +521,6 @@ private fun FolderCard(item: MediaItem, onClick: () -> Unit) {
         Column(
             Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.linearGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
-                            MaterialTheme.colorScheme.surfaceContainerHigh
-                        )
-                    )
-                )
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -711,7 +706,7 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
         BoxWithConstraints(
             Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(listOf(scheme.primaryContainer, scheme.surface, scheme.surface)))
+                .background(scheme.background)
                 .clickable(enabled = false) {}
                 .statusBarsPadding()
                 .navigationBarsPadding()
@@ -732,7 +727,7 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
                             Modifier
                                 .fillMaxHeight()
                                 .aspectRatio(1f),
-                            RoundedCornerShape(28.dp),
+                            RoundedCornerShape(16.dp),
                             iconSize = 96.dp
                         )
                         Spacer(Modifier.width(32.dp))
@@ -757,7 +752,7 @@ private fun FullPlayer(vm: RadioViewModel, onClose: () -> Unit) {
                             Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(1f),
-                            RoundedCornerShape(32.dp),
+                            RoundedCornerShape(16.dp),
                             iconSize = 120.dp
                         )
                         Spacer(Modifier.height(32.dp))
@@ -821,19 +816,21 @@ private fun PlayerHeader(vm: RadioViewModel, onClose: () -> Unit) {
 
 @Composable
 private fun PlayerTexts(vm: RadioViewModel, md: MediaMetadata) {
-    Column(Modifier.fillMaxWidth()) {
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             md.title?.toString()?.trim() ?: "",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
         val status = playerStatus(vm, md)
         Text(
             status ?: " ",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
             color = if (vm.isErrorText(status)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             modifier = Modifier.basicMarquee()
@@ -844,6 +841,7 @@ private fun PlayerTexts(vm: RadioViewModel, md: MediaMetadata) {
                 stringResource(R.string.player_buffering_explained),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
@@ -957,7 +955,18 @@ private fun DrawerItem(icon: ImageVector, label: String, onClick: () -> Unit) {
 private fun ItemIcon(md: MediaMetadata, modifier: Modifier) {
     val id = MediaItemHelper.getDrawableId(md.extras)
     if (id != 0) {
-        Image(painterResource(id), contentDescription = null, modifier = modifier, contentScale = ContentScale.Fit)
+        // Section icons are white pictograms: amber like the radio app; flags keep their colors.
+        val context = LocalContext.current
+        val pictogram = remember(id) {
+            runCatching { context.resources.getResourceEntryName(id).startsWith("ic_") }.getOrDefault(false)
+        }
+        Image(
+            painterResource(id),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Fit,
+            colorFilter = if (pictogram) androidx.compose.ui.graphics.ColorFilter.tint(Amber) else null
+        )
     } else {
         Icon(Icons.Rounded.Radio, contentDescription = null, modifier = modifier, tint = MaterialTheme.colorScheme.primary)
     }
@@ -980,14 +989,14 @@ private fun Artwork(
     Box(
         modifier
             .clip(shape)
-            .background(MaterialTheme.colorScheme.secondaryContainer),
+            .background(CoverPlaceholder),
         contentAlignment = Alignment.Center
     ) {
         if (uri == null) {
             Icon(
                 Icons.Rounded.Radio,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                tint = Amber.copy(alpha = 0.5f),
                 modifier = Modifier.size(iconSize)
             )
         } else {

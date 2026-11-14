@@ -40,7 +40,24 @@ import java.lang.ref.WeakReference
  * Main screen of the modern edition, written in Jetpack Compose.
  * Settings and "About" are Compose pages too (see [SettingsScreen], [AboutScreen]).
  */
-class ComposeActivity : AppCompatActivity(), SettingsHost {
+class ComposeActivity : AppCompatActivity(), SettingsHost, UpdateManager.Presenter {
+
+    /**
+     * Update windows drawn in Compose (see [UpdateDialogs]).
+     */
+    private val mUpdate = UpdateUiState()
+
+    override fun showOffer(offer: UpdateManager.Offer) {
+        mUpdate.offer = offer
+    }
+
+    override fun showProgress(percent: Int?, cancel: () -> Unit) {
+        mUpdate.progress = UpdateUiState.Progress(percent, cancel)
+    }
+
+    override fun hideProgress() {
+        mUpdate.progress = null
+    }
 
     private val mViewModel: RadioViewModel by viewModels()
 
@@ -65,6 +82,7 @@ class ComposeActivity : AppCompatActivity(), SettingsHost {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         BypassImages.install(this)
+        UpdateManager.setPresenter(this)
         setContent {
             LibreRadioTheme {
                 RadioApp(
@@ -74,6 +92,7 @@ class ComposeActivity : AppCompatActivity(), SettingsHost {
                     // Back at the root only leaves the screen; playback goes on in the background.
                     onExit = ::finish
                 )
+                UpdateDialogs(mUpdate)
             }
         }
     }
