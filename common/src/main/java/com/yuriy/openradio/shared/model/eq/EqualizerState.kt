@@ -97,7 +97,7 @@ class EqualizerState() {
     fun printState() {
         AppLogger.d("$CLASS_NAME level rng:${mBandLevelRange.contentToString()}, milliBel")
         if (mPresets.isNotEmpty()) {
-            AppLogger.d("$CLASS_NAME cur preset:${mPresets[currentPreset.toInt()]}")
+            AppLogger.d("$CLASS_NAME cur preset:${mPresets.getOrNull(currentPreset.toInt()) ?: "custom"}")
         } else {
             AppLogger.d("$CLASS_NAME cur preset unknown")
         }

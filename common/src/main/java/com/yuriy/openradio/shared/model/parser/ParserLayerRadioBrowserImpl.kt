@@ -81,7 +81,9 @@ class ParserLayerRadioBrowserImpl(private val mFilter: Filter) : ParserLayer {
             AppLogger.e("$TAG  get RSs, to JSON Array, data '$data'", e)
             return emptySet()
         }
-        val result = TreeSet<RadioStation>()
+        // Keep the catalog's order (most popular first, newest first...): a sorted set would order by name
+        // and merge different stations that share a name.
+        val result = LinkedHashSet<RadioStation>()
         for (i in 0 until array.length()) {
             val jsonObject = try {
                 array[i] as JSONObject

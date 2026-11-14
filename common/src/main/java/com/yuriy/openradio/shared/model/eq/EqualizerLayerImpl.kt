@@ -44,11 +44,16 @@ class EqualizerLayerImpl(
             mEqualizerStorage.saveEqualizerState(AppUtils.EMPTY_STRING)
             return
         }
-        if (isInit()) {
-            applyState(loadState()) {}
-        } else {
-            val newState = EqualizerState(mEqualizer!!)
-            saveState(newState)
+        // The equalizer is optional: a bad saved state must never stop playback (or the app) from starting.
+        try {
+            if (isInit()) {
+                applyState(loadState()) {}
+            } else {
+                val newState = EqualizerState(mEqualizer!!)
+                saveState(newState)
+            }
+        } catch (e: Exception) {
+            AppLogger.e("$CLASS_NAME restore state", e)
         }
     }
 
@@ -97,7 +102,7 @@ class EqualizerLayerImpl(
         } catch (e: Exception) {
             AppLogger.e("$CLASS_NAME apply state", e)
         }
-        state.printState()
+        runCatching { state.printState() }
     }
 
     override fun setBandLevel(band: Int, level: Short): EqualizerState {
