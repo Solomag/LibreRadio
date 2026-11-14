@@ -11,7 +11,7 @@
     <string name="category_empty">Rien ici</string>
     <string name="media_stream_error">Erreur</string>
     <string name="media_stream_http_403">Accès refusé</string>
-    <string name="media_stream_http_404">L’adresse de la station ne fonctionne plus (404)</string>
+    <string name="media_stream_http_404">La station ne fournit pas son flux (404) : adresse périmée ou indisponible dans votre pays</string>
     <string name="media_stream_network_failed">Erreur réseau</string>
     <string name="no_data_message">Aucune donnée reçue</string>
     <string name="favorite">Favori</string>

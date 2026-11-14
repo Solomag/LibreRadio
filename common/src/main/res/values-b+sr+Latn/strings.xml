@@ -11,7 +11,7 @@
     <string name="category_empty">Ovde nema ničega</string>
     <string name="media_stream_error">Greška</string>
     <string name="media_stream_http_403">Pristup odbijen</string>
-    <string name="media_stream_http_404">Adresa stanice više ne radi (404)</string>
+    <string name="media_stream_http_404">Stanica ne daje strim (404): stara adresa ili nije dostupna u vašoj zemlji</string>
     <string name="media_stream_network_failed">Greška mreže</string>
     <string name="no_data_message">Podaci nisu primljeni</string>
     <string name="favorite">Omiljeno</string>

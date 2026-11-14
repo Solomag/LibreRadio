@@ -11,7 +11,7 @@
     <string name="category_empty">Hier ist nichts</string>
     <string name="media_stream_error">Fehler</string>
     <string name="media_stream_http_403">Zugriff verweigert</string>
-    <string name="media_stream_http_404">Die Adresse des Senders funktioniert nicht mehr (404)</string>
+    <string name="media_stream_http_404">Der Sender liefert keinen Stream (404): alte Adresse oder in deinem Land nicht verfügbar</string>
     <string name="media_stream_network_failed">Netzwerkfehler</string>
     <string name="no_data_message">Keine Daten erhalten</string>
     <string name="favorite">Favorit</string>

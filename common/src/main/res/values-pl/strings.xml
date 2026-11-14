@@ -11,7 +11,7 @@
     <string name="category_empty">Nic tu nie ma</string>
     <string name="media_stream_error">Błąd</string>
     <string name="media_stream_http_403">Brak dostępu</string>
-    <string name="media_stream_http_404">Adres stacji już nie działa (404)</string>
+    <string name="media_stream_http_404">Stacja nie udostępnia strumienia (404): stary adres lub niedostępna w Twoim kraju</string>
     <string name="media_stream_network_failed">Błąd sieci</string>
     <string name="no_data_message">Nie otrzymano danych</string>
     <string name="favorite">Ulubione</string>

@@ -11,7 +11,7 @@
     <string name="category_empty">Nada aqui</string>
     <string name="media_stream_error">Erro</string>
     <string name="media_stream_http_403">Acesso negado</string>
-    <string name="media_stream_http_404">O endereço da estação já não funciona (404)</string>
+    <string name="media_stream_http_404">A estação não fornece a emissão (404): endereço antigo ou indisponível no seu país</string>
     <string name="media_stream_network_failed">Erro de rede</string>
     <string name="no_data_message">Nenhum dado recebido</string>
     <string name="favorite">Favorito</string>

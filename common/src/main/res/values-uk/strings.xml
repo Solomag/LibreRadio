@@ -11,7 +11,7 @@
     <string name="category_empty">Тут порожньо</string>
     <string name="media_stream_error">Помилка</string>
     <string name="media_stream_http_403">Доступ заборонено</string>
-    <string name="media_stream_http_404">Адреса станції більше не працює (404)</string>
+    <string name="media_stream_http_404">Станція не віддає потік (404): адреса застаріла або станція недоступна у вашій країні</string>
     <string name="media_stream_network_failed">Помилка мережі</string>
     <string name="no_data_message">Дані не отримано</string>
     <string name="favorite">Обране</string>

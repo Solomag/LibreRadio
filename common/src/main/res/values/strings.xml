@@ -28,7 +28,7 @@
     <string name="category_empty">Category is empty</string>
     <string name="media_stream_error">Error</string>
     <string name="media_stream_http_403">Forbidden</string>
-    <string name="media_stream_http_404">The station’s address no longer works (404)</string>
+    <string name="media_stream_http_404">The station does not give its stream (404): old address, or not available in your country</string>
     <string name="media_stream_network_failed">Network Failed</string>
     <string name="no_data_message">No data received</string>
     <string name="favorite">Favorite</string>
