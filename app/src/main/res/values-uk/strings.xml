@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Звук приблизно за 5 с, обривів менше. Для мобільної мережі, дороги й поганого зв’язку.</string>
     <string name="settings_buffer_custom">Власні значення</string>
     <string name="about_developer">Розробник Libre Radio</string>
+    <string name="check_not_working">У вас не працює</string>
+    <string name="check_in_progress">Перевіряю станції: лишилось %d</string>
+    <string name="check_hidden">Приховано непрацюючих у вас: %d</string>
+    <string name="check_all_hidden">Жодна з %d станцій тут не працює у вашій мережі з поточними налаштуваннями. У пошуку вони видні; перевірку можна вимкнути в налаштуваннях.</string>
+    <string name="settings_section_stations">Станції</string>
+    <string name="settings_hide_failed">Приховувати непрацюючі станції</string>
+    <string name="settings_hide_failed_desc">Застосунок коротко підключається до кожної станції списку прямо з телефона. Непрацюючі у вас приховуються зі списків, у пошуку видні з позначкою. Результат зберігається від доби до трьох.</string>
+    <string name="settings_bypass">Обходити блокування станцій</string>
+    <string name="settings_bypass_desc">Якщо мережа рве захищене з’єднання зі станцією (блокування за іменем), підключитися ще раз без імені. Допомагає від багатьох блокувань провайдерів; сертифікат станції тоді перевіряється менш суворо.</string>
+    <string name="settings_recheck">Перевірити станції заново</string>
+    <string name="settings_recheck_desc">Забути результати, наприклад після зміни мережі чи VPN</string>
+    <string name="settings_recheck_started">Станції буде перевірено заново</string>
 </resources>

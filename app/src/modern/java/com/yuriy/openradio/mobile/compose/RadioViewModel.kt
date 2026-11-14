@@ -37,6 +37,7 @@ import com.yuriy.openradio.R
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommon
 import com.yuriy.openradio.shared.model.media.MediaId
 import com.yuriy.openradio.shared.model.net.SearchQuery
+import com.yuriy.openradio.shared.model.net.StationCheck
 import com.yuriy.openradio.shared.model.storage.AppPreferencesManager
 import com.yuriy.openradio.shared.model.storage.LocationStorage
 import com.yuriy.openradio.shared.service.OpenRadioService
@@ -93,6 +94,24 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
      */
     var volume by mutableStateOf(0f)
         private set
+
+    /**
+     * Grows when station check results change, so the lists are filtered again.
+     */
+    var checkVersion by mutableStateOf(0)
+        private set
+
+    /**
+     * Stations being checked right now in the current folder.
+     */
+    var checking by mutableStateOf(0)
+        private set
+
+    private val checkListener: () -> Unit = {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.Main) { checkVersion++ }
+    }
+
+    private var checkJob: kotlinx.coroutines.Job? = null
     var connected by mutableStateOf(false)
         private set
 
@@ -193,6 +212,8 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     init {
         loadHistory()
         genresByName = uiPrefs.getBoolean(KEY_GENRES_BY_NAME, false)
+        StationCheck.init(app)
+        StationCheck.addListener(checkListener)
         readVolume()
         androidx.core.content.ContextCompat.registerReceiver(
             app, volumeReceiver, android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION"),
@@ -425,6 +446,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
                 loadFailed = list.isEmpty() &&
                         (result == null || result.resultCode != androidx.media3.session.LibraryResult.RESULT_SUCCESS)
                 loading = false
+                checkStations(list, restart = true)
             }
         }
     }
@@ -454,6 +476,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
                 } else {
                     page++
                     items = items + fresh
+                    checkStations(fresh, restart = false)
                 }
                 loading = false
             }
@@ -517,13 +540,109 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         sendCommand(OpenRadioService.CMD_MASTER_VOLUME_CHANGED, OpenRadioStore.makeMasterVolumeChangedBundle(full))
     }
 
+    // region Station check
+
+    private fun stationId(item: MediaItem): String = MediaId.normalizeFromSearchId(item.mediaId)
+
+    /**
+     * Known not to play here with the current settings.
+     */
+    fun isFailed(item: MediaItem): Boolean {
+        @Suppress("UNUSED_VARIABLE") val v = checkVersion
+        return item.mediaMetadata.isPlayable == true && StationCheck.status(stationId(item)) == StationCheck.Status.FAILED
+    }
+
+    /**
+     * Catalog folders hide stations that do not play; search, favorites, own and recent ones keep them, marked.
+     */
+    private val hidesFailed: Boolean
+        get() {
+            val folder = current
+            if (folder.query != null) {
+                return false
+            }
+            return when (folder.id) {
+                MediaId.MEDIA_ID_ROOT, MediaId.MEDIA_ID_FAVORITES_LIST, MediaId.MEDIA_ID_LOCAL_RADIO_STATIONS_LIST,
+                MediaId.MEDIA_ID_RECENT_LIST -> false
+                else -> true
+            }
+        }
+
+    /**
+     * What the current folder shows.
+     */
+    val shownItems: List<MediaItem>
+        get() {
+            @Suppress("UNUSED_VARIABLE") val v = checkVersion
+            val app = getApplication<Application>()
+            if (hidesFailed.not() || StationCheck.isHideEnabled(app).not()) {
+                return items
+            }
+            return items.filter { isFailed(it).not() }
+        }
+
+    val hiddenCount: Int
+        get() = items.size - shownItems.size
+
+    /**
+     * Checks the stations of a list that have no fresh result, a few at a time, in the background.
+     */
+    private fun checkStations(list: List<MediaItem>, restart: Boolean) {
+        val app = getApplication<Application>()
+        val todo = list.filter {
+            it.mediaMetadata.isPlayable == true && StationCheck.status(stationId(it)) == null &&
+                    MediaItemHelper.getStreamUrl(it.mediaMetadata.extras).isNotEmpty()
+        }
+        if (restart) {
+            checkJob?.cancel()
+            checking = 0
+        }
+        if (todo.isEmpty()) {
+            return
+        }
+        val previous = if (restart) null else checkJob
+        checkJob = viewModelScope.launch {
+            previous?.join()
+            checking += todo.size
+            val gate = kotlinx.coroutines.sync.Semaphore(CHECK_PARALLEL)
+            try {
+                kotlinx.coroutines.coroutineScope {
+                    for (item in todo) {
+                        launch(kotlinx.coroutines.Dispatchers.IO) {
+                            gate.acquire()
+                            try {
+                                StationCheck.probe(app, stationId(item), MediaItemHelper.getStreamUrl(item.mediaMetadata.extras))
+                            } catch (e: Exception) {
+                                AppLogger.e("RVM check ${item.mediaId}", e)
+                            } finally {
+                                gate.release()
+                                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { checking-- }
+                            }
+                        }
+                    }
+                }
+            } finally {
+                checking = 0
+            }
+        }
+    }
+
+    /**
+     * Settings changed what can play, or the user asked to check again.
+     */
+    fun recheckStations() {
+        checkStations(items, restart = true)
+    }
+
+    // endregion
+
     fun play(item: MediaItem) {
         val b = browser ?: return
         if (item.mediaId == currentMediaId && b.playbackState != Player.STATE_IDLE) {
             togglePlay()
             return
         }
-        val playlist = items.filter { it.mediaMetadata.isPlayable == true }.ifEmpty { listOf(item) }
+        val playlist = shownItems.filter { it.mediaMetadata.isPlayable == true }.ifEmpty { listOf(item) }
         val index = playlist.indexOfFirst { it.mediaId == item.mediaId }.coerceAtLeast(0)
         b.setMediaItems(playlist, index, C.TIME_UNSET)
         b.prepare()
@@ -669,6 +788,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     override fun onCleared() {
+        StationCheck.removeListener(checkListener)
         runCatching { getApplication<Application>().unregisterReceiver(volumeReceiver) }
         browser?.let {
             it.removeListener(playerListener)
@@ -682,5 +802,6 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         private const val MAX_HISTORY = 100
         private const val KEY_HISTORY = "history"
         private const val KEY_GENRES_BY_NAME = "genres_by_name"
+        private const val CHECK_PARALLEL = 4
     }
 }

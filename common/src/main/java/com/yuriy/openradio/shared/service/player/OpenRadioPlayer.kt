@@ -52,6 +52,8 @@ import androidx.media3.extractor.metadata.id3.TextInformationFrame
 import com.yuriy.openradio.R
 import com.yuriy.openradio.shared.model.cast.CastLayer
 import com.yuriy.openradio.shared.model.eq.EqualizerLayer
+import com.yuriy.openradio.shared.model.media.MediaId
+import com.yuriy.openradio.shared.model.net.StationCheck
 import com.yuriy.openradio.shared.model.media.BrowseTree
 import com.yuriy.openradio.shared.model.storage.AppPreferencesManager
 import com.yuriy.openradio.shared.service.OpenRadioService
@@ -947,6 +949,10 @@ class OpenRadioPlayer(
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             if (isPlaying) {
+                // It plays here: the station check should not hide it.
+                mPlayer.currentMediaItem?.mediaId?.let {
+                    StationCheck.record(mContext, MediaId.normalizeFromSearchId(it), StationCheck.Status.OK)
+                }
                 clearStoppedByNetwork()
             }
         }
@@ -1002,6 +1008,11 @@ class OpenRadioPlayer(
 
         override fun onPlayerError(exception: PlaybackException) {
             AppLogger.e("$TAG onPlayerError [${mNumOfExceptions.get()}]", exception)
+            if (isStationFault(exception)) {
+                mPlayer.currentMediaItem?.mediaId?.let {
+                    StationCheck.record(mContext, MediaId.normalizeFromSearchId(it), StationCheck.Status.FAILED)
+                }
+            }
             if (exception.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
                 exception.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
             ) {
@@ -1104,6 +1115,26 @@ class OpenRadioPlayer(
 
                 else -> context.getString(R.string.media_stream_error)
             }
+        }
+
+        /**
+         * Errors that say this station does not play here (not a passing network problem).
+         */
+        private fun isStationFault(exception: PlaybackException): Boolean {
+            if (isOnline(mContext).not()) {
+                return false
+            }
+            var cause: Throwable? = exception.cause
+            while (cause != null) {
+                when (cause) {
+                    is HttpDataSource.InvalidResponseCodeException ->
+                        return cause.responseCode in 400..499 && cause.responseCode != 429
+                    is UnknownHostException, is SSLException -> return true
+                }
+                cause = cause.cause
+            }
+            return exception.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED ||
+                    exception.errorCode == PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE
         }
 
         /**

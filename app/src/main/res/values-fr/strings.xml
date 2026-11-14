@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Son en 5 s environ, moins de coupures. Pour les données mobiles, les trajets et une mauvaise connexion.</string>
     <string name="settings_buffer_custom">Valeurs personnalisées</string>
     <string name="about_developer">Développeur de Libre Radio</string>
+    <string name="check_not_working">Ne joue pas ici</string>
+    <string name="check_in_progress">Vérification des stations : %d restantes</string>
+    <string name="check_hidden">Masquées car injouables ici : %d</string>
+    <string name="check_all_hidden">Aucune des %d stations ici ne joue sur votre réseau avec les réglages actuels. La recherche les montre quand même ; la vérification se désactive dans les réglages.</string>
+    <string name="settings_section_stations">Stations</string>
+    <string name="settings_hide_failed">Masquer les stations qui ne jouent pas</string>
+    <string name="settings_hide_failed_desc">L’appli se connecte brièvement à chaque station d’une liste depuis le téléphone. Celles qui ne jouent pas ici sont masquées des listes ; la recherche les montre, signalées. Résultats gardés un à trois jours.</string>
+    <string name="settings_bypass">Contourner le blocage des stations</string>
+    <string name="settings_bypass_desc">Si le réseau coupe la connexion sécurisée à une station (blocage par nom), se reconnecter sans le nom. Contourne beaucoup de blocages ; le certificat est alors vérifié moins strictement.</string>
+    <string name="settings_recheck">Revérifier les stations</string>
+    <string name="settings_recheck_desc">Oublier les résultats, par exemple après un changement de réseau ou de VPN</string>
+    <string name="settings_recheck_started">Les stations seront revérifiées</string>
 </resources>

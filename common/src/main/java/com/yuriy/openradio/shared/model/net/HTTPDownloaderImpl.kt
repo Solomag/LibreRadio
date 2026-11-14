@@ -64,6 +64,25 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
         private val mContentTypeFilter: String
     ) : Callable<ByteArray> {
 
+        /**
+         * Downloads [url] without the server name in the secure connection (see [NoSniConnection]).
+         */
+        private fun downloadWithoutName(url: URL): ByteArray {
+            return try {
+                val connection = NoSniConnection.open(
+                    url.toString(), mapOf("User-Agent" to AppUtils.getUserAgent(mContext)), true
+                )
+                try {
+                    if (connection.responseCode !in 200..299) ByteArray(0) else toByteArray(connection.inputStream)
+                } finally {
+                    connection.disconnect()
+                }
+            } catch (e: IOException) {
+                AppLogger.e("$CLASS_NAME download without the server name $url", e)
+                ByteArray(0)
+            }
+        }
+
         override fun call(): ByteArray {
 
             data class Response(
@@ -71,6 +90,8 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
                 val responseCode: Int = -1,
                 val connection: HttpURLConnection? = null
             )
+
+            var lastError: IOException? = null
 
             fun getConnectionUrl(): Response {
                 val url = mUrlLayer.getConnectionUrl(mUri, mParameters) ?: return Response()
@@ -85,6 +106,7 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
                 try {
                     responseCode = connection.responseCode
                 } catch (exception: IOException) {
+                    lastError = exception
                     AppLogger.e(
                         "$CLASS_NAME getResponse ${
                             NetUtils.createExceptionMessage(
@@ -108,6 +130,13 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
                 if (responseCode < HttpURLConnection.HTTP_OK || responseCode > HttpURLConnection.HTTP_MULT_CHOICE - 1) {
                     responseObj.url?.let { mUrlLayer.reportResult(it, false) }
                     NetUtils.closeHttpURLConnection(responseObj.connection)
+                    // A logo on a server the network blocks by its name: try without the name.
+                    val error = lastError
+                    if (mParameters.isEmpty() && error != null && NoSniConnection.isBlockedHandshake(error) &&
+                        StationCheck.isBypassEnabled(mContext)
+                    ) {
+                        return downloadWithoutName(responseObj.url ?: return response)
+                    }
                     if (attempt-- <= 0) {
                         AppLogger.e("$CLASS_NAME can not get connection for $responseObj")
                         return response
@@ -151,6 +180,8 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
     }
 
     companion object {
+
+
         /**
          * Tag to use in logging message.
          */

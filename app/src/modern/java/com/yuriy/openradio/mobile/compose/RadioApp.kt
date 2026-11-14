@@ -366,10 +366,19 @@ private fun RadioTopBar(
 
 @Composable
 private fun Catalog(vm: RadioViewModel) {
-    val items = vm.items
+    val items = vm.shownItems
     if (items.isEmpty()) {
         if (!vm.loading && vm.loadFailed) {
             CatalogError(vm)
+        } else if (!vm.loading && vm.hiddenCount > 0) {
+            Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
+                Text(
+                    stringResource(R.string.check_all_hidden, vm.hiddenCount),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
         } else if (!vm.loading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
@@ -433,6 +442,9 @@ private fun Catalog(vm: RadioViewModel) {
     var draggedId by remember { mutableStateOf<String?>(null) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     LazyColumn(state = state, contentPadding = PaddingValues(vertical = 8.dp), modifier = Modifier.fillMaxSize()) {
+        if (vm.checking > 0 || vm.hiddenCount > 0) {
+            item(key = "check_info") { CheckInfo(vm) }
+        }
         items(items, key = { it.mediaId }) { item ->
             if (item.mediaMetadata.isBrowsable == true) {
                 FolderRow(item) { vm.open(item) }
@@ -442,6 +454,7 @@ private fun Catalog(vm: RadioViewModel) {
                     item = item,
                     playing = item.mediaId == vm.currentMediaId,
                     favorite = vm.isFavorite(item),
+                    failed = vm.isFailed(item),
                     onClick = { vm.open(item) },
                     onFavorite = { vm.toggleFavorite(item) },
                     dragHandle = if (vm.reordering) {
@@ -556,6 +569,7 @@ private fun StationRow(
     favorite: Boolean,
     onClick: () -> Unit,
     onFavorite: () -> Unit,
+    failed: Boolean = false,
     dragHandle: Modifier? = null,
     onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -575,11 +589,22 @@ private fun StationRow(
                 fontWeight = if (playing) FontWeight.SemiBold else FontWeight.Normal
             )
         },
-        supportingContent = md.subtitle?.takeIf { it.isNotBlank() }?.let {
-            { Text(it.toString(), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+        supportingContent = if (failed) {
+            slot {
+                Text(
+                    stringResource(R.string.check_not_working),
+                    color = MaterialTheme.colorScheme.error,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        } else {
+            md.subtitle?.takeIf { it.isNotBlank() }?.let {
+                { Text(it.toString(), maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            }
         },
         leadingContent = {
-            Box {
+            Box(Modifier.graphicsLayer { alpha = if (failed) 0.45f else 1f }) {
                 Artwork(md, Modifier.size(56.dp), RoundedCornerShape(14.dp))
                 if (playing) {
                     Icon(
@@ -1165,5 +1190,35 @@ private fun VolumeRow(vm: RadioViewModel) {
         IconButton(onClick = { vm.changeVolume(vm.volume + 0.1f) }) {
             Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = null)
         }
+    }
+}
+
+/**
+ * Above a station list: stations being checked, and how many do not play here and are hidden.
+ */
+@Composable
+private fun CheckInfo(vm: RadioViewModel) {
+    val texts = ArrayList<String>()
+    if (vm.checking > 0) {
+        texts.add(stringResource(R.string.check_in_progress, vm.checking))
+    }
+    if (vm.hiddenCount > 0) {
+        texts.add(stringResource(R.string.check_hidden, vm.hiddenCount))
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp)
+    ) {
+        if (vm.checking > 0) {
+            CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(14.dp))
+            Spacer(Modifier.width(8.dp))
+        }
+        Text(
+            texts.joinToString(" · "),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

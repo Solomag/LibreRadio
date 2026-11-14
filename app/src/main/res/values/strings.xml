@@ -130,4 +130,16 @@
     <string name="settings_buffer_reliable_desc">Sound in about 5 s, fewer cut-outs. For mobile data, travel and poor connection.</string>
     <string name="settings_buffer_custom">Custom values</string>
     <string name="about_developer">Libre Radio developer</string>
+    <string name="check_not_working">Does not play here</string>
+    <string name="check_in_progress">Checking stations: %d left</string>
+    <string name="check_hidden">Hidden as not playing here: %d</string>
+    <string name="check_all_hidden">None of the %d stations here plays on your network with the current settings. Search still shows them; the check can be turned off in Settings.</string>
+    <string name="settings_section_stations">Stations</string>
+    <string name="settings_hide_failed">Hide stations that do not play</string>
+    <string name="settings_hide_failed_desc">The app briefly connects to each station of a list on this phone. Those that do not play here are hidden from lists; search shows them, marked. Results are kept for a day or three.</string>
+    <string name="settings_bypass">Bypass blocks of stations</string>
+    <string name="settings_bypass_desc">When the network breaks the secure connection to a station (a block by its name), connect again without the name. Helps with many provider blocks; the station’s certificate is then checked less strictly.</string>
+    <string name="settings_recheck">Check stations again</string>
+    <string name="settings_recheck_desc">Forget the results, for example after changing network or VPN</string>
+    <string name="settings_recheck_started">Stations will be checked again</string>
 </resources>

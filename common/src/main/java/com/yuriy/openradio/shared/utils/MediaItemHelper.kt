@@ -37,6 +37,7 @@ object MediaItemHelper {
     private const val KEY_SORT_ID = "KEY_SORT_ID"
     private const val KEY_BITRATE = "KEY_BITRATE"
     private const val KEY_HOME_PAGE = "KEY_HOME_PAGE"
+    private const val KEY_STREAM_URL = "KEY_STREAM_URL"
     private const val KEY_DRAWABLE_ID = "DRAWABLE_ID"
 
     fun setDrawableId(bundle: Bundle?, drawableId: Int) {
@@ -61,6 +62,18 @@ object MediaItemHelper {
 
     fun getHomePage(extras: Bundle?): String {
         return extras?.getString(KEY_HOME_PAGE) ?: ""
+    }
+
+    /**
+     * Stream address of a station item, for checking the station from the app (the item's own URI is not
+     * passed to the app through the media session).
+     */
+    fun setStreamUrl(bundle: Bundle, url: String) {
+        bundle.putString(KEY_STREAM_URL, url)
+    }
+
+    fun getStreamUrl(extras: Bundle?): String {
+        return extras?.getString(KEY_STREAM_URL) ?: ""
     }
 
     fun updateBitrateField(bundle: Bundle, bitrate: Int) {

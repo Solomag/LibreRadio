@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Dźwięk po ok. 5 s, mniej przerw. Dla sieci komórkowej, w drodze i na słabym łączu.</string>
     <string name="settings_buffer_custom">Własne wartości</string>
     <string name="about_developer">Twórca Libre Radio</string>
+    <string name="check_not_working">U Ciebie nie działa</string>
+    <string name="check_in_progress">Sprawdzam stacje: zostało %d</string>
+    <string name="check_hidden">Ukryte, bo u Ciebie nie działają: %d</string>
+    <string name="check_all_hidden">Żadna z %d stacji tutaj nie działa w Twojej sieci przy obecnych ustawieniach. Wyszukiwanie nadal je pokazuje; sprawdzanie można wyłączyć w ustawieniach.</string>
+    <string name="settings_section_stations">Stacje</string>
+    <string name="settings_hide_failed">Ukrywaj niedziałające stacje</string>
+    <string name="settings_hide_failed_desc">Aplikacja na chwilę łączy się z każdą stacją z listy prosto z telefonu. Niedziałające u Ciebie są ukryte na listach; wyszukiwanie pokazuje je z oznaczeniem. Wyniki ważne od doby do trzech.</string>
+    <string name="settings_bypass">Omijaj blokady stacji</string>
+    <string name="settings_bypass_desc">Gdy sieć zrywa bezpieczne połączenie ze stacją (blokada po nazwie), połącz ponownie bez nazwy. Pomaga na wiele blokad operatorów; certyfikat stacji jest wtedy sprawdzany mniej ściśle.</string>
+    <string name="settings_recheck">Sprawdź stacje ponownie</string>
+    <string name="settings_recheck_desc">Zapomnij wyniki, np. po zmianie sieci lub VPN</string>
+    <string name="settings_recheck_started">Stacje zostaną sprawdzone ponownie</string>
 </resources>

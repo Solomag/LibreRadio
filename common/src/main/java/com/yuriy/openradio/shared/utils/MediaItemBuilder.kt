@@ -283,6 +283,7 @@ object MediaItemBuilder {
         MediaItemHelper.setDrawableId(bundle, R.drawable.ic_radio_station_empty)
         MediaItemHelper.setHomePage(bundle, radioStation.homePage)
         val uri = Uri.parse(radioStation.getStreamUrlFixed())
+        MediaItemHelper.setStreamUrl(bundle, uri.toString())
         // Country in the system language when the code is known ("Финляндия", not "Finland").
         val country = if (radioStation.countryCode.length == 2) {
             LocationService.displayCountryName(radioStation.countryCode)

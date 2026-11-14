@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Ton nach etwa 5 s, weniger Abbrüche. Für Mobilfunk, unterwegs und schlechte Verbindung.</string>
     <string name="settings_buffer_custom">Eigene Werte</string>
     <string name="about_developer">Entwickler von Libre Radio</string>
+    <string name="check_not_working">Spielt hier nicht</string>
+    <string name="check_in_progress">Sender werden geprüft: noch %d</string>
+    <string name="check_hidden">Ausgeblendet, da hier nicht spielbar: %d</string>
+    <string name="check_all_hidden">Keiner der %d Sender hier spielt in deinem Netz mit den aktuellen Einstellungen. Die Suche zeigt sie trotzdem; die Prüfung lässt sich in den Einstellungen abschalten.</string>
+    <string name="settings_section_stations">Sender</string>
+    <string name="settings_hide_failed">Nicht spielbare Sender ausblenden</string>
+    <string name="settings_hide_failed_desc">Die App verbindet sich kurz mit jedem Sender einer Liste, direkt vom Telefon. Was hier nicht spielt, wird in Listen ausgeblendet; die Suche zeigt es markiert. Ergebnisse gelten ein bis drei Tage.</string>
+    <string name="settings_bypass">Sperren von Sendern umgehen</string>
+    <string name="settings_bypass_desc">Bricht das Netz die sichere Verbindung zu einem Sender ab (Sperre nach Name), erneut ohne Namen verbinden. Hilft gegen viele Providersperren; das Zertifikat wird dann weniger streng geprüft.</string>
+    <string name="settings_recheck">Sender neu prüfen</string>
+    <string name="settings_recheck_desc">Ergebnisse vergessen, etwa nach Netz- oder VPN-Wechsel</string>
+    <string name="settings_recheck_started">Sender werden neu geprüft</string>
 </resources>

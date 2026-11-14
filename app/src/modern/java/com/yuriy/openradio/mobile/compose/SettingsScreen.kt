@@ -18,6 +18,8 @@
 
 package com.yuriy.openradio.mobile.compose
 
+import androidx.compose.material.icons.rounded.Refresh
+import com.yuriy.openradio.shared.model.net.StationCheck
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.semantics
@@ -172,6 +174,7 @@ fun SettingsScreen(vm: RadioViewModel, host: SettingsHost, onBack: () -> Unit) {
                 PlaybackSection(vm)
                 EqualizerSection()
                 NetworkSection(vm)
+                StationsSection(vm)
                 CatalogSection(vm, host)
                 BufferingSection()
                 BackupSection(host)
@@ -439,6 +442,43 @@ private fun NetworkSection(vm: RadioViewModel) {
         mobile = it
         storage.setUseMobile(it)
         vm.sendCommand(OpenRadioService.CMD_NET_CHANGED)
+    }
+}
+
+/**
+ * Station check on this phone and the bypass of blocks by the server name.
+ */
+@Composable
+private fun StationsSection(vm: RadioViewModel) {
+    val context = LocalContext.current
+    var hide by remember { mutableStateOf(StationCheck.isHideEnabled(context)) }
+    var bypass by remember { mutableStateOf(StationCheck.isBypassEnabled(context)) }
+    Header(stringResource(R.string.settings_section_stations))
+    SwitchRow(
+        title = stringResource(R.string.settings_hide_failed),
+        desc = stringResource(R.string.settings_hide_failed_desc),
+        checked = hide
+    ) {
+        hide = it
+        StationCheck.setHideEnabled(context, it)
+    }
+    SwitchRow(
+        title = stringResource(R.string.settings_bypass),
+        desc = stringResource(R.string.settings_bypass_desc),
+        checked = bypass
+    ) {
+        bypass = it
+        StationCheck.setBypassEnabled(context, it)
+        vm.recheckStations()
+    }
+    ClickRow(
+        Icons.Rounded.Refresh,
+        stringResource(R.string.settings_recheck),
+        stringResource(R.string.settings_recheck_desc)
+    ) {
+        StationCheck.clear(context)
+        vm.recheckStations()
+        Toast.makeText(context, R.string.settings_recheck_started, Toast.LENGTH_SHORT).show()
     }
 }
 

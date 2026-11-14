@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Zvuk za oko 5 s, manje prekida. Za mobilnu mrežu, put i lošu vezu.</string>
     <string name="settings_buffer_custom">Svoje vrednosti</string>
     <string name="about_developer">Programer aplikacije Libre Radio</string>
+    <string name="check_not_working">Kod vas ne radi</string>
+    <string name="check_in_progress">Proveravam stanice: preostalo %d</string>
+    <string name="check_hidden">Sakriveno jer kod vas ne rade: %d</string>
+    <string name="check_all_hidden">Nijedna od %d stanica ovde ne radi u vašoj mreži sa trenutnim podešavanjima. Pretraga ih i dalje prikazuje; provera se isključuje u podešavanjima.</string>
+    <string name="settings_section_stations">Stanice</string>
+    <string name="settings_hide_failed">Sakrij stanice koje ne rade</string>
+    <string name="settings_hide_failed_desc">Aplikacija se nakratko povezuje sa svakom stanicom sa liste direktno sa telefona. One koje kod vas ne rade sakrivene su sa lista; pretraga ih prikazuje označene. Rezultati važe od jednog do tri dana.</string>
+    <string name="settings_bypass">Zaobilazi blokade stanica</string>
+    <string name="settings_bypass_desc">Ako mreža prekine bezbednu vezu sa stanicom (blokada po imenu), poveži se ponovo bez imena. Pomaže protiv mnogih blokada; sertifikat stanice se tada proverava manje strogo.</string>
+    <string name="settings_recheck">Ponovo proveri stanice</string>
+    <string name="settings_recheck_desc">Zaboravi rezultate, npr. posle promene mreže ili VPN-a</string>
+    <string name="settings_recheck_started">Stanice će biti ponovo proverene</string>
 </resources>

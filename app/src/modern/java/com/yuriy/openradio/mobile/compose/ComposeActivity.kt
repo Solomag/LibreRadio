@@ -64,6 +64,7 @@ class ComposeActivity : AppCompatActivity(), SettingsHost {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        BypassImages.install(this)
         setContent {
             LibreRadioTheme {
                 RadioApp(

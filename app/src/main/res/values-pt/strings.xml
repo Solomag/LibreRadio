@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Som em ~5 s, menos cortes. Para dados móveis, viagens e má ligação.</string>
     <string name="settings_buffer_custom">Valores próprios</string>
     <string name="about_developer">Programador do Libre Radio</string>
+    <string name="check_not_working">Não toca aqui</string>
+    <string name="check_in_progress">A verificar estações: faltam %d</string>
+    <string name="check_hidden">Ocultas por não tocarem aqui: %d</string>
+    <string name="check_all_hidden">Nenhuma das %d estações aqui toca na sua rede com as definições atuais. A pesquisa mostra-as na mesma; a verificação desliga-se nas definições.</string>
+    <string name="settings_section_stations">Estações</string>
+    <string name="settings_hide_failed">Ocultar estações que não tocam</string>
+    <string name="settings_hide_failed_desc">A app liga-se brevemente a cada estação de uma lista a partir do telefone. As que não tocam aqui ficam ocultas nas listas; a pesquisa mostra-as assinaladas. Os resultados duram de um a três dias.</string>
+    <string name="settings_bypass">Contornar bloqueios de estações</string>
+    <string name="settings_bypass_desc">Se a rede cortar a ligação segura a uma estação (bloqueio pelo nome), ligar de novo sem o nome. Ajuda com muitos bloqueios; o certificado é então verificado com menos rigor.</string>
+    <string name="settings_recheck">Verificar estações de novo</string>
+    <string name="settings_recheck_desc">Esquecer os resultados, por exemplo após mudar de rede ou VPN</string>
+    <string name="settings_recheck_started">As estações serão verificadas de novo</string>
 </resources>

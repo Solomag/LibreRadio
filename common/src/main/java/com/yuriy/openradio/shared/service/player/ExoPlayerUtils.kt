@@ -80,7 +80,10 @@ object ExoPlayerUtils {
         sUserAgent = userAgent
         if (sDataSourceFactory == null) {
             val factory = getHttpDataSourceFactory(sUserAgent)
-            val upstreamFactory = DefaultDataSource.Factory(context, factory!!)
+            // A station blocked by its server name is retried without it (when the bypass is on).
+            val upstreamFactory = DefaultDataSource.Factory(
+                context, FallbackDataSource.Factory(context, factory!!, sUserAgent)
+            )
             sDataSourceFactory = buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache(context)!!)
         }
         return sDataSourceFactory

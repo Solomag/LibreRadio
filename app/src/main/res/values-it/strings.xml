@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Audio in circa 5 s, meno interruzioni. Per dati mobili, viaggi e connessione scarsa.</string>
     <string name="settings_buffer_custom">Valori personalizzati</string>
     <string name="about_developer">Sviluppatore di Libre Radio</string>
+    <string name="check_not_working">Qui non funziona</string>
+    <string name="check_in_progress">Verifica stazioni: ne restano %d</string>
+    <string name="check_hidden">Nascoste perché qui non funzionano: %d</string>
+    <string name="check_all_hidden">Nessuna delle %d stazioni qui funziona sulla tua rete con le impostazioni attuali. La ricerca le mostra comunque; la verifica si disattiva nelle impostazioni.</string>
+    <string name="settings_section_stations">Stazioni</string>
+    <string name="settings_hide_failed">Nascondi le stazioni che non funzionano</string>
+    <string name="settings_hide_failed_desc">L’app si collega brevemente a ogni stazione di un elenco dal telefono. Quelle che qui non funzionano sono nascoste dagli elenchi; la ricerca le mostra segnalate. I risultati valgono da uno a tre giorni.</string>
+    <string name="settings_bypass">Aggira i blocchi delle stazioni</string>
+    <string name="settings_bypass_desc">Se la rete interrompe la connessione sicura a una stazione (blocco per nome), ricollegarsi senza il nome. Aiuta con molti blocchi; il certificato viene allora verificato in modo meno rigido.</string>
+    <string name="settings_recheck">Ricontrolla le stazioni</string>
+    <string name="settings_recheck_desc">Dimentica i risultati, ad esempio dopo aver cambiato rete o VPN</string>
+    <string name="settings_recheck_started">Le stazioni saranno ricontrollate</string>
 </resources>

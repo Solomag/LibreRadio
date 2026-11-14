@@ -110,4 +110,16 @@
     <string name="settings_buffer_reliable_desc">Sonido en ~5 s, menos cortes. Para datos móviles, viajes y mala conexión.</string>
     <string name="settings_buffer_custom">Valores propios</string>
     <string name="about_developer">Desarrollador de Libre Radio</string>
+    <string name="check_not_working">No suena aquí</string>
+    <string name="check_in_progress">Comprobando emisoras: quedan %d</string>
+    <string name="check_hidden">Ocultas por no sonar aquí: %d</string>
+    <string name="check_all_hidden">Ninguna de las %d emisoras de aquí suena en tu red con los ajustes actuales. La búsqueda las sigue mostrando; la comprobación se desactiva en Ajustes.</string>
+    <string name="settings_section_stations">Emisoras</string>
+    <string name="settings_hide_failed">Ocultar emisoras que no suenan</string>
+    <string name="settings_hide_failed_desc">La app se conecta un momento a cada emisora de una lista desde el teléfono. Las que no suenan aquí se ocultan de las listas; la búsqueda las muestra marcadas. Los resultados duran de uno a tres días.</string>
+    <string name="settings_bypass">Saltar bloqueos de emisoras</string>
+    <string name="settings_bypass_desc">Si la red corta la conexión segura con una emisora (bloqueo por nombre), conectar de nuevo sin el nombre. Ayuda con muchos bloqueos; el certificado se comprueba entonces con menos rigor.</string>
+    <string name="settings_recheck">Volver a comprobar emisoras</string>
+    <string name="settings_recheck_desc">Olvidar los resultados, por ejemplo tras cambiar de red o VPN</string>
+    <string name="settings_recheck_started">Las emisoras se comprobarán de nuevo</string>
 </resources>
