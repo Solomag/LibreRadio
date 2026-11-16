@@ -122,4 +122,7 @@
     <string name="settings_recheck">Sprawdź stacje ponownie</string>
     <string name="settings_recheck_desc">Zapomnij wyniki, np. po zmianie sieci lub VPN</string>
     <string name="settings_recheck_started">Stacje zostaną sprawdzone ponownie</string>
+    <string name="search_by_genre">Gatunek</string>
+    <string name="search_by_country">Kraj</string>
+    <string name="search_genre_hint">Na przykład: rock, jazz, news</string>
 </resources>

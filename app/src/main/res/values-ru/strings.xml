@@ -125,4 +125,7 @@
     <string name="settings_recheck">Проверить станции заново</string>
     <string name="settings_recheck_desc">Забыть результаты, например после смены сети или VPN</string>
     <string name="settings_recheck_started">Станции будут проверены заново</string>
+    <string name="search_by_genre">Жанр</string>
+    <string name="search_by_country">Страна</string>
+    <string name="search_genre_hint">Например: rock, jazz, news</string>
 </resources>

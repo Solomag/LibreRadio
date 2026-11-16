@@ -129,7 +129,7 @@ class OpenRadioServicePresenterImpl(
             MediaIdBuilderDefault()
         )
         if (pageNumber != 0) {
-            return primary
+            return mergeStations(primary, emptyList())
         }
         return mergeStations(primary, mExtraCatalogs.map { (url, model) ->
             model.getStations(url.getStationsInCategory(categoryId, pageNumber), MediaIdBuilderDefault())
@@ -142,7 +142,7 @@ class OpenRadioServicePresenterImpl(
             MediaIdBuilderDefault()
         )
         if (pageNumber != 0) {
-            return primary
+            return mergeStations(primary, emptyList())
         }
         return mergeStations(primary, mExtraCatalogs.map { (url, model) ->
             model.getStations(url.getStationsByCountry(countryCode, pageNumber), MediaIdBuilderDefault())
@@ -150,26 +150,39 @@ class OpenRadioServicePresenterImpl(
     }
 
     /**
-     * Appends stations from [others] to [primary], skipping duplicates by id or stream URL.
+     * Appends stations from [others] to [primary], skipping duplicates: the same id, the same stream
+     * (ignoring the scheme and "?ref=..." style parameters), or the same name in the same country.
+     * Catalogs list many stations twice (and the two catalogs share many), so lists are always passed here.
      */
     private fun mergeStations(primary: Set<RadioStation>, others: List<Set<RadioStation>>): Set<RadioStation> {
-        if (others.all { it.isEmpty() }) {
-            return primary
-        }
         val result = LinkedHashSet<RadioStation>()
         val ids = HashSet<String>()
         val urls = HashSet<String>()
+        // Name -> countries it was seen in ("" when a catalog does not say).
+        val names = HashMap<String, MutableSet<String>>()
         for (station in primary.asSequence() + others.asSequence().flatten()) {
             val url = try {
-                station.getStreamUrlFixed().trim().trimEnd('/').lowercase()
+                normalizeUrl(station.getStreamUrlFixed())
             } catch (e: Exception) {
                 AppUtils.EMPTY_STRING
             }
+            val name = normalizeName(station.name)
+            val country = station.countryCode.lowercase()
             if (ids.add(station.id).not()) {
                 continue
             }
-            if (url.isNotEmpty() && urls.add(url).not()) {
+            if (url.isNotEmpty() && urls.contains(url)) {
                 continue
+            }
+            val seen = if (name.isEmpty()) null else names[name]
+            if (seen != null && (country.isEmpty() || seen.contains("") || seen.contains(country))) {
+                continue
+            }
+            if (url.isNotEmpty()) {
+                urls.add(url)
+            }
+            if (name.isNotEmpty()) {
+                names.getOrPut(name) { HashSet() }.add(country)
             }
             result.add(station)
         }
@@ -177,17 +190,11 @@ class OpenRadioServicePresenterImpl(
     }
 
     override fun getNewStations(): Set<RadioStation> {
-        return mModelLayer.getStations(
-            mUrlLayer.getNewStations(),
-            MediaIdBuilderDefault()
-        )
+        return mergeStations(mModelLayer.getStations(mUrlLayer.getNewStations(), MediaIdBuilderDefault()), emptyList())
     }
 
     override fun getPopularStations(): Set<RadioStation> {
-        return mModelLayer.getStations(
-            mUrlLayer.getPopularStations(),
-            MediaIdBuilderDefault()
-        )
+        return mergeStations(mModelLayer.getStations(mUrlLayer.getPopularStations(), MediaIdBuilderDefault()), emptyList())
     }
 
     override fun getSearchStations(query: String, mediaIdBuilder: MediaIdBuilder): Set<RadioStation> {
@@ -314,4 +321,19 @@ class OpenRadioServicePresenterImpl(
     override fun getSleepTimerModel(): SleepTimerModel {
         return mSleepTimerModel
     }
+}
+
+/**
+ * Stream address without the scheme, a trailing slash and the query ("?ref=radiobrowser" and the like).
+ */
+internal fun normalizeUrl(url: String): String {
+    return url.trim().lowercase().substringBefore('?').substringBefore('#')
+        .removePrefix("https://").removePrefix("http://").trimEnd('/', ';')
+}
+
+/**
+ * Station name for comparing: letters and digits only ("- 0 N - Rock on Radio" = "0N Rock on Radio").
+ */
+internal fun normalizeName(name: String): String {
+    return name.lowercase().filter { it.isLetterOrDigit() }
 }

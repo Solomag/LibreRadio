@@ -122,4 +122,7 @@
     <string name="settings_recheck">Volver a comprobar emisoras</string>
     <string name="settings_recheck_desc">Olvidar los resultados, por ejemplo tras cambiar de red o VPN</string>
     <string name="settings_recheck_started">Las emisoras se comprobarán de nuevo</string>
+    <string name="search_by_genre">Género</string>
+    <string name="search_by_country">País</string>
+    <string name="search_genre_hint">Por ejemplo: rock, jazz, news</string>
 </resources>

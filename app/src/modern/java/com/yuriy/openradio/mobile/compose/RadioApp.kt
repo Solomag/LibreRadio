@@ -18,6 +18,11 @@
 
 package com.yuriy.openradio.mobile.compose
 
+import androidx.compose.ui.window.Dialog
+import androidx.compose.material.icons.rounded.Public
+import androidx.compose.material.icons.rounded.Tag
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Card
 import android.os.SystemClock
@@ -277,6 +282,15 @@ private fun RadioTopBar(
     onMenu: () -> Unit
 ) {
     if (searching) {
+        Column { SearchBarAndFilters(vm, onSearchToggle) }
+        return
+    }
+    TitleBar(vm, onSearchToggle, onMenu)
+}
+
+@Composable
+private fun SearchBarAndFilters(vm: RadioViewModel, onSearchToggle: (Boolean) -> Unit) {
+    run {
         var text by rememberSaveable { mutableStateOf(vm.current.query ?: "") }
         val focus = remember { FocusRequester() }
         LaunchedEffect(Unit) { focus.requestFocus() }
@@ -323,8 +337,12 @@ private fun RadioTopBar(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer
             )
         )
-        return
+        SearchFilters(vm) { onSearchToggle(false) }
     }
+}
+
+@Composable
+private fun TitleBar(vm: RadioViewModel, onSearchToggle: (Boolean) -> Unit, onMenu: () -> Unit) {
     TopAppBar(
         title = {
             Text(
@@ -1229,5 +1247,114 @@ private fun CheckInfo(vm: RadioViewModel) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+/**
+ * Under the search field: search by genre (tag) or open a country, instead of browsing folders.
+ */
+@Composable
+private fun SearchFilters(vm: RadioViewModel, onDone: () -> Unit) {
+    var genres by remember { mutableStateOf(false) }
+    var countries by remember { mutableStateOf(false) }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+    ) {
+        AssistChip(
+            onClick = { genres = true },
+            label = { Text(stringResource(R.string.search_by_genre)) },
+            leadingIcon = { Icon(Icons.Rounded.Tag, contentDescription = null, modifier = Modifier.size(18.dp)) }
+        )
+        AssistChip(
+            onClick = { countries = true },
+            label = { Text(stringResource(R.string.search_by_country)) },
+            leadingIcon = { Icon(Icons.Rounded.Public, contentDescription = null, modifier = Modifier.size(18.dp)) }
+        )
+    }
+    if (genres) {
+        GenreDialog(vm, onDismiss = { genres = false }) { genre ->
+            genres = false
+            vm.openGenre(genre)
+            onDone()
+        }
+    }
+    if (countries) {
+        CountryDialog(ownFirst = true, onDismiss = { countries = false }) { code ->
+            countries = false
+            if (code != null) {
+                vm.openCountry(code)
+                onDone()
+            }
+        }
+    }
+}
+
+/**
+ * Genres to pick from, with a filter by name; most stations first or by name.
+ */
+@Composable
+private fun GenreDialog(vm: RadioViewModel, onDismiss: () -> Unit, onPick: (MediaItem) -> Unit) {
+    var all by remember { mutableStateOf<List<MediaItem>?>(null) }
+    LaunchedEffect(Unit) { all = vm.loadGenres() }
+    var query by remember { mutableStateOf("") }
+    var byName by remember { mutableStateOf(vm.genresByName) }
+    val shown = remember(all, query, byName) {
+        val list = (all ?: emptyList()).filter {
+            query.isBlank() || (it.mediaMetadata.title?.toString() ?: "").contains(query.trim(), ignoreCase = true)
+        }
+        if (byName) list.sortedBy { (it.mediaMetadata.title?.toString() ?: "").lowercase() } else list
+    }
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            modifier = Modifier.fillMaxHeight(0.8f)
+        ) {
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(start = 24.dp, end = 8.dp, top = 20.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.search_by_genre),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TextButton(onClick = { byName = byName.not() }) {
+                        Text(
+                            stringResource(if (byName) R.string.genres_sort_by_count else R.string.genres_sort_by_name),
+                            maxLines = 1
+                        )
+                    }
+                }
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    singleLine = true,
+                    placeholder = { Text(stringResource(R.string.search_genre_hint)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                if (all == null) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth().padding(horizontal = 16.dp))
+                }
+                LazyColumn {
+                    items(shown, key = { it.mediaId }) { genre ->
+                        ListItem(
+                            headlineContent = { Text(genre.mediaMetadata.title?.toString() ?: "") },
+                            supportingContent = genre.mediaMetadata.subtitle?.let { { Text(it.toString()) } },
+                            colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                            modifier = Modifier.clickable { onPick(genre) }
+                        )
+                    }
+                }
+            }
+        }
     }
 }

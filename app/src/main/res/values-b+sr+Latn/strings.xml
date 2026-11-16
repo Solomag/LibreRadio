@@ -122,4 +122,7 @@
     <string name="settings_recheck">Ponovo proveri stanice</string>
     <string name="settings_recheck_desc">Zaboravi rezultate, npr. posle promene mreže ili VPN-a</string>
     <string name="settings_recheck_started">Stanice će biti ponovo proverene</string>
+    <string name="search_by_genre">Žanr</string>
+    <string name="search_by_country">Zemlja</string>
+    <string name="search_genre_hint">Na primer: rock, jazz, news</string>
 </resources>

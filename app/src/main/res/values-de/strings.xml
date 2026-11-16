@@ -122,4 +122,7 @@
     <string name="settings_recheck">Sender neu prüfen</string>
     <string name="settings_recheck_desc">Ergebnisse vergessen, etwa nach Netz- oder VPN-Wechsel</string>
     <string name="settings_recheck_started">Sender werden neu geprüft</string>
+    <string name="search_by_genre">Genre</string>
+    <string name="search_by_country">Land</string>
+    <string name="search_genre_hint">Zum Beispiel: rock, jazz, news</string>
 </resources>

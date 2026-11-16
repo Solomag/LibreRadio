@@ -41,6 +41,7 @@ import com.yuriy.openradio.shared.model.net.StationCheck
 import com.yuriy.openradio.shared.model.storage.AppPreferencesManager
 import com.yuriy.openradio.shared.model.storage.LocationStorage
 import com.yuriy.openradio.shared.service.OpenRadioService
+import com.yuriy.openradio.shared.service.location.LocationService
 import com.yuriy.openradio.shared.service.OpenRadioStore
 import com.yuriy.openradio.shared.utils.AppLogger
 import com.yuriy.openradio.shared.utils.MediaItemHelper
@@ -440,7 +441,9 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
             }
             // Ignore late results of a folder the user already left.
             if (current == folder) {
-                val list = result?.value?.toList() ?: emptyList()
+                val list = (result?.value?.toList() ?: emptyList()).filter {
+                    folder.id != MediaId.MEDIA_ID_ROOT || it.mediaId != MediaId.MEDIA_ID_ALL_CATEGORIES
+                }
                 genresInCountOrder = if (folder.id == MediaId.MEDIA_ID_ALL_CATEGORIES) list else emptyList()
                 items = if (genresInCountOrder.isNotEmpty() && genresByName) sortByName(list) else list
                 loadFailed = list.isEmpty() &&
@@ -470,7 +473,10 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
             }
             if (current == folder) {
                 val known = items.mapTo(HashSet()) { it.mediaId }
-                val fresh = next?.filter { known.contains(it.mediaId).not() } ?: emptyList()
+                val knownNames = items.mapTo(HashSet()) { sameStationKey(it) }
+                val fresh = next?.filter {
+                    known.contains(it.mediaId).not() && knownNames.add(sameStationKey(it))
+                } ?: emptyList()
                 if (fresh.isEmpty()) {
                     endReached = true
                 } else {
@@ -539,6 +545,54 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         AppPreferencesManager.setMasterVolume(app, full)
         sendCommand(OpenRadioService.CMD_MASTER_VOLUME_CHANGED, OpenRadioStore.makeMasterVolumeChangedBundle(full))
     }
+
+    /**
+     * Name (letters and digits) and country of a station, to spot the same station listed twice.
+     */
+    private fun sameStationKey(item: MediaItem): String {
+        val md = item.mediaMetadata
+        return (md.title?.toString() ?: "").lowercase().filter { it.isLetterOrDigit() } + "|" + (md.subtitle ?: "")
+    }
+
+    // region Genre and country as search options
+
+    /**
+     * Genres for the search filter, most stations first (each item's subtitle tells how many).
+     */
+    suspend fun loadGenres(): List<MediaItem> {
+        val b = browser ?: return emptyList()
+        return try {
+            b.getChildren(MediaId.MEDIA_ID_ALL_CATEGORIES, 0, DependencyRegistryCommon.UI_PAGE_SIZE, null)
+                .await().value?.toList() ?: emptyList()
+        } catch (e: Exception) {
+            AppLogger.e("RVM genres", e)
+            emptyList()
+        }
+    }
+
+    /**
+     * Shows the stations of a genre (picked in the search filter).
+     */
+    fun openGenre(genre: MediaItem) {
+        if (current.query != null) {
+            folders.removeAt(folders.lastIndex)
+        }
+        folders.add(Folder(genre.mediaId, genre.mediaMetadata.title?.toString() ?: ""))
+        load()
+    }
+
+    /**
+     * Shows the stations of a country (picked in the search filter).
+     */
+    fun openCountry(code: String) {
+        if (current.query != null) {
+            folders.removeAt(folders.lastIndex)
+        }
+        folders.add(Folder(MediaId.MEDIA_ID_COUNTRIES_LIST + code, LocationService.displayCountryName(code)))
+        load()
+    }
+
+    // endregion
 
     // region Station check
 
