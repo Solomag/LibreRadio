@@ -24,6 +24,25 @@ object CatalogStatus {
         mLastFailureAt = now()
     }
 
+    @Volatile
+    private var mLastCutOffAt = 0L
+
+    /**
+     * An answer started and stopped after its first kilobytes: the network cuts connections to the catalog's
+     * server (as some networks do with foreign hosting). A proxy or VPN helps.
+     */
+    fun onCutOff() {
+        mLastCutOffAt = now()
+    }
+
+    /**
+     * @return True when an answer of the catalog was cut at or after [since] and none succeeded after that.
+     */
+    fun cutOffSince(since: Long): Boolean {
+        val cut = mLastCutOffAt
+        return cut > 0 && cut >= since && cut >= mLastSuccessAt
+    }
+
     /**
      * @return True when a catalog request failed at or after [since] and none succeeded after that failure.
      */

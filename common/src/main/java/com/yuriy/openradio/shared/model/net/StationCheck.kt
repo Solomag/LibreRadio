@@ -19,7 +19,16 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 object StationCheck {
 
-    enum class Status { OK, FAILED }
+    /**
+     * [CUT_OFF]: the stream started and stopped after its first kilobytes. Networks that cut connections to
+     * foreign hosting do this; it does not play here either, but a proxy or VPN helps.
+     */
+    enum class Status { OK, FAILED, CUT_OFF }
+
+    /**
+     * Does not play here with the current settings, for whatever reason.
+     */
+    fun isBad(status: Status?): Boolean = status == Status.FAILED || status == Status.CUT_OFF
 
     private const val TAG = "SCHK"
     private const val PREFS = "station_check"
@@ -29,7 +38,25 @@ object StationCheck {
     private const val KEY_BYPASS_HOSTS = "bypass_hosts"
     private const val OK_TTL_MS = 3L * 24 * 60 * 60 * 1000
     private const val FAILED_TTL_MS = 24L * 60 * 60 * 1000
-    private const val PROBE_BYTES = 4096
+    /**
+     * Enough to pass the point where cut connections stop (about 16 KB), short of real listening.
+     */
+    private const val PROBE_BYTES = 40 * 1024
+
+    /**
+     * Silence that counts as a cut: streams send data every second or so.
+     */
+    private const val PROBE_STALL_MS = 6_000
+
+    /**
+     * A slow stream that still sends data after this long is fine.
+     */
+    private const val PROBE_MAX_MS = 15_000L
+
+    /**
+     * Less than this before the silence: a server that never really started, not a cut.
+     */
+    private const val CUT_MIN_BYTES = 1024
     private const val RETRY_DELAY_MS = 1500L
 
     private class Entry(val status: Status, val time: Long, val bypass: Boolean)
@@ -186,7 +213,7 @@ object StationCheck {
         }
         val first = probeOnce(context, url)
         // A station is hidden only when it fails twice: networks and servers hiccup.
-        val result = if (first == Status.FAILED) {
+        val result = if (isBad(first)) {
             Thread.sleep(RETRY_DELAY_MS)
             probeOnce(context, url)
         } else {
@@ -202,11 +229,11 @@ object StationCheck {
         val headers = mapOf("User-Agent" to AppUtils.getUserAgent(context), "Icy-MetaData" to "1")
         val host = runCatching { java.net.URL(url).host }.getOrNull()
         return try {
-            read(NoSniConnection.open(url, headers, needsBypass(host)))
+            read(NoSniConnection.open(url, headers, needsBypass(host), PROBE_STALL_MS))
         } catch (e: IOException) {
             if (mBypass && NoSniConnection.isBlockedHandshake(e)) {
                 try {
-                    val status = read(NoSniConnection.open(url, headers, true))
+                    val status = read(NoSniConnection.open(url, headers, true, PROBE_STALL_MS))
                     if (status == Status.OK) {
                         rememberBypassHost(host)
                     }
@@ -243,16 +270,27 @@ object StationCheck {
                 // A provider's block page or a site instead of a stream.
                 return Status.FAILED
             }
-            val buffer = ByteArray(PROBE_BYTES)
+            val buffer = ByteArray(8192)
             var total = 0
-            connection.inputStream.use { input ->
-                while (total < PROBE_BYTES) {
-                    val n = input.read(buffer, total, PROBE_BYTES - total)
-                    if (n < 0) {
-                        break
+            val started = android.os.SystemClock.elapsedRealtime()
+            try {
+                connection.inputStream.use { input ->
+                    while (total < PROBE_BYTES &&
+                        android.os.SystemClock.elapsedRealtime() - started < PROBE_MAX_MS
+                    ) {
+                        val n = input.read(buffer)
+                        if (n < 0) {
+                            break
+                        }
+                        total += n
                     }
-                    total += n
                 }
+            } catch (e: java.net.SocketTimeoutException) {
+                AppLogger.d("$TAG ${connection.url} stopped after $total bytes")
+                return if (total >= CUT_MIN_BYTES) Status.CUT_OFF else Status.FAILED
+            } catch (e: IOException) {
+                AppLogger.d("$TAG ${connection.url} broke after $total bytes: $e")
+                return if (total >= CUT_MIN_BYTES) Status.CUT_OFF else Status.FAILED
             }
             // Playlists (m3u, pls, HLS) are short; streams send data at once.
             return if (total > 0) Status.OK else Status.FAILED

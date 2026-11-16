@@ -48,4 +48,7 @@
     <string name="media_stream_http_code">Greška servera stanice (HTTP %d)</string>
     <string name="media_stream_cert_expired">Bezbednosni sertifikat stanice je istekao</string>
     <string name="media_stream_cert_untrusted">Telefon ne veruje sertifikatu stanice</string>
+    <string name="media_stream_cut_off">Strim je prekinut: mreža seče vezu sa stanicom. Pomaže proksi ili VPN</string>
+    <string name="media_stream_cut_off_proxy">Strim je prekinut, čak i preko proksija</string>
+    <string name="media_stream_proxy_failed">Proksi ne odgovara: proverite adresu i port</string>
 </resources>

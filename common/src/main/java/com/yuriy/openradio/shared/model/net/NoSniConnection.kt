@@ -57,12 +57,14 @@ object NoSniConnection {
      * response received. With [bypass], secure connections are made without the server name.
      */
     @Throws(IOException::class)
-    fun open(url: String, headers: Map<String, String>, bypass: Boolean): HttpURLConnection {
+    fun open(
+        url: String, headers: Map<String, String>, bypass: Boolean, readTimeoutMs: Int = READ_TIMEOUT_MS
+    ): HttpURLConnection {
         var current = URL(url)
         repeat(MAX_REDIRECTS + 1) {
             val connection = current.openConnection() as HttpURLConnection
             connection.connectTimeout = CONNECT_TIMEOUT_MS
-            connection.readTimeout = READ_TIMEOUT_MS
+            connection.readTimeout = readTimeoutMs
             connection.instanceFollowRedirects = false
             connection.useCaches = false
             for ((key, value) in headers) {

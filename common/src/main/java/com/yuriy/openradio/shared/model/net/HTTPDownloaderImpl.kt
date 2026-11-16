@@ -157,11 +157,27 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
             }
 
             var success = false
+            var received = 0L
             try {
-                val inputStream = BufferedInputStream(connection.inputStream)
-                response = toByteArray(inputStream)
+                val output = ByteArrayOutputStream()
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                BufferedInputStream(connection.inputStream).use { input ->
+                    while (true) {
+                        val n = input.read(buffer)
+                        if (n == EOF) {
+                            break
+                        }
+                        output.write(buffer, 0, n)
+                        received += n
+                    }
+                }
+                response = output.toByteArray()
                 success = true
             } catch (exception: IOException) {
+                // Started and stopped: the network cuts the connection (the catalog's own pages are whole).
+                if (received >= CUT_MIN_BYTES && mContentTypeFilter.isEmpty()) {
+                    CatalogStatus.onCutOff()
+                }
                 AppLogger.e(
                     "$CLASS_NAME getStream ${
                         NetUtils.createExceptionMessage(
@@ -191,6 +207,11 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
          * Retries of a failed request (each one may go to another catalog server).
          */
         private const val MAX_RETRIES = 2
+
+        /**
+         * Less than this before the error: not a cut connection, just a failed one.
+         */
+        private const val CUT_MIN_BYTES = 1024L
 
         /**
          * The default buffer size ({@value}) to use for

@@ -1083,8 +1083,22 @@ class OpenRadioPlayer(
             if (isOnline(context).not()) {
                 return context.getString(R.string.media_stream_no_internet)
             }
+            val proxy = com.yuriy.openradio.shared.model.net.NetProxy.isOn()
             var cause: Throwable? = exception.cause
             while (cause != null) {
+                // The stream was playing and the network stopped passing it: a cut connection.
+                if (cause is HttpDataSource.HttpDataSourceException &&
+                    cause.type == HttpDataSource.HttpDataSourceException.TYPE_READ &&
+                    cause !is HttpDataSource.InvalidResponseCodeException
+                ) {
+                    return context.getString(
+                        if (proxy) R.string.media_stream_cut_off_proxy else R.string.media_stream_cut_off
+                    )
+                }
+                // With a proxy every connection goes to it first.
+                if (proxy && cause is ConnectException) {
+                    return context.getString(R.string.media_stream_proxy_failed)
+                }
                 when (cause) {
                     is HttpDataSource.InvalidResponseCodeException -> return when (cause.responseCode) {
                         HttpURLConnection.HTTP_FORBIDDEN -> context.getString(R.string.media_stream_http_403)

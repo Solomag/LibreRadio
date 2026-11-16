@@ -74,4 +74,7 @@
     <string name="media_stream_http_code">Station server error (HTTP %d)</string>
     <string name="media_stream_cert_expired">The station’s security certificate has expired</string>
     <string name="media_stream_cert_untrusted">The phone does not trust the station’s certificate</string>
+    <string name="media_stream_cut_off">The stream broke off: the network cuts the connection to the station. A proxy or VPN helps</string>
+    <string name="media_stream_cut_off_proxy">The stream broke off, even through the proxy</string>
+    <string name="media_stream_proxy_failed">The proxy does not answer: check its address and port</string>
 </resources>

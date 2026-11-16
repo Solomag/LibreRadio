@@ -145,4 +145,23 @@
     <string name="search_by_genre">Genre</string>
     <string name="search_by_country">Country</string>
     <string name="search_genre_hint">For example: rock, jazz, news</string>
+    <string name="check_cut_off">Breaks off here</string>
+    <string name="check_cut_off_info">Break off: %d (the network cuts foreign servers; a proxy helps: Settings → Network)</string>
+    <string name="catalog_cut_off_hint">The catalog started to load and broke off: your network cuts the connection to its server in Germany. A proxy (Settings → Network → Proxy) or a VPN helps. Favorites and your own stations work without it.</string>
+    <string name="proxy_title">Proxy</string>
+    <string name="proxy_state_on">%1$s %2$s:%3$d, the whole app goes through it</string>
+    <string name="proxy_state_off">Off</string>
+    <string name="proxy_desc">The catalog, sound and logos go through the proxy: this gets past networks that cut foreign servers. Use your VPN service\'s proxy, or an app on this phone such as ByeByeDPI, v2rayNG or Orbot (address 127.0.0.1, the port from its settings). The home network and Tailscale go direct.</string>
+    <string name="proxy_use">Use a proxy</string>
+    <string name="proxy_host">Address</string>
+    <string name="proxy_port">Port</string>
+    <string name="proxy_user">Login (if needed)</string>
+    <string name="proxy_password">Password (if needed)</string>
+    <string name="proxy_test">Test</string>
+    <string name="proxy_test_ok">Works: the catalog loaded through the proxy (%1$d KB in %2$.1f s)</string>
+    <string name="proxy_test_cut">Through this proxy the connection breaks off too (after %d KB): it does not help</string>
+    <string name="proxy_test_failed">The proxy did not work: %s</string>
+    <string name="proxy_save">Save</string>
+    <string name="check_cut_off_info_proxy">Break off: %d, even through the proxy</string>
+    <string name="catalog_cut_off_proxy_hint">The catalog started to load and broke off, even through the proxy: this proxy does not get past the block. Try another one (Settings → Network → Proxy) or a VPN. Favorites and your own stations work without it.</string>
 </resources>

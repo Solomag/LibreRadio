@@ -125,4 +125,23 @@
     <string name="search_by_genre">Género</string>
     <string name="search_by_country">País</string>
     <string name="search_genre_hint">Por ejemplo: rock, jazz, news</string>
+    <string name="check_cut_off">Se corta aquí</string>
+    <string name="check_cut_off_info">Se cortan: %d (la red corta servidores extranjeros; ayuda un proxy: Ajustes → Red)</string>
+    <string name="catalog_cut_off_hint">El catálogo empezó a cargar y se cortó: tu red corta la conexión con su servidor en Alemania. Ayuda un proxy (Ajustes → Red → Proxy) o una VPN. Favoritos y tus emisoras funcionan sin él.</string>
+    <string name="proxy_title">Proxy</string>
+    <string name="proxy_state_on">%1$s %2$s:%3$d, toda la app pasa por él</string>
+    <string name="proxy_state_off">Desactivado</string>
+    <string name="proxy_desc">El catálogo, el sonido y los logos van por el proxy: así se evitan redes que cortan servidores extranjeros. Sirve el proxy de tu servicio VPN o una app en este teléfono: ByeByeDPI, v2rayNG, Orbot (dirección 127.0.0.1, el puerto de sus ajustes). La red de casa y Tailscale van directo.</string>
+    <string name="proxy_use">Usar un proxy</string>
+    <string name="proxy_host">Dirección</string>
+    <string name="proxy_port">Puerto</string>
+    <string name="proxy_user">Usuario (si hace falta)</string>
+    <string name="proxy_password">Contraseña (si hace falta)</string>
+    <string name="proxy_test">Probar</string>
+    <string name="proxy_test_ok">Funciona: catálogo cargado por el proxy (%1$d KB en %2$.1f s)</string>
+    <string name="proxy_test_cut">Con este proxy la conexión también se corta (tras %d KB): no ayuda</string>
+    <string name="proxy_test_failed">El proxy no funcionó: %s</string>
+    <string name="proxy_save">Guardar</string>
+    <string name="check_cut_off_info_proxy">Se cortan: %d, incluso con el proxy</string>
+    <string name="catalog_cut_off_proxy_hint">El catálogo empezó a cargar y se cortó, incluso con el proxy: este proxy no evita el bloqueo. Prueba otro (Ajustes → Red → Proxy) o una VPN. Favoritos y tus emisoras funcionan sin él.</string>
 </resources>

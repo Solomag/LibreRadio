@@ -48,4 +48,7 @@
     <string name="media_stream_http_code">Erro do servidor da estação (HTTP %d)</string>
     <string name="media_stream_cert_expired">O certificado de segurança da estação expirou</string>
     <string name="media_stream_cert_untrusted">O telefone não confia no certificado da estação</string>
+    <string name="media_stream_cut_off">A emissão cortou-se: a rede corta a ligação à estação. Ajuda um proxy ou uma VPN</string>
+    <string name="media_stream_cut_off_proxy">A emissão cortou-se, mesmo pelo proxy</string>
+    <string name="media_stream_proxy_failed">O proxy não responde: verifique o endereço e a porta</string>
 </resources>

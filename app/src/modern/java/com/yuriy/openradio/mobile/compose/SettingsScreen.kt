@@ -18,6 +18,15 @@
 
 package com.yuriy.openradio.mobile.compose
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.material.icons.rounded.VpnLock
+import com.yuriy.openradio.shared.model.net.NetProxy
 import androidx.compose.material.icons.rounded.Refresh
 import com.yuriy.openradio.shared.model.net.StationCheck
 import androidx.compose.ui.semantics.stateDescription
@@ -443,6 +452,182 @@ private fun NetworkSection(vm: RadioViewModel) {
         storage.setUseMobile(it)
         vm.sendCommand(OpenRadioService.CMD_NET_CHANGED)
     }
+    ProxyRow(vm)
+}
+
+/**
+ * A proxy for all of the app's connections (see [NetProxy]).
+ */
+@Composable
+private fun ProxyRow(vm: RadioViewModel) {
+    val context = LocalContext.current
+    var settings by remember { mutableStateOf(NetProxy.settings(context)) }
+    var editing by remember { mutableStateOf(false) }
+    val state = if (settings.isOn) {
+        stringResource(R.string.proxy_state_on, proxyTypeName(settings.type), settings.host, settings.port)
+    } else {
+        stringResource(R.string.proxy_state_off)
+    }
+    ClickRow(Icons.Rounded.VpnLock, stringResource(R.string.proxy_title), state) { editing = true }
+    if (editing) {
+        ProxyDialog(
+            initial = settings,
+            onDismiss = { editing = false },
+            onSave = { saved ->
+                editing = false
+                NetProxy.save(context, saved)
+                settings = NetProxy.settings(context)
+                vm.refresh()
+                vm.recheckStations()
+            }
+        )
+    }
+}
+
+@Composable
+private fun proxyTypeName(type: NetProxy.Type): String = when (type) {
+    NetProxy.Type.OFF -> stringResource(R.string.proxy_state_off)
+    NetProxy.Type.SOCKS -> "SOCKS5"
+    NetProxy.Type.HTTP -> "HTTP"
+}
+
+@Composable
+private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSave: (NetProxy.Settings) -> Unit) {
+    var type by remember { mutableStateOf(if (initial.type == NetProxy.Type.OFF) NetProxy.Type.SOCKS else initial.type) }
+    var enabled by remember { mutableStateOf(initial.type != NetProxy.Type.OFF) }
+    var host by remember { mutableStateOf(initial.host) }
+    var port by remember { mutableStateOf(if (initial.port > 0) initial.port.toString() else "") }
+    var user by remember { mutableStateOf(initial.user) }
+    var password by remember { mutableStateOf(initial.password) }
+    var testing by remember { mutableStateOf(false) }
+    var result by remember { mutableStateOf<NetProxy.TestResult?>(null) }
+    val scope = rememberCoroutineScope()
+
+    fun current() = NetProxy.Settings(
+        if (enabled) type else NetProxy.Type.OFF, host.trim(), port.trim().toIntOrNull() ?: 0, user, password
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.proxy_title)) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    stringResource(R.string.proxy_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.proxy_use), modifier = Modifier.weight(1f))
+                    Switch(checked = enabled, onCheckedChange = {
+                        enabled = it
+                        result = null
+                    })
+                }
+                if (enabled) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        for (option in listOf(NetProxy.Type.SOCKS, NetProxy.Type.HTTP)) {
+                            RadioButton(selected = type == option, onClick = {
+                                type = option
+                                result = null
+                            })
+                            Text(proxyTypeName(option), modifier = Modifier.clickable { type = option })
+                            Spacer(Modifier.width(12.dp))
+                        }
+                    }
+                    OutlinedTextField(
+                        value = host,
+                        onValueChange = {
+                            host = it
+                            result = null
+                        },
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.proxy_host)) },
+                        placeholder = { Text("127.0.0.1") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = port,
+                        onValueChange = { text ->
+                            port = text.filter { it.isDigit() }.take(5)
+                            result = null
+                        },
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.proxy_port)) },
+                        placeholder = { Text("1080") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = user,
+                        onValueChange = {
+                            user = it
+                            result = null
+                        },
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.proxy_user)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            result = null
+                        },
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.proxy_password)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedButton(
+                            enabled = testing.not() && current().isOn,
+                            onClick = {
+                                testing = true
+                                result = null
+                                val tried = current()
+                                scope.launch {
+                                    result = withContext(Dispatchers.IO) { NetProxy.test(tried) }
+                                    testing = false
+                                }
+                            }
+                        ) { Text(stringResource(R.string.proxy_test)) }
+                        if (testing) {
+                            Spacer(Modifier.width(12.dp))
+                            CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
+                        }
+                    }
+                    result?.let { ProxyTestText(it) }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(current()) }) { Text(stringResource(R.string.proxy_save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
+        }
+    )
+}
+
+@Composable
+private fun ProxyTestText(result: NetProxy.TestResult) {
+    val (text, good) = when (result) {
+        is NetProxy.TestResult.Ok ->
+            stringResource(R.string.proxy_test_ok, (result.bytes / 1024).toInt(), result.millis / 1000.0) to true
+        is NetProxy.TestResult.CutOff -> stringResource(R.string.proxy_test_cut, (result.bytes / 1024).toInt()) to false
+        is NetProxy.TestResult.ProxyFailed -> stringResource(R.string.proxy_test_failed, result.reason) to false
+    }
+    Text(
+        text,
+        style = MaterialTheme.typography.bodySmall,
+        color = if (good) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+        modifier = Modifier.padding(top = 8.dp)
+    )
 }
 
 /**

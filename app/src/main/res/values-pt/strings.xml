@@ -125,4 +125,23 @@
     <string name="search_by_genre">Género</string>
     <string name="search_by_country">País</string>
     <string name="search_genre_hint">Por exemplo: rock, jazz, news</string>
+    <string name="check_cut_off">Corta-se aqui</string>
+    <string name="check_cut_off_info">Cortam-se: %d (a rede corta servidores estrangeiros; ajuda um proxy: Definições → Rede)</string>
+    <string name="catalog_cut_off_hint">O catálogo começou a carregar e cortou-se: a sua rede corta a ligação ao servidor dele na Alemanha. Ajuda um proxy (Definições → Rede → Proxy) ou uma VPN. Favoritos e as suas estações funcionam sem ele.</string>
+    <string name="proxy_title">Proxy</string>
+    <string name="proxy_state_on">%1$s %2$s:%3$d, toda a app passa por ele</string>
+    <string name="proxy_state_off">Desligado</string>
+    <string name="proxy_desc">O catálogo, o som e os logótipos passam pelo proxy: assim contornam-se redes que cortam servidores estrangeiros. Serve o proxy do seu serviço VPN ou uma app neste telefone: ByeByeDPI, v2rayNG, Orbot (endereço 127.0.0.1, a porta das definições dela). A rede de casa e o Tailscale vão diretos.</string>
+    <string name="proxy_use">Usar um proxy</string>
+    <string name="proxy_host">Endereço</string>
+    <string name="proxy_port">Porta</string>
+    <string name="proxy_user">Utilizador (se necessário)</string>
+    <string name="proxy_password">Palavra-passe (se necessário)</string>
+    <string name="proxy_test">Testar</string>
+    <string name="proxy_test_ok">Funciona: catálogo carregado pelo proxy (%1$d KB em %2$.1f s)</string>
+    <string name="proxy_test_cut">Por este proxy a ligação também se corta (após %d KB): não ajuda</string>
+    <string name="proxy_test_failed">O proxy não funcionou: %s</string>
+    <string name="proxy_save">Guardar</string>
+    <string name="check_cut_off_info_proxy">Cortam-se: %d, mesmo pelo proxy</string>
+    <string name="catalog_cut_off_proxy_hint">O catálogo começou a carregar e cortou-se, mesmo pelo proxy: este proxy não contorna o bloqueio. Experimente outro (Definições → Rede → Proxy) ou uma VPN. Favoritos e as suas estações funcionam sem ele.</string>
 </resources>

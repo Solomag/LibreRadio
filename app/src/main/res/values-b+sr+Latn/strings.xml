@@ -125,4 +125,23 @@
     <string name="search_by_genre">Žanr</string>
     <string name="search_by_country">Zemlja</string>
     <string name="search_genre_hint">Na primer: rock, jazz, news</string>
+    <string name="check_cut_off">Kod vas se prekida</string>
+    <string name="check_cut_off_info">Prekidaju se: %d (mreža seče strane servere; pomaže proksi: Podešavanja → Mreža)</string>
+    <string name="catalog_cut_off_hint">Katalog je počeo da se učitava i prekinuo se: vaša mreža seče vezu sa njegovim serverom u Nemačkoj. Pomaže proksi (Podešavanja → Mreža → Proksi) ili VPN. Omiljene i vaše stanice rade i bez kataloga.</string>
+    <string name="proxy_title">Proksi</string>
+    <string name="proxy_state_on">%1$s %2$s:%3$d, cela aplikacija ide preko njega</string>
+    <string name="proxy_state_off">Isključen</string>
+    <string name="proxy_desc">Katalog, zvuk i logotipi idu preko proksija: tako se zaobilaze mreže koje seku strane servere. Odgovara proksi vašeg VPN servisa ili aplikacija na ovom telefonu: ByeByeDPI, v2rayNG, Orbot (adresa 127.0.0.1, port iz njenih podešavanja). Kućna mreža i Tailscale idu direktno.</string>
+    <string name="proxy_use">Koristi proksi</string>
+    <string name="proxy_host">Adresa</string>
+    <string name="proxy_port">Port</string>
+    <string name="proxy_user">Korisnik (ako treba)</string>
+    <string name="proxy_password">Lozinka (ako treba)</string>
+    <string name="proxy_test">Proveri</string>
+    <string name="proxy_test_ok">Radi: katalog učitan preko proksija (%1$d KB za %2$.1f s)</string>
+    <string name="proxy_test_cut">I preko ovog proksija veza se prekida (posle %d KB): ne pomaže</string>
+    <string name="proxy_test_failed">Proksi nije uspeo: %s</string>
+    <string name="proxy_save">Sačuvaj</string>
+    <string name="check_cut_off_info_proxy">Prekidaju se: %d, čak i preko proksija</string>
+    <string name="catalog_cut_off_proxy_hint">Katalog je počeo da se učitava i prekinuo se, čak i preko proksija: ovaj proksi ne zaobilazi blokadu. Probajte drugi (Podešavanja → Mreža → Proksi) ili VPN. Omiljene i vaše stanice rade i bez kataloga.</string>
 </resources>

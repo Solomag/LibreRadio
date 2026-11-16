@@ -6,6 +6,8 @@ import coil.ImageLoader
 import com.yuriy.openradio.shared.model.net.NoSniConnection
 import com.yuriy.openradio.shared.model.net.StationCheck
 import com.yuriy.openradio.shared.utils.AppUtils
+import com.yuriy.openradio.shared.model.net.NetProxy
+import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -31,7 +33,22 @@ object BypassImages {
         val app = context.applicationContext
         Coil.setImageLoader(
             ImageLoader.Builder(app)
-                .okHttpClient { OkHttpClient.Builder().addInterceptor(Retry(app)).build() }
+                .okHttpClient {
+                    OkHttpClient.Builder()
+                        .addInterceptor(Retry(app))
+                        // The proxy itself comes from the process-wide ProxySelector (NetProxy).
+                        .proxyAuthenticator { _, response ->
+                            val login = NetProxy.httpProxyLogin()
+                            if (login == null || response.request.header("Proxy-Authorization") != null) {
+                                null
+                            } else {
+                                response.request.newBuilder()
+                                    .header("Proxy-Authorization", Credentials.basic(login.first, login.second))
+                                    .build()
+                            }
+                        }
+                        .build()
+                }
                 .build()
         )
     }

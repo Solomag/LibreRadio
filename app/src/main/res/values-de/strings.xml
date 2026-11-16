@@ -125,4 +125,23 @@
     <string name="search_by_genre">Genre</string>
     <string name="search_by_country">Land</string>
     <string name="search_genre_hint">Zum Beispiel: rock, jazz, news</string>
+    <string name="check_cut_off">Bricht hier ab</string>
+    <string name="check_cut_off_info">Brechen ab: %d (das Netz kappt ausländische Server; ein Proxy hilft: Einstellungen → Netz)</string>
+    <string name="catalog_cut_off_hint">Der Katalog begann zu laden und brach ab: Ihr Netz kappt die Verbindung zu seinem Server in Deutschland. Ein Proxy (Einstellungen → Netz → Proxy) oder VPN hilft. Favoriten und eigene Sender gehen auch ohne.</string>
+    <string name="proxy_title">Proxy</string>
+    <string name="proxy_state_on">%1$s %2$s:%3$d, die ganze App läuft darüber</string>
+    <string name="proxy_state_off">Aus</string>
+    <string name="proxy_desc">Katalog, Ton und Logos laufen über den Proxy: So kommt man an Netzen vorbei, die ausländische Server kappen. Geeignet ist der Proxy Ihres VPN-Dienstes oder eine App auf diesem Telefon wie ByeByeDPI, v2rayNG oder Orbot (Adresse 127.0.0.1, Port aus deren Einstellungen). Heimnetz und Tailscale gehen direkt.</string>
+    <string name="proxy_use">Proxy verwenden</string>
+    <string name="proxy_host">Adresse</string>
+    <string name="proxy_port">Port</string>
+    <string name="proxy_user">Benutzer (falls nötig)</string>
+    <string name="proxy_password">Passwort (falls nötig)</string>
+    <string name="proxy_test">Testen</string>
+    <string name="proxy_test_ok">Funktioniert: Katalog über den Proxy geladen (%1$d KB in %2$.1f s)</string>
+    <string name="proxy_test_cut">Auch über diesen Proxy bricht die Verbindung ab (nach %d KB): er hilft nicht</string>
+    <string name="proxy_test_failed">Der Proxy ging nicht: %s</string>
+    <string name="proxy_save">Speichern</string>
+    <string name="check_cut_off_info_proxy">Brechen ab: %d, auch über den Proxy</string>
+    <string name="catalog_cut_off_proxy_hint">Der Katalog begann zu laden und brach ab, auch über den Proxy: Dieser Proxy kommt an der Sperre nicht vorbei. Versuchen Sie einen anderen (Einstellungen → Netz → Proxy) oder ein VPN. Favoriten und eigene Sender gehen auch ohne.</string>
 </resources>

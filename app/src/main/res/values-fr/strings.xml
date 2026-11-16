@@ -125,4 +125,23 @@
     <string name="search_by_genre">Genre</string>
     <string name="search_by_country">Pays</string>
     <string name="search_genre_hint">Par exemple : rock, jazz, news</string>
+    <string name="check_cut_off">Se coupe ici</string>
+    <string name="check_cut_off_info">Se coupent : %d (le réseau coupe les serveurs étrangers ; un proxy aide : Réglages → Réseau)</string>
+    <string name="catalog_cut_off_hint">Le catalogue a commencé à charger puis s’est coupé : votre réseau coupe la connexion à son serveur en Allemagne. Un proxy (Réglages → Réseau → Proxy) ou un VPN aide. Les favoris et vos stations marchent sans.</string>
+    <string name="proxy_title">Proxy</string>
+    <string name="proxy_state_on">%1$s %2$s:%3$d, toute l’appli passe par lui</string>
+    <string name="proxy_state_off">Désactivé</string>
+    <string name="proxy_desc">Le catalogue, le son et les logos passent par le proxy : cela contourne les réseaux qui coupent les serveurs étrangers. Utilisez le proxy de votre service VPN ou une appli sur ce téléphone : ByeByeDPI, v2rayNG, Orbot (adresse 127.0.0.1, port de ses réglages). Le réseau local et Tailscale passent en direct.</string>
+    <string name="proxy_use">Utiliser un proxy</string>
+    <string name="proxy_host">Adresse</string>
+    <string name="proxy_port">Port</string>
+    <string name="proxy_user">Identifiant (si besoin)</string>
+    <string name="proxy_password">Mot de passe (si besoin)</string>
+    <string name="proxy_test">Tester</string>
+    <string name="proxy_test_ok">Ça marche : catalogue chargé via le proxy (%1$d Ko en %2$.1f s)</string>
+    <string name="proxy_test_cut">Via ce proxy la connexion se coupe aussi (après %d Ko) : il n’aide pas</string>
+    <string name="proxy_test_failed">Le proxy n’a pas marché : %s</string>
+    <string name="proxy_save">Enregistrer</string>
+    <string name="check_cut_off_info_proxy">Se coupent : %d, même via le proxy</string>
+    <string name="catalog_cut_off_proxy_hint">Le catalogue a commencé à charger puis s’est coupé, même via le proxy : ce proxy ne contourne pas le blocage. Essayez-en un autre (Réglages → Réseau → Proxy) ou un VPN. Les favoris et vos stations marchent sans.</string>
 </resources>

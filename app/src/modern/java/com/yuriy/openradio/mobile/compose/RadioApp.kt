@@ -462,7 +462,7 @@ private fun Catalog(vm: RadioViewModel) {
     var draggedId by remember { mutableStateOf<String?>(null) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     LazyColumn(state = state, contentPadding = PaddingValues(vertical = 8.dp), modifier = Modifier.fillMaxSize()) {
-        if (vm.checking > 0 || vm.hiddenCount > 0) {
+        if (vm.checking > 0 || vm.hiddenCount > 0 || vm.cutOffCount > 0) {
             item(key = "check_info") { CheckInfo(vm) }
         }
         items(items, key = { it.mediaId }) { item ->
@@ -475,6 +475,7 @@ private fun Catalog(vm: RadioViewModel) {
                     playing = item.mediaId == vm.currentMediaId,
                     favorite = vm.isFavorite(item),
                     failed = vm.isFailed(item),
+                    cutOff = vm.isCutOff(item),
                     onClick = { vm.open(item) },
                     onFavorite = { vm.toggleFavorite(item) },
                     dragHandle = if (vm.reordering) {
@@ -583,6 +584,7 @@ private fun StationRow(
     onClick: () -> Unit,
     onFavorite: () -> Unit,
     failed: Boolean = false,
+    cutOff: Boolean = false,
     dragHandle: Modifier? = null,
     onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -605,7 +607,7 @@ private fun StationRow(
         supportingContent = if (failed) {
             slot {
                 Text(
-                    stringResource(R.string.check_not_working),
+                    stringResource(if (cutOff) R.string.check_cut_off else R.string.check_not_working),
                     color = MaterialTheme.colorScheme.error,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -1155,7 +1157,13 @@ private fun CatalogError(vm: RadioViewModel) {
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            stringResource(R.string.catalog_error_hint),
+            stringResource(
+                when {
+                    vm.catalogCutOff && vm.proxyOn -> R.string.catalog_cut_off_proxy_hint
+                    vm.catalogCutOff -> R.string.catalog_cut_off_hint
+                    else -> R.string.catalog_error_hint
+                }
+            ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -1231,6 +1239,10 @@ private fun CheckInfo(vm: RadioViewModel) {
     }
     if (vm.hiddenCount > 0) {
         texts.add(stringResource(R.string.check_hidden, vm.hiddenCount))
+    }
+    // Cut connections: say what helps, it is not the stations' fault.
+    if (vm.cutOffCount > 0) {
+        texts.add(stringResource(if (vm.proxyOn) R.string.check_cut_off_info_proxy else R.string.check_cut_off_info, vm.cutOffCount))
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,

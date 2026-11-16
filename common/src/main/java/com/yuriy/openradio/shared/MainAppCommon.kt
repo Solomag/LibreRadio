@@ -49,6 +49,8 @@ open class MainAppCommon : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         MultiDex.install(applicationContext)
+        // Before any connection: all of them follow the proxy setting.
+        com.yuriy.openradio.shared.model.net.NetProxy.install(applicationContext)
         DependencyRegistryCommon.init(applicationContext)
         // Address devices API 19 and lower.
         try {

@@ -76,6 +76,11 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
      * The catalog did not answer for the current folder (shown with a Retry button instead of "empty").
      */
     var loadFailed by mutableStateOf(false)
+
+    /**
+     * The catalog's answer started and was cut: the network cuts connections to its server.
+     */
+    var catalogCutOff by mutableStateOf(false)
         private set
 
     /**
@@ -160,6 +165,9 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         app.getString(com.yuriy.openradio.R.string.media_stream_cert_untrusted),
         app.getString(com.yuriy.openradio.R.string.media_stream_connection_lost),
         app.getString(com.yuriy.openradio.R.string.media_stream_format),
+        app.getString(com.yuriy.openradio.R.string.media_stream_cut_off),
+        app.getString(com.yuriy.openradio.R.string.media_stream_cut_off_proxy),
+        app.getString(com.yuriy.openradio.R.string.media_stream_proxy_failed),
     )
 
     private val notTracks: Set<String> = setOf(
@@ -422,6 +430,8 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         val folder = current
         loading = true
         loadFailed = false
+        catalogCutOff = false
+        val startedAt = com.yuriy.openradio.shared.model.net.CatalogStatus.now()
         loadingSince = android.os.SystemClock.elapsedRealtime()
         reordering = false
         page = 0
@@ -448,6 +458,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
                 items = if (genresInCountOrder.isNotEmpty() && genresByName) sortByName(list) else list
                 loadFailed = list.isEmpty() &&
                         (result == null || result.resultCode != androidx.media3.session.LibraryResult.RESULT_SUCCESS)
+                catalogCutOff = loadFailed && com.yuriy.openradio.shared.model.net.CatalogStatus.cutOffSince(startedAt)
                 loading = false
                 checkStations(list, restart = true)
             }
@@ -603,8 +614,31 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun isFailed(item: MediaItem): Boolean {
         @Suppress("UNUSED_VARIABLE") val v = checkVersion
-        return item.mediaMetadata.isPlayable == true && StationCheck.status(stationId(item)) == StationCheck.Status.FAILED
+        return item.mediaMetadata.isPlayable == true && StationCheck.isBad(StationCheck.status(stationId(item)))
     }
+
+    /**
+     * Starts and then stops after the first seconds: the network cuts the connection to its server.
+     */
+    fun isCutOff(item: MediaItem): Boolean {
+        @Suppress("UNUSED_VARIABLE") val v = checkVersion
+        return item.mediaMetadata.isPlayable == true && StationCheck.status(stationId(item)) == StationCheck.Status.CUT_OFF
+    }
+
+    /**
+     * All connections go through the user's proxy (saving it restarts the check, so [checkVersion] follows it).
+     */
+    val proxyOn: Boolean
+        get() {
+            @Suppress("UNUSED_VARIABLE") val v = checkVersion
+            return com.yuriy.openradio.shared.model.net.NetProxy.isOn()
+        }
+
+    /**
+     * Stations of the list cut by the network (hidden or not).
+     */
+    val cutOffCount: Int
+        get() = items.count { isCutOff(it) }
 
     /**
      * Catalog folders hide stations that do not play; search, favorites, own and recent ones keep them, marked.
