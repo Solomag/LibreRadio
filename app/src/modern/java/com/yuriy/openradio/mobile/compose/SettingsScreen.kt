@@ -129,6 +129,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import com.yuriy.openradio.mobile.R
+import com.yuriy.openradio.shared.R as SR
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
 import com.yuriy.openradio.shared.model.eq.EqualizerState
 import com.yuriy.openradio.shared.model.storage.AppPreferencesManager
@@ -470,8 +471,8 @@ private fun WhiteSniRow(vm: RadioViewModel) {
     var domain by remember { mutableStateOf(WhiteSni.domain()) }
     var editing by remember { mutableStateOf(false) }
     SwitchRow(
-        title = stringResource(R.string.white_sni_title),
-        desc = stringResource(R.string.white_sni_desc),
+        title = stringResource(SR.string.white_sni_title),
+        desc = stringResource(SR.string.white_sni_desc),
         checked = on
     ) {
         on = it
@@ -479,17 +480,17 @@ private fun WhiteSniRow(vm: RadioViewModel) {
         vm.recheckStations()
     }
     if (on) {
-        ClickRow(Icons.Rounded.Dns, stringResource(R.string.white_sni_domain), domain) { editing = true }
+        ClickRow(Icons.Rounded.Dns, stringResource(SR.string.white_sni_domain), domain) { editing = true }
     }
     if (editing) {
         var text by remember { mutableStateOf(domain) }
         AlertDialog(
             onDismissRequest = { editing = false },
-            title = { Text(stringResource(R.string.white_sni_domain)) },
+            title = { Text(stringResource(SR.string.white_sni_domain)) },
             text = {
                 Column {
                     Text(
-                        stringResource(R.string.white_sni_domain_desc),
+                        stringResource(SR.string.white_sni_domain_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -510,7 +511,7 @@ private fun WhiteSniRow(vm: RadioViewModel) {
                     WhiteSni.save(context, on, text)
                     domain = WhiteSni.domain()
                     vm.recheckStations()
-                }) { Text(stringResource(R.string.proxy_save)) }
+                }) { Text(stringResource(SR.string.proxy_save)) }
             },
             dismissButton = {
                 TextButton(onClick = { editing = false }) { Text(stringResource(android.R.string.cancel)) }
@@ -528,13 +529,13 @@ private fun ProxyRow(vm: RadioViewModel) {
     var settings by remember { mutableStateOf(NetProxy.settings(context)) }
     var editing by remember { mutableStateOf(false) }
     val state = if (settings.isOn && settings.type == NetProxy.Type.BYEDPI) {
-        stringResource(R.string.proxy_state_dpi)
+        stringResource(SR.string.proxy_state_dpi)
     } else if (settings.isOn) {
-        stringResource(R.string.proxy_state_on, proxyTypeName(settings.type), settings.host, settings.port)
+        stringResource(SR.string.proxy_state_on, proxyTypeName(settings.type), settings.host, settings.port)
     } else {
-        stringResource(R.string.proxy_state_off)
+        stringResource(SR.string.proxy_state_off)
     }
-    ClickRow(Icons.Rounded.VpnLock, stringResource(R.string.proxy_title), state) { editing = true }
+    ClickRow(Icons.Rounded.VpnLock, stringResource(SR.string.proxy_title), state) { editing = true }
     if (editing) {
         ProxyDialog(
             initial = settings,
@@ -552,7 +553,7 @@ private fun ProxyRow(vm: RadioViewModel) {
 
 @Composable
 private fun proxyTypeName(type: NetProxy.Type): String = when (type) {
-    NetProxy.Type.OFF -> stringResource(R.string.proxy_state_off)
+    NetProxy.Type.OFF -> stringResource(SR.string.proxy_state_off)
     NetProxy.Type.SOCKS -> "SOCKS5"
     NetProxy.Type.HTTP -> "HTTP"
     NetProxy.Type.BYEDPI -> "ByeDPI"
@@ -581,17 +582,17 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.proxy_title)) },
+        title = { Text(stringResource(SR.string.proxy_title)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(
-                    stringResource(R.string.proxy_desc),
+                    stringResource(SR.string.proxy_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.proxy_use), modifier = Modifier.weight(1f))
+                    Text(stringResource(SR.string.proxy_use), modifier = Modifier.weight(1f))
                     Switch(checked = enabled, onCheckedChange = {
                         enabled = it
                         result = null
@@ -620,7 +621,7 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                                     result = null
                                 })
                                 Text(
-                                    if (option == NetProxy.Type.BYEDPI) stringResource(R.string.proxy_type_dpi)
+                                    if (option == NetProxy.Type.BYEDPI) stringResource(SR.string.proxy_type_dpi)
                                     else proxyTypeName(option)
                                 )
                             }
@@ -661,7 +662,7 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                             result = null
                         },
                         singleLine = true,
-                        label = { Text(stringResource(R.string.proxy_host)) },
+                        label = { Text(stringResource(SR.string.proxy_host)) },
                         placeholder = { Text("127.0.0.1") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                         modifier = Modifier.fillMaxWidth()
@@ -673,7 +674,7 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                             result = null
                         },
                         singleLine = true,
-                        label = { Text(stringResource(R.string.proxy_port)) },
+                        label = { Text(stringResource(SR.string.proxy_port)) },
                         placeholder = { Text("1080") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
@@ -685,7 +686,7 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                             result = null
                         },
                         singleLine = true,
-                        label = { Text(stringResource(R.string.proxy_user)) },
+                        label = { Text(stringResource(SR.string.proxy_user)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
@@ -695,7 +696,7 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                             result = null
                         },
                         singleLine = true,
-                        label = { Text(stringResource(R.string.proxy_password)) },
+                        label = { Text(stringResource(SR.string.proxy_password)) },
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier.fillMaxWidth()
@@ -714,7 +715,7 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                                     testing = false
                                 }
                             }
-                        ) { Text(stringResource(R.string.proxy_test)) }
+                        ) { Text(stringResource(SR.string.proxy_test)) }
                         if (testing) {
                             Spacer(Modifier.width(12.dp))
                             CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
@@ -725,7 +726,7 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSave(current()) }) { Text(stringResource(R.string.proxy_save)) }
+            TextButton(onClick = { onSave(current()) }) { Text(stringResource(SR.string.proxy_save)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
@@ -741,14 +742,14 @@ private fun DpiFields(
     args: String, picking: Int, picked: Int?, busy: Boolean, onArgs: (String) -> Unit, onPick: () -> Unit
 ) {
     Text(
-        stringResource(R.string.proxy_dpi_desc),
+        stringResource(SR.string.proxy_dpi_desc),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Spacer(Modifier.height(8.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
         OutlinedButton(enabled = picking == 0 && !busy, onClick = onPick) {
-            Text(stringResource(R.string.proxy_dpi_pick))
+            Text(stringResource(SR.string.proxy_dpi_pick))
         }
         if (picking > 0) {
             Spacer(Modifier.width(12.dp))
@@ -756,9 +757,9 @@ private fun DpiFields(
         }
     }
     val status = when {
-        picking > 0 -> stringResource(R.string.proxy_dpi_trying, picking, ByeDpi.PRESETS.size)
-        picked == -1 -> stringResource(R.string.proxy_dpi_none)
-        picked != null -> stringResource(R.string.proxy_dpi_found, picked)
+        picking > 0 -> stringResource(SR.string.proxy_dpi_trying, picking, ByeDpi.PRESETS.size)
+        picked == -1 -> stringResource(SR.string.proxy_dpi_none)
+        picked != null -> stringResource(SR.string.proxy_dpi_found, picked)
         else -> null
     }
     status?.let {
@@ -778,7 +779,7 @@ private fun DpiFields(
         value = args,
         onValueChange = onArgs,
         enabled = picking == 0,
-        label = { Text(stringResource(R.string.proxy_dpi_args)) },
+        label = { Text(stringResource(SR.string.proxy_dpi_args)) },
         textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace),
         modifier = Modifier.fillMaxWidth()
     )
@@ -788,9 +789,9 @@ private fun DpiFields(
 private fun ProxyTestText(result: NetProxy.TestResult) {
     val (text, good) = when (result) {
         is NetProxy.TestResult.Ok ->
-            stringResource(R.string.proxy_test_ok, (result.bytes / 1024).toInt(), result.millis / 1000.0) to true
-        is NetProxy.TestResult.CutOff -> stringResource(R.string.proxy_test_cut, (result.bytes / 1024).toInt()) to false
-        is NetProxy.TestResult.ProxyFailed -> stringResource(R.string.proxy_test_failed, result.reason) to false
+            stringResource(SR.string.proxy_test_ok, (result.bytes / 1024).toInt(), result.millis / 1000.0) to true
+        is NetProxy.TestResult.CutOff -> stringResource(SR.string.proxy_test_cut, (result.bytes / 1024).toInt()) to false
+        is NetProxy.TestResult.ProxyFailed -> stringResource(SR.string.proxy_test_failed, result.reason) to false
     }
     Text(
         text,
