@@ -144,4 +144,6 @@
     <string name="proxy_save">Enregistrer</string>
     <string name="check_cut_off_info_proxy">Se coupent : %d, même via le proxy</string>
     <string name="catalog_cut_off_proxy_hint">Le catalogue a commencé à charger puis s’est coupé, même via le proxy : ce proxy ne contourne pas le blocage. Essayez-en un autre (Réglages → Réseau → Proxy) ou un VPN. Les favoris et vos stations marchent sans.</string>
+    <string name="catalog_from_mirror_date">Le serveur du catalogue ne répond pas : copie du %s</string>
+    <string name="catalog_from_mirror">Le serveur du catalogue ne répond pas : copie</string>
 </resources>

@@ -221,7 +221,7 @@ class UrlLayerRadioBrowserImpl : UrlLayer {
 
         private const val TAG = "ULRBI"
         private const val LOOK_UP_DNS = "all.api.radio-browser.info"
-        private const val BASE_URL_PREFIX = "https://do-look-up-dns-first"
+        const val BASE_URL_PREFIX = "https://do-look-up-dns-first"
 
         /**
          * Base URL for the API requests.

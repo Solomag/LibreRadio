@@ -1,0 +1,51 @@
+# Copies the station catalog (Radio Browser) once a day into the "catalog" branch.
+# The app falls back to this copy when the catalog's own server does not answer or the network cuts it off
+# (its only server is on Hetzner, which some networks block). The branch keeps one commit: no history grows.
+# The app downloads it from GitHub or through jsDelivr (gcore / fastly / cdn mirrors of the same branch).
+name: Catalog mirror
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: catalog-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools
+
+      - name: Download the catalog
+        run: |
+          for server in de1 de2 fi1 all; do
+            if curl -fsS --retry 3 --max-time 300 -A "LibreRadio-mirror" -o stations.json \
+              "https://$server.api.radio-browser.info/json/stations?hidebroken=true&limit=100000"; then
+              echo "from $server"; break
+            fi
+          done
+          test -s stations.json
+
+      - name: Build the copy
+        run: python3 tools/catalog_mirror.py stations.json catalog.tsv.gz
+
+      - name: Publish to the catalog branch
+        run: |
+          mkdir out && cd out
+          git init -q -b catalog
+          cp ../catalog.tsv.gz .
+          zcat catalog.tsv.gz | head -1 > catalog.txt
+          printf '# Libre Radio catalog mirror\n\nA daily copy of the [Radio Browser](https://www.radio-browser.info) station catalog, built by `.github/workflows/catalog-mirror.yml` on master. Only working stations, compact tab-separated format (see `tools/catalog_mirror.py`).\n' > README.md
+          git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "Catalog $(cut -d' ' -f3 catalog.txt)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" catalog

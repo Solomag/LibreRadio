@@ -84,6 +84,12 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     /**
+     * The catalog did not answer and its copy did (see CatalogMirror): the date of the copy, else null.
+     */
+    var mirrorDate by mutableStateOf<String?>(null)
+        private set
+
+    /**
      * Genres sorted by name instead of by number of stations.
      */
     var genresByName by mutableStateOf(false)
@@ -425,12 +431,23 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    private fun mirrorDateSince(since: Long): String? {
+        val mirror = com.yuriy.openradio.shared.model.net.CatalogMirror
+        if (!mirror.answeredSince(since)) {
+            return null
+        }
+        val made = mirror.madeAt(getApplication<Application>())
+        return if (made == 0L) "" else
+            java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(java.util.Date(made))
+    }
+
     private fun load() {
         val b = browser ?: return
         val folder = current
         loading = true
         loadFailed = false
         catalogCutOff = false
+        mirrorDate = null
         val startedAt = com.yuriy.openradio.shared.model.net.CatalogStatus.now()
         loadingSince = android.os.SystemClock.elapsedRealtime()
         reordering = false
@@ -459,6 +476,7 @@ class RadioViewModel(app: Application) : AndroidViewModel(app) {
                 loadFailed = list.isEmpty() &&
                         (result == null || result.resultCode != androidx.media3.session.LibraryResult.RESULT_SUCCESS)
                 catalogCutOff = loadFailed && com.yuriy.openradio.shared.model.net.CatalogStatus.cutOffSince(startedAt)
+                mirrorDate = mirrorDateSince(startedAt)
                 loading = false
                 checkStations(list, restart = true)
             }

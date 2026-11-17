@@ -144,4 +144,6 @@
     <string name="proxy_save">Zapisz</string>
     <string name="check_cut_off_info_proxy">Urywają się: %d, nawet przez proxy</string>
     <string name="catalog_cut_off_proxy_hint">Katalog zaczął się ładować i się urwał, nawet przez proxy: to proxy nie omija blokady. Spróbuj innego (Ustawienia → Sieć → Proxy) lub VPN. Ulubione i własne stacje działają bez katalogu.</string>
+    <string name="catalog_from_mirror_date">Serwer katalogu nie odpowiada: kopia z %s</string>
+    <string name="catalog_from_mirror">Serwer katalogu nie odpowiada: kopia</string>
 </resources>

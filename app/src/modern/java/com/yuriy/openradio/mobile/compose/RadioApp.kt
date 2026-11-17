@@ -462,7 +462,7 @@ private fun Catalog(vm: RadioViewModel) {
     var draggedId by remember { mutableStateOf<String?>(null) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     LazyColumn(state = state, contentPadding = PaddingValues(vertical = 8.dp), modifier = Modifier.fillMaxSize()) {
-        if (vm.checking > 0 || vm.hiddenCount > 0 || vm.cutOffCount > 0) {
+        if (vm.checking > 0 || vm.hiddenCount > 0 || vm.cutOffCount > 0 || vm.mirrorDate != null) {
             item(key = "check_info") { CheckInfo(vm) }
         }
         items(items, key = { it.mediaId }) { item ->
@@ -1234,6 +1234,10 @@ private fun VolumeRow(vm: RadioViewModel) {
 @Composable
 private fun CheckInfo(vm: RadioViewModel) {
     val texts = ArrayList<String>()
+    // The catalog did not answer: the list comes from its daily copy.
+    vm.mirrorDate?.let {
+        texts.add(if (it.isEmpty()) stringResource(R.string.catalog_from_mirror) else stringResource(R.string.catalog_from_mirror_date, it))
+    }
     if (vm.checking > 0) {
         texts.add(stringResource(R.string.check_in_progress, vm.checking))
     }

@@ -147,4 +147,6 @@
     <string name="proxy_save">Сохранить</string>
     <string name="check_cut_off_info_proxy">Обрываются: %d, даже через прокси</string>
     <string name="catalog_cut_off_proxy_hint">Каталог начал загружаться и оборвался, даже через прокси: этот прокси не обходит блокировку. Попробуйте другой (Настройки → Сеть → Прокси) или VPN. Избранное и свои станции работают и без каталога.</string>
+    <string name="catalog_from_mirror_date">Сервер каталога не отвечает: копия от %s</string>
+    <string name="catalog_from_mirror">Сервер каталога не отвечает: копия</string>
 </resources>

@@ -83,7 +83,25 @@ class HTTPDownloaderImpl(private val mUrlLayer: UrlLayer) : DownloaderLayer {
             }
         }
 
+        /**
+         * A catalog request the catalog does not answer is answered from its copy (see [CatalogMirror]).
+         */
         override fun call(): ByteArray {
+            if (!CatalogMirror.isCatalog(mUri)) {
+                return fetch()
+            }
+            if (CatalogMirror.isPreferred()) {
+                CatalogMirror.answer(mContext, mUri, false)?.let { return it }
+            }
+            val bytes = fetch()
+            if (bytes.isNotEmpty()) {
+                CatalogMirror.onCatalogAnswered()
+                return bytes
+            }
+            return CatalogMirror.answer(mContext, mUri, true) ?: bytes
+        }
+
+        private fun fetch(): ByteArray {
 
             data class Response(
                 val url: URL? = null,
