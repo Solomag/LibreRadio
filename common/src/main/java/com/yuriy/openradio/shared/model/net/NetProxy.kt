@@ -24,10 +24,25 @@ import java.net.URL
  */
 object NetProxy {
 
-    enum class Type { OFF, SOCKS, HTTP }
+    /**
+     * [BYEDPI]: no outside proxy, ByeDPI on the phone itself (see [ByeDpi]).
+     */
+    enum class Type { OFF, SOCKS, HTTP, BYEDPI }
 
-    class Settings(val type: Type, val host: String, val port: Int, val user: String, val password: String) {
-        val isOn: Boolean get() = type != Type.OFF && host.isNotBlank() && port in 1..65535
+    class Settings(
+        val type: Type, val host: String, val port: Int, val user: String, val password: String,
+        /** ByeDPI's options, for [Type.BYEDPI]. */
+        val dpiArgs: String = ""
+    ) {
+        val isOn: Boolean
+            get() = when (type) {
+                Type.OFF -> false
+                Type.BYEDPI -> ByeDpi.isAvailable
+                else -> host.isNotBlank() && port in 1..65535
+            }
+
+        /** ByeDPI's options in use: the first way when none was chosen. */
+        val dpiArgsOrDefault: String get() = dpiArgs.ifBlank { ByeDpi.PRESETS[0] }
     }
 
     /**
@@ -51,6 +66,7 @@ object NetProxy {
     private const val KEY_PORT = "port"
     private const val KEY_USER = "user"
     private const val KEY_PASSWORD = "password"
+    private const val KEY_DPI_ARGS = "dpi_args"
 
     /**
      * A catalog page of a few hundred kilobytes: enough to pass the point where cut connections stop.
@@ -81,12 +97,26 @@ object NetProxy {
             prefs.getString(KEY_HOST, "") ?: "",
             prefs.getInt(KEY_PORT, 0),
             prefs.getString(KEY_USER, "") ?: "",
-            prefs.getString(KEY_PASSWORD, "") ?: ""
+            prefs.getString(KEY_PASSWORD, "") ?: "",
+            prefs.getString(KEY_DPI_ARGS, "") ?: ""
         )
         mDefaultSelector = ProxySelector.getDefault()
         ProxySelector.setDefault(Selector)
         Authenticator.setDefault(Login)
         AppLogger.i("$TAG installed, on=${mSettings.isOn} type=${mSettings.type}")
+        startDpiInBackground()
+    }
+
+    /**
+     * ByeDPI starts on the first connection anyway; starting it now saves that connection a moment.
+     */
+    private fun startDpiInBackground() {
+        val settings = mSettings
+        if (settings.type != Type.BYEDPI || !settings.isOn) {
+            Thread { ByeDpi.stop() }.start()
+            return
+        }
+        Thread { ByeDpi.start(settings.dpiArgsOrDefault) }.start()
     }
 
     fun settings(context: Context): Settings {
@@ -116,7 +146,9 @@ object NetProxy {
             ?.putInt(KEY_PORT, settings.port)
             ?.putString(KEY_USER, settings.user)
             ?.putString(KEY_PASSWORD, settings.password)
+            ?.putString(KEY_DPI_ARGS, settings.dpiArgs)
             ?.apply()
+        startDpiInBackground()
         version++
         AppLogger.i("$TAG saved, on=${settings.isOn} type=${settings.type}")
         // What plays depends on the route: check the stations again.
@@ -131,8 +163,12 @@ object NetProxy {
         val started = SystemClock.elapsedRealtime()
         var total = 0
         val previous = mTesting
+        // Set first: other connections meanwhile keep ByeDPI on the options under test.
         mTesting = settings
         try {
+            if (settings.type == Type.BYEDPI && !ByeDpi.start(settings.dpiArgsOrDefault)) {
+                return TestResult.ProxyFailed("ByeDPI")
+            }
             val connection = URL(TEST_URL).openConnection(proxy) as HttpURLConnection
             connection.connectTimeout = 15_000
             connection.readTimeout = 10_000
@@ -174,7 +210,24 @@ object NetProxy {
     }
 
     /**
-     * Settings being tested: their login answers the proxy's question during the test.
+     * Tries ByeDPI's ways in turn (blocking) and returns the first that gets the catalog through whole,
+     * or null when none does. [onTry] gets the number of the way being tried, from 1.
+     */
+    fun pickDpi(onTry: (Int) -> Unit): String? {
+        for ((i, args) in ByeDpi.PRESETS.withIndex()) {
+            onTry(i + 1)
+            val result = test(Settings(Type.BYEDPI, "", 0, "", "", args))
+            AppLogger.i("$TAG ByeDPI way ${i + 1} '$args': $result")
+            if (result is TestResult.Ok) {
+                return args
+            }
+        }
+        return null
+    }
+
+    /**
+     * Settings being tested: their login answers the proxy's question during the test,
+     * and ByeDPI runs with their options meanwhile.
      */
     @Volatile
     private var mTesting: Settings? = null
@@ -182,6 +235,9 @@ object NetProxy {
     private fun toProxy(settings: Settings): Proxy? {
         if (settings.isOn.not()) {
             return null
+        }
+        if (settings.type == Type.BYEDPI) {
+            return Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved("127.0.0.1", ByeDpi.port))
         }
         val type = if (settings.type == Type.SOCKS) Proxy.Type.SOCKS else Proxy.Type.HTTP
         return Proxy(type, InetSocketAddress.createUnresolved(settings.host.trim(), settings.port))
@@ -209,9 +265,15 @@ object NetProxy {
 
     private object Selector : ProxySelector() {
         override fun select(uri: URI?): List<Proxy> {
-            val settings = mSettings
+            val settings = mTesting?.takeIf { it.type == Type.BYEDPI } ?: mSettings
+            if (settings.isOn && !isLocal(uri?.host) && settings.type == Type.BYEDPI) {
+                // Started (or restarted with other options) here, on the connection's own thread.
+                ByeDpi.start(settings.dpiArgsOrDefault)
+            }
             val proxy = toProxy(settings)
-            if (proxy == null || isLocal(uri?.host) || uri?.host.equals(settings.host.trim(), ignoreCase = true)) {
+            if (proxy == null || isLocal(uri?.host) ||
+                (settings.type != Type.BYEDPI && uri?.host.equals(settings.host.trim(), ignoreCase = true))
+            ) {
                 return mDefaultSelector?.select(uri) ?: listOf(Proxy.NO_PROXY)
             }
             return listOf(proxy)
@@ -228,7 +290,7 @@ object NetProxy {
     private object Login : Authenticator() {
         override fun getPasswordAuthentication(): PasswordAuthentication? {
             val settings = mTesting ?: mSettings
-            if (settings.isOn.not() || settings.user.isEmpty()) {
+            if (settings.isOn.not() || settings.user.isEmpty() || settings.type == Type.BYEDPI) {
                 return null
             }
             val fromProxy = requestorType == RequestorType.PROXY ||

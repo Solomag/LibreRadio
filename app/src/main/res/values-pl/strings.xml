@@ -146,4 +146,12 @@
     <string name="catalog_cut_off_proxy_hint">Katalog zaczął się ładować i się urwał, nawet przez proxy: to proxy nie omija blokady. Spróbuj innego (Ustawienia → Sieć → Proxy) lub VPN. Ulubione i własne stacje działają bez katalogu.</string>
     <string name="catalog_from_mirror_date">Serwer katalogu nie odpowiada: kopia z %s</string>
     <string name="catalog_from_mirror">Serwer katalogu nie odpowiada: kopia</string>
+    <string name="proxy_state_dpi">Włączone: ByeDPI na telefonie</string>
+    <string name="proxy_dpi_desc">ByeDPI jest wbudowany w aplikację: działa na samym telefonie, bez serwera i VPN. Dzieli i maskuje początek każdego połączenia, by sieć nie poznała, dokąd idzie. Nie wszędzie pomaga: dotknij „Dobierz”, a aplikacja wypróbuje sposoby po kolei.</string>
+    <string name="proxy_dpi_pick">Dobierz</string>
+    <string name="proxy_dpi_trying">Próbuję sposobu %1$d z %2$d…</string>
+    <string name="proxy_dpi_found">Sposób %d działa. Dotknij Zapisz.</string>
+    <string name="proxy_dpi_none">Żaden sposób nie pomógł w tej sieci: potrzebne prawdziwe proxy lub VPN.</string>
+    <string name="proxy_dpi_args">Opcje ByeDPI</string>
+    <string name="proxy_type_dpi">ByeDPI (wbudowany, bez serwera)</string>
 </resources>

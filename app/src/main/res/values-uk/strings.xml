@@ -146,4 +146,12 @@
     <string name="catalog_cut_off_proxy_hint">Каталог почав завантажуватися й обірвався навіть через проксі: цей проксі не обходить блокування. Спробуйте інший (Налаштування → Мережа → Проксі) або VPN. Обране і власні станції працюють і без каталогу.</string>
     <string name="catalog_from_mirror_date">Сервер каталогу не відповідає: копія від %s</string>
     <string name="catalog_from_mirror">Сервер каталогу не відповідає: копія</string>
+    <string name="proxy_state_dpi">Увімкнено: ByeDPI на телефоні</string>
+    <string name="proxy_dpi_desc">ByeDPI вбудовано в застосунок: працює на самому телефоні, без сервера і VPN. Він розбиває й маскує початок кожного з’єднання, щоб мережа не зрозуміла, куди воно йде. Допомагає не всюди: натисніть «Підібрати», і застосунок спробує способи по черзі.</string>
+    <string name="proxy_dpi_pick">Підібрати</string>
+    <string name="proxy_dpi_trying">Пробую спосіб %1$d з %2$d…</string>
+    <string name="proxy_dpi_found">Підходить спосіб %d. Натисніть «Зберегти».</string>
+    <string name="proxy_dpi_none">Жоден спосіб не допоміг у цій мережі: потрібен справжній проксі або VPN.</string>
+    <string name="proxy_dpi_args">Параметри ByeDPI</string>
+    <string name="proxy_type_dpi">ByeDPI (вбудований, без сервера)</string>
 </resources>

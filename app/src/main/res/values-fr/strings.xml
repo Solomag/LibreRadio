@@ -146,4 +146,12 @@
     <string name="catalog_cut_off_proxy_hint">Le catalogue a commencé à charger puis s’est coupé, même via le proxy : ce proxy ne contourne pas le blocage. Essayez-en un autre (Réglages → Réseau → Proxy) ou un VPN. Les favoris et vos stations marchent sans.</string>
     <string name="catalog_from_mirror_date">Le serveur du catalogue ne répond pas : copie du %s</string>
     <string name="catalog_from_mirror">Le serveur du catalogue ne répond pas : copie</string>
+    <string name="proxy_state_dpi">Activé : ByeDPI sur ce téléphone</string>
+    <string name="proxy_dpi_desc">ByeDPI est intégré à l’app : il tourne sur le téléphone même, sans serveur ni VPN. Il découpe et déguise le début de chaque connexion pour que le réseau ne sache pas où elle va. Il n’aide pas partout : touchez « Trouver » et l’app essaie ses méthodes une à une.</string>
+    <string name="proxy_dpi_pick">Trouver</string>
+    <string name="proxy_dpi_trying">Essai de la méthode %1$d sur %2$d…</string>
+    <string name="proxy_dpi_found">La méthode %d fonctionne. Touchez Enregistrer.</string>
+    <string name="proxy_dpi_none">Aucune méthode n’a aidé sur ce réseau : il faut un vrai proxy ou un VPN.</string>
+    <string name="proxy_dpi_args">Options de ByeDPI</string>
+    <string name="proxy_type_dpi">ByeDPI (intégré, sans serveur)</string>
 </resources>

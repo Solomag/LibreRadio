@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.material.icons.rounded.VpnLock
+import com.yuriy.openradio.shared.model.net.ByeDpi
 import com.yuriy.openradio.shared.model.net.NetProxy
 import androidx.compose.material.icons.rounded.Refresh
 import com.yuriy.openradio.shared.model.net.StationCheck
@@ -111,6 +112,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -463,7 +465,9 @@ private fun ProxyRow(vm: RadioViewModel) {
     val context = LocalContext.current
     var settings by remember { mutableStateOf(NetProxy.settings(context)) }
     var editing by remember { mutableStateOf(false) }
-    val state = if (settings.isOn) {
+    val state = if (settings.isOn && settings.type == NetProxy.Type.BYEDPI) {
+        stringResource(R.string.proxy_state_dpi)
+    } else if (settings.isOn) {
         stringResource(R.string.proxy_state_on, proxyTypeName(settings.type), settings.host, settings.port)
     } else {
         stringResource(R.string.proxy_state_off)
@@ -489,6 +493,7 @@ private fun proxyTypeName(type: NetProxy.Type): String = when (type) {
     NetProxy.Type.OFF -> stringResource(R.string.proxy_state_off)
     NetProxy.Type.SOCKS -> "SOCKS5"
     NetProxy.Type.HTTP -> "HTTP"
+    NetProxy.Type.BYEDPI -> "ByeDPI"
 }
 
 @Composable
@@ -499,12 +504,17 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
     var port by remember { mutableStateOf(if (initial.port > 0) initial.port.toString() else "") }
     var user by remember { mutableStateOf(initial.user) }
     var password by remember { mutableStateOf(initial.password) }
+    var dpiArgs by remember { mutableStateOf(initial.dpiArgsOrDefault) }
+    // ByeDPI: the way being tried while picking (0: not picking), and what the picking found.
+    var picking by remember { mutableIntStateOf(0) }
+    var picked by remember { mutableStateOf<Int?>(null) }
     var testing by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<NetProxy.TestResult?>(null) }
     val scope = rememberCoroutineScope()
 
     fun current() = NetProxy.Settings(
-        if (enabled) type else NetProxy.Type.OFF, host.trim(), port.trim().toIntOrNull() ?: 0, user, password
+        if (enabled) type else NetProxy.Type.OFF, host.trim(), port.trim().toIntOrNull() ?: 0, user, password,
+        dpiArgs.trim()
     )
 
     AlertDialog(
@@ -526,16 +536,62 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                     })
                 }
                 if (enabled) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        for (option in listOf(NetProxy.Type.SOCKS, NetProxy.Type.HTTP)) {
-                            RadioButton(selected = type == option, onClick = {
-                                type = option
-                                result = null
-                            })
-                            Text(proxyTypeName(option), modifier = Modifier.clickable { type = option })
-                            Spacer(Modifier.width(12.dp))
+                    // One per line: three in a row do not fit a phone's dialog.
+                    Column {
+                        val options = if (ByeDpi.isAvailable) {
+                            listOf(NetProxy.Type.SOCKS, NetProxy.Type.HTTP, NetProxy.Type.BYEDPI)
+                        } else {
+                            listOf(NetProxy.Type.SOCKS, NetProxy.Type.HTTP)
+                        }
+                        for (option in options) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        type = option
+                                        result = null
+                                    }
+                            ) {
+                                RadioButton(selected = type == option, onClick = {
+                                    type = option
+                                    result = null
+                                })
+                                Text(
+                                    if (option == NetProxy.Type.BYEDPI) stringResource(R.string.proxy_type_dpi)
+                                    else proxyTypeName(option)
+                                )
+                            }
                         }
                     }
+                    if (type == NetProxy.Type.BYEDPI) {
+                        DpiFields(
+                            args = dpiArgs,
+                            picking = picking,
+                            picked = picked,
+                            busy = testing,
+                            onArgs = {
+                                dpiArgs = it
+                                result = null
+                                picked = null
+                            },
+                            onPick = {
+                                result = null
+                                picked = null
+                                picking = 1
+                                scope.launch {
+                                    val found = withContext(Dispatchers.IO) {
+                                        NetProxy.pickDpi { n -> scope.launch { picking = n } }
+                                    }
+                                    picking = 0
+                                    picked = found?.let { ByeDpi.PRESETS.indexOf(it) + 1 } ?: -1
+                                    if (found != null) {
+                                        dpiArgs = found
+                                    }
+                                }
+                            }
+                        )
+                    } else {
                     OutlinedTextField(
                         value = host,
                         onValueChange = {
@@ -582,10 +638,11 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         modifier = Modifier.fillMaxWidth()
                     )
+                    }
                     Spacer(Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         OutlinedButton(
-                            enabled = testing.not() && current().isOn,
+                            enabled = testing.not() && picking == 0 && current().isOn,
                             onClick = {
                                 testing = true
                                 result = null
@@ -611,6 +668,57 @@ private fun ProxyDialog(initial: NetProxy.Settings, onDismiss: () -> Unit, onSav
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
         }
+    )
+}
+
+/**
+ * ByeDPI's options, and a button that tries its ways one by one until the catalog comes through whole.
+ */
+@Composable
+private fun DpiFields(
+    args: String, picking: Int, picked: Int?, busy: Boolean, onArgs: (String) -> Unit, onPick: () -> Unit
+) {
+    Text(
+        stringResource(R.string.proxy_dpi_desc),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(Modifier.height(8.dp))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        OutlinedButton(enabled = picking == 0 && !busy, onClick = onPick) {
+            Text(stringResource(R.string.proxy_dpi_pick))
+        }
+        if (picking > 0) {
+            Spacer(Modifier.width(12.dp))
+            CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
+        }
+    }
+    val status = when {
+        picking > 0 -> stringResource(R.string.proxy_dpi_trying, picking, ByeDpi.PRESETS.size)
+        picked == -1 -> stringResource(R.string.proxy_dpi_none)
+        picked != null -> stringResource(R.string.proxy_dpi_found, picked)
+        else -> null
+    }
+    status?.let {
+        Text(
+            it,
+            style = MaterialTheme.typography.bodySmall,
+            color = when (picked) {
+                null -> MaterialTheme.colorScheme.onSurfaceVariant
+                -1 -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.primary
+            },
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
+    Spacer(Modifier.height(8.dp))
+    OutlinedTextField(
+        value = args,
+        onValueChange = onArgs,
+        enabled = picking == 0,
+        label = { Text(stringResource(R.string.proxy_dpi_args)) },
+        textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace),
+        modifier = Modifier.fillMaxWidth()
     )
 }
 

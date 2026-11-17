@@ -48,6 +48,15 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
+    // ByeDPI: a local proxy that gets connections past blocking (src/main/cpp, ByeDpi.kt).
+    ndkVersion "27.1.12297006"
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
 }
 
 dependencies {

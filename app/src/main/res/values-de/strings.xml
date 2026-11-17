@@ -146,4 +146,12 @@
     <string name="catalog_cut_off_proxy_hint">Der Katalog begann zu laden und brach ab, auch über den Proxy: Dieser Proxy kommt an der Sperre nicht vorbei. Versuchen Sie einen anderen (Einstellungen → Netz → Proxy) oder ein VPN. Favoriten und eigene Sender gehen auch ohne.</string>
     <string name="catalog_from_mirror_date">Der Katalogserver antwortet nicht: Kopie vom %s</string>
     <string name="catalog_from_mirror">Der Katalogserver antwortet nicht: Kopie</string>
+    <string name="proxy_state_dpi">An: ByeDPI auf diesem Telefon</string>
+    <string name="proxy_dpi_desc">ByeDPI ist in die App eingebaut: Es läuft auf dem Telefon selbst, ohne Server oder VPN. Es teilt und tarnt den Anfang jeder Verbindung, damit das Netz nicht erkennt, wohin sie geht. Es hilft nicht überall: Tippen Sie auf „Weg finden“, die App probiert ihre Wege nacheinander.</string>
+    <string name="proxy_dpi_pick">Weg finden</string>
+    <string name="proxy_dpi_trying">Probiere Weg %1$d von %2$d…</string>
+    <string name="proxy_dpi_found">Weg %d funktioniert. Tippen Sie auf Speichern.</string>
+    <string name="proxy_dpi_none">Kein Weg half in diesem Netz: Es braucht einen echten Proxy oder ein VPN.</string>
+    <string name="proxy_dpi_args">ByeDPI-Optionen</string>
+    <string name="proxy_type_dpi">ByeDPI (eingebaut, ohne Server)</string>
 </resources>

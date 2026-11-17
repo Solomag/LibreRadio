@@ -146,4 +146,12 @@
     <string name="catalog_cut_off_proxy_hint">Katalog je počeo da se učitava i prekinuo se, čak i preko proksija: ovaj proksi ne zaobilazi blokadu. Probajte drugi (Podešavanja → Mreža → Proksi) ili VPN. Omiljene i vaše stanice rade i bez kataloga.</string>
     <string name="catalog_from_mirror_date">Server kataloga ne odgovara: kopija od %s</string>
     <string name="catalog_from_mirror">Server kataloga ne odgovara: kopija</string>
+    <string name="proxy_state_dpi">Uključeno: ByeDPI na telefonu</string>
+    <string name="proxy_dpi_desc">ByeDPI je ugrađen u aplikaciju: radi na samom telefonu, bez servera i VPN-a. Deli i maskira početak svake veze da mreža ne bi znala kuda ide. Ne pomaže svuda: dodirnite „Pronađi“ i aplikacija će probati načine redom.</string>
+    <string name="proxy_dpi_pick">Pronađi</string>
+    <string name="proxy_dpi_trying">Probam način %1$d od %2$d…</string>
+    <string name="proxy_dpi_found">Način %d radi. Dodirnite Sačuvaj.</string>
+    <string name="proxy_dpi_none">Nijedan način nije pomogao na ovoj mreži: potreban je pravi proksi ili VPN.</string>
+    <string name="proxy_dpi_args">ByeDPI opcije</string>
+    <string name="proxy_type_dpi">ByeDPI (ugrađen, bez servera)</string>
 </resources>

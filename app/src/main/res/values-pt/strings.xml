@@ -146,4 +146,12 @@
     <string name="catalog_cut_off_proxy_hint">O catálogo começou a carregar e cortou-se, mesmo pelo proxy: este proxy não contorna o bloqueio. Experimente outro (Definições → Rede → Proxy) ou uma VPN. Favoritos e as suas estações funcionam sem ele.</string>
     <string name="catalog_from_mirror_date">O servidor do catálogo não responde: cópia de %s</string>
     <string name="catalog_from_mirror">O servidor do catálogo não responde: cópia</string>
+    <string name="proxy_state_dpi">Ligado: ByeDPI neste telefone</string>
+    <string name="proxy_dpi_desc">O ByeDPI vem integrado na app: funciona no próprio telefone, sem servidor nem VPN. Divide e disfarça o início de cada ligação para a rede não saber para onde vai. Não ajuda em todo o lado: toque em «Procurar» e a app experimenta os métodos um a um.</string>
+    <string name="proxy_dpi_pick">Procurar</string>
+    <string name="proxy_dpi_trying">A experimentar o método %1$d de %2$d…</string>
+    <string name="proxy_dpi_found">O método %d funciona. Toque em Guardar.</string>
+    <string name="proxy_dpi_none">Nenhum método ajudou nesta rede: é preciso um proxy a sério ou uma VPN.</string>
+    <string name="proxy_dpi_args">Opções do ByeDPI</string>
+    <string name="proxy_type_dpi">ByeDPI (integrado, sem servidor)</string>
 </resources>
