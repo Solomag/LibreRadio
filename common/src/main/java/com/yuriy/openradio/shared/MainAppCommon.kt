@@ -61,6 +61,8 @@ open class MainAppCommon : MultiDexApplication() {
         } catch (e: Throwable) {
             AppLogger.e("$CLASS_NAME can't install the provider", e)
         }
+        // After the provider: it sets its own default secure socket factory, which this one wraps.
+        com.yuriy.openradio.shared.model.net.WhiteSni.install(applicationContext)
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         sendStats(applicationContext)

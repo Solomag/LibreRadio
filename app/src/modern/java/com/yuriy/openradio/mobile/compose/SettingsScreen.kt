@@ -26,10 +26,12 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.material.icons.rounded.VpnLock
+import androidx.compose.material.icons.rounded.Dns
 import com.yuriy.openradio.shared.model.net.ByeDpi
 import com.yuriy.openradio.shared.model.net.NetProxy
 import androidx.compose.material.icons.rounded.Refresh
 import com.yuriy.openradio.shared.model.net.StationCheck
+import com.yuriy.openradio.shared.model.net.WhiteSni
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.semantics
@@ -455,6 +457,66 @@ private fun NetworkSection(vm: RadioViewModel) {
         vm.sendCommand(OpenRadioService.CMD_NET_CHANGED)
     }
     ProxyRow(vm)
+    WhiteSniRow(vm)
+}
+
+/**
+ * The white server name in secure connections (see [WhiteSni]): a switch, and the name when it is on.
+ */
+@Composable
+private fun WhiteSniRow(vm: RadioViewModel) {
+    val context = LocalContext.current
+    var on by remember { mutableStateOf(WhiteSni.isOn()) }
+    var domain by remember { mutableStateOf(WhiteSni.domain()) }
+    var editing by remember { mutableStateOf(false) }
+    SwitchRow(
+        title = stringResource(R.string.white_sni_title),
+        desc = stringResource(R.string.white_sni_desc),
+        checked = on
+    ) {
+        on = it
+        WhiteSni.save(context, it, domain)
+        vm.recheckStations()
+    }
+    if (on) {
+        ClickRow(Icons.Rounded.Dns, stringResource(R.string.white_sni_domain), domain) { editing = true }
+    }
+    if (editing) {
+        var text by remember { mutableStateOf(domain) }
+        AlertDialog(
+            onDismissRequest = { editing = false },
+            title = { Text(stringResource(R.string.white_sni_domain)) },
+            text = {
+                Column {
+                    Text(
+                        stringResource(R.string.white_sni_domain_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        singleLine = true,
+                        placeholder = { Text(WhiteSni.DEFAULT_DOMAIN) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    editing = false
+                    WhiteSni.save(context, on, text)
+                    domain = WhiteSni.domain()
+                    vm.recheckStations()
+                }) { Text(stringResource(R.string.proxy_save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { editing = false }) { Text(stringResource(android.R.string.cancel)) }
+            }
+        )
+    }
 }
 
 /**

@@ -6,3 +6,5 @@
 sign.properties
 # Native build files of ByeDPI
 .cxx/
+replay_pid*.log
+hs_err_pid*.log

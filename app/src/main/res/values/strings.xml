@@ -174,4 +174,8 @@
     <string name="proxy_dpi_none">No way helped on this network: it takes a real proxy or a VPN.</string>
     <string name="proxy_dpi_args">ByeDPI options</string>
     <string name="proxy_type_dpi">ByeDPI (built in, no server)</string>
+    <string name="white_sni_title">White server name</string>
+    <string name="white_sni_desc">Secure connections to stations show the network an allowed site’s name instead of the station’s. Helps where only listed sites work or foreign servers are cut. The certificate is still checked; stations that do not accept it connect as usual.</string>
+    <string name="white_sni_domain">Allowed site</string>
+    <string name="white_sni_domain_desc">A big site that always works on your network, for example vk.com or ya.ru.</string>
 </resources>

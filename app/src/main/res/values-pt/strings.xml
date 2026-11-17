@@ -154,4 +154,8 @@
     <string name="proxy_dpi_none">Nenhum método ajudou nesta rede: é preciso um proxy a sério ou uma VPN.</string>
     <string name="proxy_dpi_args">Opções do ByeDPI</string>
     <string name="proxy_type_dpi">ByeDPI (integrado, sem servidor)</string>
+    <string name="white_sni_title">Nome de servidor branco</string>
+    <string name="white_sni_desc">As ligações seguras às estações mostram à rede o nome de um site permitido em vez do da estação. Ajuda onde só funcionam sites de uma lista ou os servidores estrangeiros são cortados. O certificado continua a ser verificado; as estações que não aceitam ligam-se como de costume.</string>
+    <string name="white_sni_domain">Site permitido</string>
+    <string name="white_sni_domain_desc">Um site grande que funciona sempre na sua rede, por exemplo vk.com ou ya.ru.</string>
 </resources>

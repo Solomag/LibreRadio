@@ -154,4 +154,8 @@
     <string name="proxy_dpi_none">Жоден спосіб не допоміг у цій мережі: потрібен справжній проксі або VPN.</string>
     <string name="proxy_dpi_args">Параметри ByeDPI</string>
     <string name="proxy_type_dpi">ByeDPI (вбудований, без сервера)</string>
+    <string name="white_sni_title">Біле ім’я сервера</string>
+    <string name="white_sni_desc">Захищене з’єднання зі станцією показує мережі ім’я дозволеного сайту замість імені станції. Допомагає там, де працюють лише сайти з білого списку або ріжуть закордонні сервери. Сертифікат і далі перевіряється; станції, які так не приймають, підключаються як звичайно.</string>
+    <string name="white_sni_domain">Дозволений сайт</string>
+    <string name="white_sni_domain_desc">Великий сайт, який у вас працює завжди, наприклад vk.com або ya.ru.</string>
 </resources>

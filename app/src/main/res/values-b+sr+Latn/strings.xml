@@ -154,4 +154,8 @@
     <string name="proxy_dpi_none">Nijedan način nije pomogao na ovoj mreži: potreban je pravi proksi ili VPN.</string>
     <string name="proxy_dpi_args">ByeDPI opcije</string>
     <string name="proxy_type_dpi">ByeDPI (ugrađen, bez servera)</string>
+    <string name="white_sni_title">Belo ime servera</string>
+    <string name="white_sni_desc">Bezbedne veze sa stanicama pokazuju mreži ime dozvoljenog sajta umesto imena stanice. Pomaže gde rade samo sajtovi sa liste ili se seku strani serveri. Sertifikat se i dalje proverava; stanice koje to ne prihvataju povezuju se kao obično.</string>
+    <string name="white_sni_domain">Dozvoljeni sajt</string>
+    <string name="white_sni_domain_desc">Veliki sajt koji na vašoj mreži uvek radi, na primer vk.com ili ya.ru.</string>
 </resources>

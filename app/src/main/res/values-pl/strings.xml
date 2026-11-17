@@ -154,4 +154,8 @@
     <string name="proxy_dpi_none">Żaden sposób nie pomógł w tej sieci: potrzebne prawdziwe proxy lub VPN.</string>
     <string name="proxy_dpi_args">Opcje ByeDPI</string>
     <string name="proxy_type_dpi">ByeDPI (wbudowany, bez serwera)</string>
+    <string name="white_sni_title">Biała nazwa serwera</string>
+    <string name="white_sni_desc">Bezpieczne połączenia ze stacjami pokazują sieci nazwę dozwolonej strony zamiast nazwy stacji. Pomaga tam, gdzie działają tylko strony z listy lub tnie się zagraniczne serwery. Certyfikat nadal jest sprawdzany; stacje, które tego nie przyjmują, łączą się jak zwykle.</string>
+    <string name="white_sni_domain">Dozwolona strona</string>
+    <string name="white_sni_domain_desc">Duża strona, która w Twojej sieci działa zawsze, na przykład vk.com lub ya.ru.</string>
 </resources>

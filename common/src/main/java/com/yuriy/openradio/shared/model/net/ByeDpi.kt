@@ -35,6 +35,9 @@ object ByeDpi {
         "-o1 -d1+s",
         "-f-1 -t5 -r1+s",
         "-q1 -r1+s -s5+s",
+        // A fake first packet with a white name (see WhiteSni): the network sees the name it lets through.
+        "-f-1 -n vk.com -t5 -r1+s",
+        "-d1 -f-1 -n vk.com -t5",
         "-d1 -s1+s -r1+s -At,r,s -f-1 -t5 -r1+s -As -d1"
     )
 

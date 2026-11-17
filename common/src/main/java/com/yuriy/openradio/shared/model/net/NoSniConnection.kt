@@ -117,7 +117,7 @@ object NoSniConnection {
                 parameters.serverNames = emptyList()
                 ssl.sslParameters = parameters
             }
-            return NoNameSocket(ssl)
+            return NoNameSocket(ssl, false)
         }
 
         override fun createSocket(host: String?, port: Int): Socket =
@@ -135,18 +135,23 @@ object NoSniConnection {
 
     /**
      * An [SSLSocket] that forwards everything to [s], except that the server name cannot be set again.
+     * With [handshaken] the handshake is already done (see [WhiteSni]): settings for it are ignored.
      */
-    private class NoNameSocket(private val s: SSLSocket) : SSLSocket() {
+    internal class NoNameSocket(private val s: SSLSocket, private val handshaken: Boolean) : SSLSocket() {
         override fun getSupportedCipherSuites(): Array<String> = s.supportedCipherSuites
         override fun getEnabledCipherSuites(): Array<String> = s.enabledCipherSuites
         override fun setEnabledCipherSuites(suites: Array<out String>?) {
-            s.enabledCipherSuites = suites
+            if (!handshaken) {
+                s.enabledCipherSuites = suites
+            }
         }
 
         override fun getSupportedProtocols(): Array<String> = s.supportedProtocols
         override fun getEnabledProtocols(): Array<String> = s.enabledProtocols
         override fun setEnabledProtocols(protocols: Array<out String>?) {
-            s.enabledProtocols = protocols
+            if (!handshaken) {
+                s.enabledProtocols = protocols
+            }
         }
 
         override fun getSession(): SSLSession = s.session
@@ -179,6 +184,9 @@ object NoSniConnection {
         override fun getEnableSessionCreation(): Boolean = s.enableSessionCreation
         override fun getSSLParameters(): SSLParameters = s.sslParameters
         override fun setSSLParameters(params: SSLParameters?) {
+            if (handshaken) {
+                return
+            }
             if (params != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 params.serverNames = emptyList()
             }

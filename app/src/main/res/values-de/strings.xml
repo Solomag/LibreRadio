@@ -154,4 +154,8 @@
     <string name="proxy_dpi_none">Kein Weg half in diesem Netz: Es braucht einen echten Proxy oder ein VPN.</string>
     <string name="proxy_dpi_args">ByeDPI-Optionen</string>
     <string name="proxy_type_dpi">ByeDPI (eingebaut, ohne Server)</string>
+    <string name="white_sni_title">Weißer Servername</string>
+    <string name="white_sni_desc">Sichere Verbindungen zu Sendern zeigen dem Netz den Namen einer erlaubten Seite statt des Senders. Hilft, wo nur gelistete Seiten gehen oder ausländische Server gekappt werden. Das Zertifikat wird weiter geprüft; Sender, die das nicht annehmen, verbinden sich wie üblich.</string>
+    <string name="white_sni_domain">Erlaubte Seite</string>
+    <string name="white_sni_domain_desc">Eine große Seite, die in Ihrem Netz immer geht, zum Beispiel vk.com oder ya.ru.</string>
 </resources>
