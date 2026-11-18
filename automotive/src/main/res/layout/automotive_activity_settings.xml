@@ -142,64 +142,22 @@
                 android:alpha="0.5"
                 android:background="@color/or_color_text" />
 
-            <!-- White server name -->
-            <CheckBox
-                android:id="@+id/automotive_white_sni_check_view"
+            <!-- Network: proxy, ByeDPI, white server name (the shared Network dialog) -->
+            <Button
+                android:id="@+id/automotive_network_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:paddingHorizontal="20dp"
-                android:text="@string/white_sni_title"
+                android:text="@string/main_menu_network"
                 android:textSize="24sp" />
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="15dp"
-                android:alpha="0.75"
-                android:text="@string/white_sni_desc"
-                android:textSize="18sp" />
-
-            <LinearLayout
-                android:id="@+id/automotive_white_sni_fields"
+                android:id="@+id/automotive_network_state_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="30dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/white_sni_domain_desc"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/automotive_white_sni_domain_edit"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="vk.com"
-                        android:inputType="textUri"
-                        android:singleLine="true"
-                        android:textSize="24sp" />
-
-                    <Button
-                        android:id="@+id/automotive_white_sni_save_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="15dp"
-                        android:text="@string/proxy_save"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
+                android:paddingHorizontal="20dp"
+                android:textSize="18sp" />
 
             <View
                 android:layout_width="match_parent"

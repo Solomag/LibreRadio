@@ -36,6 +36,8 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.yuriy.openradio.automotive.R
 import com.yuriy.openradio.automotive.dependencies.DependencyRegistryAutomotive
 import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommon
@@ -43,6 +45,7 @@ import com.yuriy.openradio.shared.dependencies.DependencyRegistryCommonUi
 import com.yuriy.openradio.shared.dependencies.FileStoreManagerDependency
 import com.yuriy.openradio.shared.dependencies.MediaPresenterDependency
 import com.yuriy.openradio.shared.dependencies.SourcesLayerDependency
+import com.yuriy.openradio.shared.model.net.NetProxy
 import com.yuriy.openradio.shared.model.net.WhiteSni
 import com.yuriy.openradio.shared.model.source.Source
 import com.yuriy.openradio.shared.model.source.SourcesLayer
@@ -65,7 +68,9 @@ import com.yuriy.openradio.shared.utils.findTextView
 import com.yuriy.openradio.shared.utils.findToolbar
 import com.yuriy.openradio.shared.utils.gone
 import com.yuriy.openradio.shared.utils.visible
+import com.yuriy.openradio.shared.view.dialog.BaseDialogFragment
 import com.yuriy.openradio.shared.view.dialog.FileStorageDialog
+import com.yuriy.openradio.shared.view.dialog.NetworkDialog
 import com.yuriy.openradio.shared.view.dialog.StreamBufferingDialog
 import com.yuriy.openradio.shared.view.list.CountriesArrayAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -167,7 +172,7 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
             }
         }
 
-        setUpWhiteSni()
+        setUpNetwork()
 
         val array = LocationService.getCountries()
         val countryCode = mPresenter.getCountryCode()
@@ -308,24 +313,47 @@ class AutomotiveSettingsActivity : AppCompatActivity(), MediaPresenterDependency
     }
 
     /**
-     * The white server name in secure connections (see [WhiteSni]): the switch saves at once, the site on Save.
+     * Network: the shared dialog of the classic and TV UIs (mobile data, a proxy or the built-in ByeDPI, the white
+     * server name), and a line with what is on.
      */
-    private fun setUpWhiteSni() {
-        val check = findCheckBox(R.id.automotive_white_sni_check_view)
-        val fields = findLinearLayout(R.id.automotive_white_sni_fields)
-        val domain = findEditText(R.id.automotive_white_sni_domain_edit)
-        val save = findButton(R.id.automotive_white_sni_save_btn)
-        check.isChecked = WhiteSni.isOn()
-        domain.setText(WhiteSni.domain())
-        if (check.isChecked) fields.visible() else fields.gone()
-        check.setOnClickListener {
-            if (check.isChecked) fields.visible() else fields.gone()
-            WhiteSni.save(applicationContext, check.isChecked, domain.text.toString())
+    private fun setUpNetwork() {
+        val state = findTextView(R.id.automotive_network_state_view)
+        fun showState() {
+            val proxy = NetProxy.settings(applicationContext)
+            val lines = mutableListOf(
+                getString(com.yuriy.openradio.shared.R.string.proxy_title) + ": " + when {
+                    proxy.isOn && proxy.type == NetProxy.Type.BYEDPI ->
+                        getString(com.yuriy.openradio.shared.R.string.proxy_state_dpi)
+                    proxy.isOn -> getString(
+                        com.yuriy.openradio.shared.R.string.proxy_state_on,
+                        if (proxy.type == NetProxy.Type.SOCKS) "SOCKS5" else "HTTP", proxy.host, proxy.port
+                    )
+                    else -> getString(com.yuriy.openradio.shared.R.string.proxy_state_off)
+                }
+            )
+            if (WhiteSni.isOn()) {
+                lines.add(getString(com.yuriy.openradio.shared.R.string.white_sni_title) + ": " + WhiteSni.domain())
+            }
+            state.text = lines.joinToString("\n")
         }
-        save.setOnClickListener {
-            WhiteSni.save(applicationContext, check.isChecked, domain.text.toString())
-            domain.setText(WhiteSni.domain())
-            SafeToast.showAnyThread(applicationContext, getString(com.yuriy.openradio.shared.R.string.success))
+        showState()
+        // The dialog saves on its own: show the new state when it closes.
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
+                    if (f is NetworkDialog) {
+                        showState()
+                    }
+                }
+            },
+            false
+        )
+        findButton(R.id.automotive_network_btn).setOnClickListener {
+            if (supportFragmentManager.isStateSaved) {
+                return@setOnClickListener
+            }
+            BaseDialogFragment.newInstance(NetworkDialog::class.java.name)
+                .show(supportFragmentManager, NetworkDialog.DIALOG_TAG)
         }
     }
 

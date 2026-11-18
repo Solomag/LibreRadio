@@ -17,11 +17,14 @@
 package com.yuriy.openradio.shared.view.dialog
 
 import android.app.Dialog
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.KeyEvent
+import android.view.ViewGroup
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
@@ -88,7 +91,25 @@ class NetworkDialog : BaseDialogFragment(), ServiceCommanderDependency {
             sendNetChanged()
         }
         setUpProxy(view)
+        enlargeForCar(view)
         return createAlertDialog(view)
+    }
+
+    /**
+     * A car screen is read from further away: there the dialog's text is larger.
+     */
+    private fun enlargeForCar(view: View) {
+        if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
+            return
+        }
+        if (view is TextView) {
+            view.setTextSize(TypedValue.COMPLEX_UNIT_PX, view.textSize * CAR_FONT_SCALE)
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                enlargeForCar(view.getChildAt(i))
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -294,6 +315,7 @@ class NetworkDialog : BaseDialogFragment(), ServiceCommanderDependency {
          */
         val DIALOG_TAG = CLASS_NAME + "_DIALOG_TAG"
 
+        private const val CAR_FONT_SCALE = 1.4f
         private val GOOD = Color.rgb(0x2E, 0x9D, 0x4F)
         private val BAD = Color.rgb(0xD3, 0x2F, 0x2F)
     }
