@@ -113,7 +113,7 @@
     <string name="settings_buffer_reliable_desc">Звук примерно через 5 с, обрывов меньше. Для мобильной сети, дороги и плохой связи.</string>
     <string name="settings_buffer_custom">Свои значения</string>
     <string name="about_developer">Разработчик Libre Radio</string>
-    <string name="check_not_working">У вас не работает</string>
+    <string name="check_not_working">Не подключается: станция не в сети или заблокирована для вас</string>
     <string name="check_in_progress">Проверяю станции: осталось %d</string>
     <string name="check_hidden">Скрыто неработающих у вас: %d</string>
     <string name="check_all_hidden">Ни одна из %d станций здесь не работает в вашей сети с текущими настройками. В поиске они видны; проверку можно выключить в настройках.</string>
@@ -128,7 +128,7 @@
     <string name="search_by_genre">Жанр</string>
     <string name="search_by_country">Страна</string>
     <string name="search_genre_hint">Например: rock, jazz, news</string>
-    <string name="check_cut_off">Обрывается у вас</string>
+    <string name="check_cut_off">Обрывается в вашей сети: поможет прокси</string>
     <string name="check_cut_off_info">Обрываются: %d (сеть режет зарубежные серверы; поможет прокси: Настройки → Сеть)</string>
     <string name="catalog_cut_off_hint">Каталог начал загружаться и оборвался: ваша сеть режет связь с его сервером в Германии. Поможет прокси (Настройки → Сеть → Прокси) или VPN. Избранное и свои станции работают и без каталога.</string>
     <string name="check_cut_off_info_proxy">Обрываются: %d, даже через прокси</string>

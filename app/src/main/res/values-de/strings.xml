@@ -110,7 +110,7 @@
     <string name="settings_buffer_reliable_desc">Ton nach etwa 5 s, weniger Abbrüche. Für Mobilfunk, unterwegs und schlechte Verbindung.</string>
     <string name="settings_buffer_custom">Eigene Werte</string>
     <string name="about_developer">Entwickler von Libre Radio</string>
-    <string name="check_not_working">Spielt hier nicht</string>
+    <string name="check_not_working">Keine Verbindung: Sender offline oder für dich gesperrt</string>
     <string name="check_in_progress">Sender werden geprüft: noch %d</string>
     <string name="check_hidden">Ausgeblendet, da hier nicht spielbar: %d</string>
     <string name="check_all_hidden">Keiner der %d Sender hier spielt in deinem Netz mit den aktuellen Einstellungen. Die Suche zeigt sie trotzdem; die Prüfung lässt sich in den Einstellungen abschalten.</string>
@@ -125,7 +125,7 @@
     <string name="search_by_genre">Genre</string>
     <string name="search_by_country">Land</string>
     <string name="search_genre_hint">Zum Beispiel: rock, jazz, news</string>
-    <string name="check_cut_off">Bricht hier ab</string>
+    <string name="check_cut_off">Bricht in deinem Netz ab: ein Proxy hilft</string>
     <string name="check_cut_off_info">Brechen ab: %d (das Netz kappt ausländische Server; ein Proxy hilft: Einstellungen → Netz)</string>
     <string name="catalog_cut_off_hint">Der Katalog begann zu laden und brach ab: Ihr Netz kappt die Verbindung zu seinem Server in Deutschland. Ein Proxy (Einstellungen → Netz → Proxy) oder VPN hilft. Favoriten und eigene Sender gehen auch ohne.</string>
     <string name="check_cut_off_info_proxy">Brechen ab: %d, auch über den Proxy</string>

@@ -110,7 +110,7 @@
     <string name="settings_buffer_reliable_desc">Zvuk za oko 5 s, manje prekida. Za mobilnu mrežu, put i lošu vezu.</string>
     <string name="settings_buffer_custom">Svoje vrednosti</string>
     <string name="about_developer">Programer aplikacije Libre Radio</string>
-    <string name="check_not_working">Kod vas ne radi</string>
+    <string name="check_not_working">Ne povezuje se: stanica nije na mreži ili je blokirana za vas</string>
     <string name="check_in_progress">Proveravam stanice: preostalo %d</string>
     <string name="check_hidden">Sakriveno jer kod vas ne rade: %d</string>
     <string name="check_all_hidden">Nijedna od %d stanica ovde ne radi u vašoj mreži sa trenutnim podešavanjima. Pretraga ih i dalje prikazuje; provera se isključuje u podešavanjima.</string>
@@ -125,7 +125,7 @@
     <string name="search_by_genre">Žanr</string>
     <string name="search_by_country">Zemlja</string>
     <string name="search_genre_hint">Na primer: rock, jazz, news</string>
-    <string name="check_cut_off">Kod vas se prekida</string>
+    <string name="check_cut_off">Prekida se u vašoj mreži: pomaže proksi</string>
     <string name="check_cut_off_info">Prekidaju se: %d (mreža seče strane servere; pomaže proksi: Podešavanja → Mreža)</string>
     <string name="catalog_cut_off_hint">Katalog je počeo da se učitava i prekinuo se: vaša mreža seče vezu sa njegovim serverom u Nemačkoj. Pomaže proksi (Podešavanja → Mreža → Proksi) ili VPN. Omiljene i vaše stanice rade i bez kataloga.</string>
     <string name="check_cut_off_info_proxy">Prekidaju se: %d, čak i preko proksija</string>

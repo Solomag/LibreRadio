@@ -110,7 +110,7 @@
     <string name="settings_buffer_reliable_desc">Audio in circa 5 s, meno interruzioni. Per dati mobili, viaggi e connessione scarsa.</string>
     <string name="settings_buffer_custom">Valori personalizzati</string>
     <string name="about_developer">Sviluppatore di Libre Radio</string>
-    <string name="check_not_working">Qui non funziona</string>
+    <string name="check_not_working">Non si collega: stazione offline o bloccata per te</string>
     <string name="check_in_progress">Verifica stazioni: ne restano %d</string>
     <string name="check_hidden">Nascoste perché qui non funzionano: %d</string>
     <string name="check_all_hidden">Nessuna delle %d stazioni qui funziona sulla tua rete con le impostazioni attuali. La ricerca le mostra comunque; la verifica si disattiva nelle impostazioni.</string>
@@ -125,7 +125,7 @@
     <string name="search_by_genre">Genere</string>
     <string name="search_by_country">Paese</string>
     <string name="search_genre_hint">Ad esempio: rock, jazz, news</string>
-    <string name="check_cut_off">Qui si interrompe</string>
+    <string name="check_cut_off">Si interrompe nella tua rete: un proxy aiuta</string>
     <string name="check_cut_off_info">Si interrompono: %d (la rete taglia i server esteri; aiuta un proxy: Impostazioni → Rete)</string>
     <string name="catalog_cut_off_hint">Il catalogo ha iniziato a caricarsi e si è interrotto: la tua rete taglia la connessione al suo server in Germania. Aiuta un proxy (Impostazioni → Rete → Proxy) o una VPN. Preferiti e stazioni tue funzionano anche senza.</string>
     <string name="check_cut_off_info_proxy">Si interrompono: %d, anche tramite il proxy</string>

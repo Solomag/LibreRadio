@@ -609,7 +609,7 @@ private fun StationRow(
                 Text(
                     stringResource(if (cutOff) R.string.check_cut_off else R.string.check_not_working),
                     color = MaterialTheme.colorScheme.error,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }

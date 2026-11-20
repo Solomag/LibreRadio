@@ -130,7 +130,7 @@
     <string name="settings_buffer_reliable_desc">Sound in about 5 s, fewer cut-outs. For mobile data, travel and poor connection.</string>
     <string name="settings_buffer_custom">Custom values</string>
     <string name="about_developer">Libre Radio developer</string>
-    <string name="check_not_working">Does not play here</string>
+    <string name="check_not_working">Does not connect: the station is offline or blocked for you</string>
     <string name="check_in_progress">Checking stations: %d left</string>
     <string name="check_hidden">Hidden as not playing here: %d</string>
     <string name="check_all_hidden">None of the %d stations here plays on your network with the current settings. Search still shows them; the check can be turned off in Settings.</string>
@@ -145,7 +145,7 @@
     <string name="search_by_genre">Genre</string>
     <string name="search_by_country">Country</string>
     <string name="search_genre_hint">For example: rock, jazz, news</string>
-    <string name="check_cut_off">Breaks off here</string>
+    <string name="check_cut_off">Cuts out on your network: a proxy helps</string>
     <string name="check_cut_off_info">Break off: %d (the network cuts foreign servers; a proxy helps: Settings → Network)</string>
     <string name="catalog_cut_off_hint">The catalog started to load and broke off: your network cuts the connection to its server in Germany. A proxy (Settings → Network → Proxy) or a VPN helps. Favorites and your own stations work without it.</string>
     <string name="check_cut_off_info_proxy">Break off: %d, even through the proxy</string>

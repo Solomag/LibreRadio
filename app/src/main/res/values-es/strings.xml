@@ -110,7 +110,7 @@
     <string name="settings_buffer_reliable_desc">Sonido en ~5 s, menos cortes. Para datos móviles, viajes y mala conexión.</string>
     <string name="settings_buffer_custom">Valores propios</string>
     <string name="about_developer">Desarrollador de Libre Radio</string>
-    <string name="check_not_working">No suena aquí</string>
+    <string name="check_not_working">No conecta: la emisora está caída o bloqueada para ti</string>
     <string name="check_in_progress">Comprobando emisoras: quedan %d</string>
     <string name="check_hidden">Ocultas por no sonar aquí: %d</string>
     <string name="check_all_hidden">Ninguna de las %d emisoras de aquí suena en tu red con los ajustes actuales. La búsqueda las sigue mostrando; la comprobación se desactiva en Ajustes.</string>
@@ -125,7 +125,7 @@
     <string name="search_by_genre">Género</string>
     <string name="search_by_country">País</string>
     <string name="search_genre_hint">Por ejemplo: rock, jazz, news</string>
-    <string name="check_cut_off">Se corta aquí</string>
+    <string name="check_cut_off">Se corta en tu red: un proxy ayuda</string>
     <string name="check_cut_off_info">Se cortan: %d (la red corta servidores extranjeros; ayuda un proxy: Ajustes → Red)</string>
     <string name="catalog_cut_off_hint">El catálogo empezó a cargar y se cortó: tu red corta la conexión con su servidor en Alemania. Ayuda un proxy (Ajustes → Red → Proxy) o una VPN. Favoritos y tus emisoras funcionan sin él.</string>
     <string name="check_cut_off_info_proxy">Se cortan: %d, incluso con el proxy</string>

@@ -110,7 +110,7 @@
     <string name="settings_buffer_reliable_desc">Son en 5 s environ, moins de coupures. Pour les données mobiles, les trajets et une mauvaise connexion.</string>
     <string name="settings_buffer_custom">Valeurs personnalisées</string>
     <string name="about_developer">Développeur de Libre Radio</string>
-    <string name="check_not_working">Ne joue pas ici</string>
+    <string name="check_not_working">Pas de connexion : station hors ligne ou bloquée chez vous</string>
     <string name="check_in_progress">Vérification des stations : %d restantes</string>
     <string name="check_hidden">Masquées car injouables ici : %d</string>
     <string name="check_all_hidden">Aucune des %d stations ici ne joue sur votre réseau avec les réglages actuels. La recherche les montre quand même ; la vérification se désactive dans les réglages.</string>
@@ -125,7 +125,7 @@
     <string name="search_by_genre">Genre</string>
     <string name="search_by_country">Pays</string>
     <string name="search_genre_hint">Par exemple : rock, jazz, news</string>
-    <string name="check_cut_off">Se coupe ici</string>
+    <string name="check_cut_off">Se coupe sur votre réseau : un proxy aide</string>
     <string name="check_cut_off_info">Se coupent : %d (le réseau coupe les serveurs étrangers ; un proxy aide : Réglages → Réseau)</string>
     <string name="catalog_cut_off_hint">Le catalogue a commencé à charger puis s’est coupé : votre réseau coupe la connexion à son serveur en Allemagne. Un proxy (Réglages → Réseau → Proxy) ou un VPN aide. Les favoris et vos stations marchent sans.</string>
     <string name="check_cut_off_info_proxy">Se coupent : %d, même via le proxy</string>
