@@ -61,6 +61,7 @@ import com.yuriy.openradio.shared.utils.AnalyticsUtils
 import com.yuriy.openradio.shared.utils.AppLogger
 import com.yuriy.openradio.shared.utils.AppUtils
 import com.yuriy.openradio.shared.utils.PlayerUtils
+import com.yuriy.openradio.shared.utils.StreamTitle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -893,7 +894,7 @@ class OpenRadioPlayer(
                 AppLogger.d(msg)
                 when (entry) {
                     is IcyInfo -> {
-                        icyTitle = entry.title?.trim() ?: AppUtils.EMPTY_STRING
+                        icyTitle = StreamTitle.clean(entry.title ?: AppUtils.EMPTY_STRING)
                     }
 
                     is TextInformationFrame -> {
